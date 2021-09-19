@@ -81,7 +81,7 @@ app.message(/!(lounas|ruokaa)/, async ({say}) => {
 			type: "section",
 			text: {
 				type: "mrkdwn",
-				text: "_Ongelmia botin toiminnassa? Ping @Jani"
+				text: "_Ongelmia botin toiminnassa? Ping @Jani_"
 			}
 		}]
 	});
