@@ -50,13 +50,15 @@ const app = new App({
 
 app.message(/!(lounas|ruokaa)/, async ({say}) => {
 	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
+	const header = `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`;
+
 	say({
-		text: "Lounasbotin hakemat lounaslistat", // Fallback for notifications
+		text: header, // Fallback for notifications
 		blocks: [{
 			type: "header",
 			text: {
 				type: "plain_text",
-				text: `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`
+				text: header
 			}
 		}, ...data.map(lounasResponse => {
 			return {
@@ -73,7 +75,13 @@ app.message(/!(lounas|ruokaa)/, async ({say}) => {
 			text: {
 				type: "mrkdwn",
 				verbatim: true, // No automatic link parsing
-				text: `_Hei, olen Lounasbotti ja olen vielä beta-asteella... Auta minua kehittymään paremmaksi --> ${settings.gitUrl}_`
+				text: `_Morjens, olen Lounasbotti. Yritän parhaani, mutta olen vielä beta-versio... Auta minua kehittymään paremmaksi --> ${settings.gitUrl}_`
+			},
+		}, {
+			type: "section",
+			text: {
+				type: "mrkdwn",
+				text: "_Ongelmia botin toiminnassa? Ping @Jani"
 			}
 		}]
 	});
