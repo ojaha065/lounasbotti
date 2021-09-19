@@ -82,13 +82,14 @@ app.message(/!(lounas|ruokaa)/, async ({say}) => {
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
 app.start(botPort).then(() => {
-	console.log(`Lounasbotti server started on port ${botPort}`);
+	console.info(`Lounasbotti server started on port ${botPort}`);
 
 	// Keep Heroku free Dyno running
 	if (process.env["HEROKU_INSTANCE_URL"]) {
 		http.createServer((_req, res) => {
 			res.writeHead(204).end();
 		}).listen(webPort, () => {
+			console.info(`Web server started on port ${webPort}`);
 			setInterval(() => {
 				fetch(process.env["HEROKU_INSTANCE_URL"] || "", {
 					method: "GET"
