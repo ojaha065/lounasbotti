@@ -10,11 +10,10 @@
   },
   "scripts": {
     "start": "node dist/server.js",
-    "postinstall": "tsc",
     "refresh": "tsc && node dist/server.js",
     "dev": "nodemon -e ts --exec \"npm run refresh\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc --showconfig",
     "lint": "eslint ."
   },
   "keywords": [

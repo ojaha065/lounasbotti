@@ -3,8 +3,9 @@ dotenv.config();
 
 import http from "http";
 
+import fetch from "node-fetch";
 import bolt from "@slack/bolt";
-import { LounasDataProvider } from "model/LounasDataProvider.js";
+import { LounasDataProvider, LounasResponse } from "model/LounasDataProvider.js";
 
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
@@ -48,21 +49,21 @@ const app = new App({
 });
 
 app.message(/!(lounas|ruokaa)/, async ({say}) => {
-	const data = await dataProvider.getData(settings.defaultRestaurants);
+	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
 	say({
 		text: "Lounasbotin hakemat lounaslistat", // Fallback for notifications
 		blocks: [{
 			type: "header",
 			text: {
 				type: "plain_text",
-				text: "Lounaslistat"
+				text: `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`
 			}
-		}, ...data.map(x => {
+		}, ...data.map(lounasResponse => {
 			return {
 				type: "section",
 				text: {
 					type: "mrkdwn",
-					text: `*${RestaurantNameMap[x.restaurant]}*\n${((x.items || [x.error]).map(item => `  * ${item}`).join("\n"))}`
+					text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
 				}
 			};
 		}), {
@@ -71,21 +72,23 @@ app.message(/!(lounas|ruokaa)/, async ({say}) => {
 			type: "section",
 			text: {
 				type: "mrkdwn",
-				text: `_Olen vielä beta-asteella... <${settings.gitUrl}|Auta minua kehittymään paremmaksi>_`
+				verbatim: true, // No automatic link parsing
+				text: `_Hei, olen Lounasbotti ja olen vielä beta-asteella... Auta minua kehittymään paremmaksi --> ${settings.gitUrl}_`
 			}
 		}]
 	});
 });
 
-const port: number = (process.env["PORT"] || 8080) as unknown as number;
-app.start(3000).then(() => {
-	console.log(`Lounasbotti server started on port ${port}`);
+const botPort = 3000;
+const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
+app.start(botPort).then(() => {
+	console.log(`Lounasbotti server started on port ${botPort}`);
 
 	// Keep Heroku free Dyno running
 	if (process.env["HEROKU_INSTANCE_URL"]) {
 		http.createServer((_req, res) => {
 			res.writeHead(204).end();
-		}).listen(port, () => {
+		}).listen(webPort, () => {
 			setInterval(() => {
 				fetch(process.env["HEROKU_INSTANCE_URL"] || "", {
 					method: "GET"

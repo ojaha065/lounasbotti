@@ -25,6 +25,7 @@ interface LounasDataProvider {
 
 type LounasResponse = {
     restaurant: Restaurant,
+    date?: string
     items?: string[]
     error?: Error
 }

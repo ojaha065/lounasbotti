@@ -54,6 +54,10 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				} else {
 					result.push({
 						restaurant: restaurant,
+
+						// TODO: Check that date is correct
+						date: $lounasHTML.children("b").first().text().toLowerCase(),
+
 						items: this.parseLounasHTML($lounasHTML)
 					});
 				}
@@ -76,7 +80,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		}
 
 		return Utils.splitByBrTag(html)
-			.slice(1) // This row contains the date. TODO: Check that it's current
+			.slice(1)
 			.map(s => s.trim());
 	}
 }
