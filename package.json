@@ -13,7 +13,7 @@
     "refresh": "tsc && node dist/server.js",
     "dev": "nodemon -e ts --exec \"npm run refresh\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --showconfig",
+    "build": "tsc",
     "lint": "eslint ."
   },
   "keywords": [
