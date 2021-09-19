@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import http from "http";
+
 import bolt from "@slack/bolt";
 import { LounasDataProvider } from "model/LounasDataProvider.js";
 
@@ -75,7 +77,20 @@ app.message(/!(lounas|ruokaa)/, async ({say}) => {
 	});
 });
 
-const port: number = (process.env["PORT"] || 3000) as unknown as number;
-app.start(port || 3000).then(() => {
+const port: number = (process.env["PORT"] || 8080) as unknown as number;
+app.start(3000).then(() => {
 	console.log(`Lounasbotti server started on port ${port}`);
+
+	// Keep Heroku free Dyno running
+	if (process.env["HEROKU_INSTANCE_URL"]) {
+		http.createServer((_req, res) => {
+			res.writeHead(204).end();
+		}).listen(port, () => {
+			setInterval(() => {
+				fetch(process.env["HEROKU_INSTANCE_URL"] || "", {
+					method: "GET"
+				});
+			}, 1000 * 60 * 10);
+		});
+	}
 });
