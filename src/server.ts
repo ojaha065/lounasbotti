@@ -48,6 +48,10 @@ const app = new App({
 	appToken: process.env["SLACK_APP_TOKEN"] || ""
 });
 
+app.message("!ping", async ({say}) => {
+	say("Pong!");
+});
+
 app.message(/!(lounas|ruokaa)/, async ({say}) => {
 	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
 	const header = `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`;
