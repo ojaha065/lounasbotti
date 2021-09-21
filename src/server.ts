@@ -12,16 +12,15 @@ import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
 console.info("Lounasbotti server starting...");
 
+process.on("unhandledRejection", error => {
+	throw error;
+});
+
 if (!process.env["SLACK_SECRET"] || !process.env["SLACK_TOKEN"]) {
 	throw new Error("Missing required parameter(s)");
 }
 
 const { App } = bolt;
-
-process.on("unhandledRejection", error => {
-	// FIXME: Should we just throw?
-	console.error(error);
-});
 
 // TODO: Read settings from JSON file
 const settings: Settings = {

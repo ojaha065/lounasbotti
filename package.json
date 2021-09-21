@@ -5,7 +5,7 @@
   "private": true,
   "description": "",
   "main": "./dist/server.js",
-  "engines":{
+  "engines": {
     "node": ">=14.17.6"
   },
   "scripts": {
@@ -32,9 +32,9 @@
     "email": "haiko.jani@gmail.com"
   },
   "devDependencies": {
-    "@types/node": "^16.9.3",
-    "@typescript-eslint/eslint-plugin": "^4.31.1",
-    "@typescript-eslint/parser": "^4.31.1",
+    "@types/node": "^16.9.4",
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
+    "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
     "eslint-config-alloy": "^4.3.0",
     "eslint-import-resolver-typescript": "^2.5.0",
