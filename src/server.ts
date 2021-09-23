@@ -52,43 +52,41 @@ app.message("!ping", async ({say}) => {
 	say("Pong!");
 });
 
-app.message(/!(lounas|ruokaa)/, async ({say}) => {
+app.message(/!(lounas|ruokaa)/, async ({say, message}) => {
 	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
 	const header = `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`;
 
-	say({
-		text: header, // Fallback for notifications
-		blocks: [{
-			type: "header",
-			text: {
-				type: "plain_text",
-				text: header
-			}
-		}, ...data.map(lounasResponse => {
-			return {
-				type: "section",
+	if (!message.subtype) {
+		say({
+			text: header, // Fallback for notifications
+			blocks: [{
+				type: "header",
 				text: {
-					type: "mrkdwn",
-					text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+					type: "plain_text",
+					text: header
 				}
-			};
-		}), {
-			type: "divider"
-		}, {
-			type: "section",
-			text: {
-				type: "mrkdwn",
-				verbatim: true, // No automatic link parsing
-				text: `_Morjens, olen Lounasbotti. Yritän parhaani, mutta olen vielä beta-versio... Auta minua kehittymään paremmaksi --> ${settings.gitUrl}_`
-			},
-		}, {
-			type: "section",
-			text: {
-				type: "mrkdwn",
-				text: "_Ongelmia botin toiminnassa? Ping @Jani_"
-			}
-		}]
-	});
+			}, ...data.map(lounasResponse => {
+				return {
+					type: "section",
+					text: {
+						type: "mrkdwn",
+						text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+					}
+				};
+			}), {
+				type: "divider"
+			}, {
+				type: "context",
+				elements: [
+					{
+						type: "mrkdwn",
+						text: `Pyynnön lähetti <@${message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_`
+					},
+				]
+				
+			}]
+		});
+	}
 });
 
 // Home tab
