@@ -9,8 +9,9 @@ import { LounasDataProvider, LounasResponse } from "model/LounasDataProvider.js"
 
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
+import * as BotEvents from "./events.js";
 
-const VERSION = "1.0.3";
+const VERSION = "1.1.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -26,7 +27,7 @@ const { App } = bolt;
 // TODO: Read settings from JSON file
 const settings: Settings = {
 	dataProvider: "ruokapaikkaFi",
-	userAgent: "Mozilla/5.0 (compatible; Lounasbotti/1.0;)",
+	userAgent: `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
 	defaultRestaurants: [Restaurant.savo, Restaurant.talli, Restaurant.rami, Restaurant.august],
 	gitUrl: "https://github.com/ojaha065/lounasbotti"
 };
@@ -48,6 +49,8 @@ const app = new App({
 	appToken: process.env["SLACK_APP_TOKEN"] || ""
 });
 
+BotEvents.initEvents(app);
+
 app.message("!ping", async ({say}) => {
 	say("Pong!");
 });
@@ -59,32 +62,46 @@ app.message(/!(lounas|ruokaa)/, async ({say, message}) => {
 	if (!message.subtype) {
 		say({
 			text: header, // Fallback for notifications
-			blocks: [{
-				type: "header",
-				text: {
-					type: "plain_text",
-					text: header
-				}
-			}, ...data.map(lounasResponse => {
-				return {
-					type: "section",
+			blocks: [
+				{
+					type: "header",
 					text: {
-						type: "mrkdwn",
-						text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+						type: "plain_text",
+						text: header
 					}
-				};
-			}), {
-				type: "divider"
-			}, {
-				type: "context",
-				elements: [
-					{
-						type: "mrkdwn",
-						text: `Pyynnön lähetti <@${message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_`
-					},
-				]
+				}, ...data.map(lounasResponse => {
+					return {
+						type: "section",
+						text: {
+							type: "mrkdwn",
+							text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+						},
+						accessory: {
+							type: "button",
+							text: {
+								type: "plain_text",
+								text: ":thumbsup:",
+								emoji: true
+							},
+							value: `upvote-${lounasResponse.restaurant}`,
+							action_id: "upvoteButtonAction"
+						}
+					};
+				}),
+				{
+					type: "divider"
+				},
+				{
+					type: "context",
+					elements: [
+						{
+							type: "mrkdwn",
+							text: `Pyynnön lähetti <@${message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_`
+						},
+					]
 				
-			}]
+				}
+			]
 		});
 	}
 });
@@ -141,7 +158,8 @@ app.event("app_home_opened", async ({client, event}) => {
 								text: ":link: GitHub",
 								emoji: true
 							},
-							url: "https://github.com/ojaha065/lounasbotti"
+							url: "https://github.com/ojaha065/lounasbotti",
+							action_id: "githubButtonLinkAction"
 						}
 					}
 				]
