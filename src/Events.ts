@@ -1,8 +1,10 @@
-import bolt, { AllMiddlewareArgs, SlackEventMiddlewareArgs } from "@slack/bolt";
+import bolt, { AllMiddlewareArgs, ButtonAction, SlackEventMiddlewareArgs } from "@slack/bolt";
 import { ChatPostMessageResponse } from "@slack/web-api";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
+
+const voters: Record<string, Record<string, string[]>> = {};
 
 const initEvents = (app: bolt.App): void => {
 	app.action("githubButtonLinkAction", async ({ack}) => {
@@ -10,9 +12,66 @@ const initEvents = (app: bolt.App): void => {
 		ack();
 	});
 
-	app.action("upvoteButtonAction", async ({ack}) => {
+	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
 		console.debug("Upvote registered!");
-		ack();
+
+		try {
+			const message = args.body.message;
+			if (!message) {
+				throw new Error("Message not found from action body");
+			}
+	
+			const actionValue: string = (args.action as ButtonAction).value;
+			if (!actionValue) {
+				throw new Error("No actionValue!");
+			}
+	
+			if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
+				console.debug(`User ${args.body.user.id} has already voted`);
+				return;
+			}
+			
+			const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
+			if (!blocks || !blocks.length) {
+				throw new Error("No blocks found in message body");
+			}
+	
+			// There has to be an easier way
+			const sections: any[] = blocks.filter(b => b.type === "section");
+			const votedSectionIndex = sections.findIndex(s => s.accessory?.value === actionValue);
+	
+			if (votedSectionIndex < 0) {
+				throw new Error(`Block with value ${actionValue} not found`);
+			}
+	
+			const split: string[] | undefined = sections[votedSectionIndex].accessory.text?.text?.split(" ");
+			if (!split) {
+				throw new Error("Could not find text in button");
+			}
+	
+			const currentNumberOfUpvotes: number = split.length === 2 ? Number(split[1]) : 0;
+	
+			sections[votedSectionIndex].accessory.text.text = `:thumbsup: ${currentNumberOfUpvotes + 1}`;
+			await args.respond({
+				response_type: "in_channel",
+				replace_original: true,
+				blocks: blocks
+			});
+	
+			if (!voters[message.ts]) {
+				voters[message.ts] = {};
+			}
+	
+			if (voters[message.ts][args.body.user.id]) {
+				voters[message.ts][args.body.user.id].push(actionValue);
+			} else {
+				voters[message.ts][args.body.user.id] = [actionValue];
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			args.ack();
+		}
 	});
 };
 

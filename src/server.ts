@@ -55,6 +55,12 @@ app.message("!ping", async ({say}) => {
 	say("Pong!");
 });
 
+app.message("!whoami", async ({say, message}) => {
+	if (!message.subtype) {
+		say(message.user);
+	}
+});
+
 app.message(/!(lounas|ruokaa)/, async args => {
 	await BotEvents.handleLounas(args, dataProvider, settings);
 });
