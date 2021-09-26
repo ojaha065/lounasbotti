@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "",
   "main": "./dist/server.js",
@@ -32,14 +32,14 @@
     "email": "haiko.jani@gmail.com"
   },
   "devDependencies": {
-    "@types/node": "^16.9.6",
+    "@types/node": "^16.10.1",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
     "eslint-config-alloy": "^4.3.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.24.2",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.3"
   },
