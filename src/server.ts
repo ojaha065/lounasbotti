@@ -5,13 +5,14 @@ import http from "http";
 
 import fetch from "node-fetch";
 import bolt from "@slack/bolt";
-import { LounasDataProvider } from "model/LounasDataProvider.js";
+import { Job, scheduleJob } from "node-schedule";
 
+import { LounasDataProvider } from "model/LounasDataProvider.js";
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
-const VERSION = "1.1.0";
+const VERSION = "1.1.1";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -20,6 +21,15 @@ process.on("unhandledRejection", error => {
 
 if (!process.env["SLACK_SECRET"] || !process.env["SLACK_TOKEN"]) {
 	throw new Error("Missing required parameter(s)");
+}
+
+let restartJob: Job | undefined;
+if (process.env["HEROKU_INSTANCE_URL"]) {
+	// We'll restart at 3 AM every weekday night to reset the Heroku automatic restart timer that could get triggered at a bad time
+	restartJob = scheduleJob("30 0 3 * * 1-5", () => {
+		console.info("Process will now exit for the daily automatic restart");
+		process.exit();
+	});
 }
 
 const { App } = bolt;
@@ -67,7 +77,7 @@ app.message(/!(lounas|ruokaa)/, async args => {
 
 // Home tab
 app.event("app_home_opened", async args => {
-	await BotEvents.handleHomeTab(args, VERSION);
+	await BotEvents.handleHomeTab(args, VERSION, restartJob);
 });
 
 const botPort = 3000;
