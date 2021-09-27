@@ -1,5 +1,6 @@
 import bolt, { AllMiddlewareArgs, ButtonAction, SlackEventMiddlewareArgs } from "@slack/bolt";
 import { ChatPostMessageResponse } from "@slack/web-api";
+import { Job } from "node-schedule";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
@@ -128,7 +129,7 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 	});
 };
 
-const handleHomeTab = async (args: SlackEventMiddlewareArgs<"app_home_opened"> & AllMiddlewareArgs, version: string) => {
+const handleHomeTab = async (args: SlackEventMiddlewareArgs<"app_home_opened"> & AllMiddlewareArgs, version: string, restartJob: Job | undefined) => {
 	return args.client.views.publish({
 		user_id: args.event.user,
 		view: {
@@ -181,6 +182,16 @@ const handleHomeTab = async (args: SlackEventMiddlewareArgs<"app_home_opened"> &
 						url: "https://github.com/ojaha065/lounasbotti",
 						action_id: "githubButtonLinkAction"
 					}
+				},
+				{
+					type: "context",
+					elements: [
+						{
+							type: "plain_text",
+							text: restartJob ? `Debug information: Next scheduled restart is at ${restartJob.nextInvocation().toLocaleString("en-US")}` : "---"
+						}
+					]
+				
 				}
 			]
 		}
