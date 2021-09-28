@@ -12,7 +12,7 @@ import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
-const VERSION = "1.1.1";
+const VERSION = "1.1.2";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -72,7 +72,7 @@ app.message("!whoami", async ({say, message}) => {
 });
 
 app.message(/!(lounas|ruokaa)/, async args => {
-	await BotEvents.handleLounas(args, dataProvider, settings);
+	await BotEvents.handleLounas(args, dataProvider, settings, app);
 });
 
 // Home tab
