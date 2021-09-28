@@ -1,11 +1,13 @@
 import bolt, { AllMiddlewareArgs, ButtonAction, SlackEventMiddlewareArgs } from "@slack/bolt";
-import { ChatPostMessageResponse } from "@slack/web-api";
 import { Job } from "node-schedule";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
 
+const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 8; // 8 hrs
+
 const voters: Record<string, Record<string, string[]>> = {};
+const toBeTruncated: { channel: string, ts: string }[] = [];
 
 const initEvents = (app: bolt.App): void => {
 	app.action("githubButtonLinkAction", async ({ack}) => {
@@ -76,7 +78,8 @@ const initEvents = (app: bolt.App): void => {
 	});
 };
 
-const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvider: LounasDataProvider, settings: Settings): Promise<ChatPostMessageResponse | null> => {
+// eslint-disable-next-line max-params
+const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvider: LounasDataProvider, settings: Settings, appRef: bolt.App): Promise<null> => {
 	if (args.message.subtype) {
 		return Promise.resolve(null);
 	}
@@ -84,7 +87,7 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
 	const header = `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`;
 
-	return args.say({
+	const response = await args.say({
 		text: header, // Fallback for notifications
 		blocks: [
 			{
@@ -120,13 +123,28 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 				elements: [
 					{
 						type: "mrkdwn",
-						text: `Pyynnön lähetti <@${args.message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_`
+						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 8 tunnin kuluttua\nPyynnön lähetti <@${args.message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_\n`
 					},
 				]
 			
 			}
 		]
 	});
+
+	if (response.ok && response.ts) {
+		toBeTruncated.push({
+			channel: args.event.channel,
+			ts: response.ts
+		});
+
+		// Something to think about: Is the reference to app always usable after 8 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
+		setTimeout(truncateMessage.bind(null, appRef), AUTO_TRUNCATE_TIMEOUT);
+	} else {
+		console.warn("Response not okay!");
+		console.debug(response);
+	}
+
+	return Promise.resolve(null);
 };
 
 const handleHomeTab = async (args: SlackEventMiddlewareArgs<"app_home_opened"> & AllMiddlewareArgs, version: string, restartJob: Job | undefined) => {
@@ -199,3 +217,17 @@ const handleHomeTab = async (args: SlackEventMiddlewareArgs<"app_home_opened"> &
 };
 
 export { initEvents, handleLounas, handleHomeTab };
+
+function truncateMessage(app: bolt.App): void {
+	const message = toBeTruncated.shift();
+	if (!message) {
+		return console.warn("Nothing to truncate!");
+	}
+
+	app.client.chat.update({
+		channel: message.channel,
+		ts: message.ts,
+		blocks: [], // Remove all blocks
+		text: "_Viesti poistettiin_"
+	});
+}
