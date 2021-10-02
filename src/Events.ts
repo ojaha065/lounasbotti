@@ -85,7 +85,8 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 	}
 	
 	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
-	const header = `Lounaslistat${data.length && data[0].date ? ` (${data[0].date})` : ""}`;
+	const hasDate = data.filter(lounas => lounas.date);
+	const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
 
 	const response = await args.say({
 		text: header, // Fallback for notifications

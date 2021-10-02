@@ -13,7 +13,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		savo: "ravintolasavo.php",
 		talli: "ravintolatalli.php",
 		rami: "lounasravintola_rami.php",
-		august: "august.php"
+		august: "august.php",
+		holvi: "bistroholvi.php"
 	};
 
 	readonly settings: Settings;
@@ -52,14 +53,22 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						error: new Error(errorMessage)
 					});
 				} else {
-					result.push({
-						restaurant: restaurant,
-
-						// TODO: Check that date is correct
-						date: $lounasHTML.children("b").first().text().toLowerCase(),
-
-						items: this.parseLounasHTML($lounasHTML)
-					});
+					const today = Utils.getCurrentWeekdayNameInFinnish();
+					const date = $lounasHTML.children("b").first().text().toLowerCase();
+					if (date.includes(today)) {
+						result.push({
+							restaurant: restaurant,
+							date: date,
+							items: this.parseLounasHTML($lounasHTML)
+						});
+					} else {
+						const errorMessage = `Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${date}"`;
+						console.warn(errorMessage);
+						result.push({
+							restaurant: restaurant,
+							error: new Error(errorMessage)
+						});
+					}
 				}
 			} catch (error) {
 				console.error(error);
