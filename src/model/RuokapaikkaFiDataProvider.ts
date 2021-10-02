@@ -70,7 +70,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			}
 		}));
 
-		return result;
+		return result.sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 	}
 
 	parseLounasHTML($: cheerio.Cheerio<cheerio.Element>): string[] {
