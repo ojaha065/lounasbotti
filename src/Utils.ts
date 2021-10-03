@@ -9,4 +9,13 @@ const splitByBrTag = (input: string): string[] => {
 	return input.split(BR_EXP);
 };
 
-export { splitByBrTag };
+/**
+ * @returns {string}
+ */
+const getCurrentWeekdayNameInFinnish = () => {
+	return new Date().toLocaleDateString("fi-FI", {
+		weekday: "long"
+	}).toLowerCase();
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish };

@@ -9,14 +9,16 @@ enum Restaurant {
 	savo = "savo",
 	talli = "talli",
 	rami = "rami",
-	august = "august"
+	august = "august",
+	holvi = "holvi"
 }
 
 const RestaurantNameMap: Record<Restaurant, String> = {
 	savo: "Ravintola Savo",
 	talli: "Ravintola Talli",
 	rami: "Lounasravintola Rami",
-	august: "Ravintola August"
+	august: "Ravintola August",
+	holvi: "Bistro Holvi"
 
 };
 
