@@ -98,13 +98,16 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 					text: header
 				}
 			}, ...data.map(lounasResponse => {
-				return {
+				const result: (bolt.Block | bolt.KnownBlock) = {
 					type: "section",
 					text: {
 						type: "mrkdwn",
 						text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
 					},
-					accessory: {
+				};
+
+				if (lounasResponse.items) {
+					result.accessory = {
 						type: "button",
 						text: {
 							type: "plain_text",
@@ -113,8 +116,10 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 						},
 						value: `upvote-${lounasResponse.restaurant}`,
 						action_id: "upvoteButtonAction"
-					}
-				};
+					};
+				}
+
+				return result;
 			}),
 			{
 				type: "divider"
