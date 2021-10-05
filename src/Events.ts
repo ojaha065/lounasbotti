@@ -4,7 +4,7 @@ import { Job } from "node-schedule";
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
 
-const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 8; // 8 hrs
+const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 
 const voters: Record<string, Record<string, string[]>> = {};
 const toBeTruncated: { channel: string, ts: string }[] = [];
@@ -129,7 +129,7 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 				elements: [
 					{
 						type: "mrkdwn",
-						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 8 tunnin kuluttua\nPyynnön lähetti <@${args.message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_\n`
+						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\nPyynnön lähetti <@${args.message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_\n`
 					},
 				]
 			
