@@ -12,10 +12,19 @@ const splitByBrTag = (input: string): string[] => {
 /**
  * @returns {string}
  */
-const getCurrentWeekdayNameInFinnish = () => {
+const getCurrentWeekdayNameInFinnish = (): string => {
 	return new Date().toLocaleDateString("fi-FI", {
 		weekday: "long"
 	}).toLowerCase();
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish };
+/**
+ * Changes the first character of a string to uppercase
+ * @param string 
+ * @returns {string}
+ */
+const capitalizeString = (string: string): string => {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString};

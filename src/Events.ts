@@ -2,7 +2,7 @@ import bolt, { AllMiddlewareArgs, ButtonAction, SlackEventMiddlewareArgs } from 
 import { Job } from "node-schedule";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
-import { RestaurantNameMap, Settings } from "./model/Settings.js";
+import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 
@@ -16,8 +16,6 @@ const initEvents = (app: bolt.App): void => {
 	});
 
 	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
-		console.debug("Upvote registered!");
-
 		try {
 			const message = args.body.message;
 			if (!message) {
@@ -28,9 +26,17 @@ const initEvents = (app: bolt.App): void => {
 			if (!actionValue) {
 				throw new Error("No actionValue!");
 			}
+
+			console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 	
 			if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
-				console.debug(`User ${args.body.user.id} has already voted`);
+				console.debug(`User ${args.body.user.name} has already voted`);
+				args.respond({
+					response_type: "ephemeral",
+					replace_original: false,
+					delete_original: false,
+					text: `Hei, <@${args.body.user.id}>! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}. Voit äänestää kutakin vaihtoehtoa vain kerran.`
+				});
 				return;
 			}
 			
@@ -129,7 +135,7 @@ const handleLounas = async (args: SlackEventMiddlewareArgs<"message">, dataProvi
 				elements: [
 					{
 						type: "mrkdwn",
-						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\nPyynnön lähetti <@${args.message.user}>\n_Ongelmia botin toiminnassa? Ping @Jani_\n`
+						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n:robot_face: Pyynnön lähetti <@${args.message.user}>`
 					},
 				]
 			
