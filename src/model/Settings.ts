@@ -2,7 +2,8 @@ type Settings = {
 	dataProvider: "ruokapaikkaFi",
 	userAgent: string,
 	defaultRestaurants: Restaurant[],
-	gitUrl: string
+	gitUrl: string,
+	displayVoters: boolean
 }
 
 enum Restaurant {

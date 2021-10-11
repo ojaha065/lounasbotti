@@ -12,7 +12,7 @@ import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
-const VERSION = "1.1.5";
+const VERSION = "1.1.6";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -39,7 +39,8 @@ const settings: Settings = {
 	dataProvider: "ruokapaikkaFi",
 	userAgent: `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
 	defaultRestaurants: [Restaurant.savo, Restaurant.talli, Restaurant.rami, Restaurant.august],
-	gitUrl: "https://github.com/ojaha065/lounasbotti"
+	gitUrl: "https://github.com/ojaha065/lounasbotti",
+	displayVoters: true
 };
 
 let dataProvider: LounasDataProvider;
@@ -59,7 +60,7 @@ const app = new App({
 	appToken: process.env["SLACK_APP_TOKEN"] || ""
 });
 
-BotEvents.initEvents(app);
+BotEvents.initEvents(app, settings);
 
 app.message("!ping", async ({say}) => {
 	say("Pong!");
