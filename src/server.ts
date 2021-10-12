@@ -12,16 +12,18 @@ import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
-const VERSION = "1.1.6";
+const VERSION = "1.1.7";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
-	throw error;
+	console.error(error);
 });
 
-if (!process.env["SLACK_SECRET"] || !process.env["SLACK_TOKEN"]) {
+if (!process.env["SLACK_SECRET"] || !process.env["SLACK_TOKEN"] || (process.env["SLACK_SOCKET"] && !process.env["SLACK_APP_TOKEN"])) {
 	throw new Error("Missing required parameter(s)");
 }
+
+const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean || false;
 
 let restartJob: Job | undefined;
 if (process.env["HEROKU_INSTANCE_URL"]) {
@@ -53,12 +55,16 @@ switch (settings.dataProvider) {
 		throw new Error(`Unknown data provider ${settings.dataProvider}`);
 }
 
-const app = new App({
+const appOptions: bolt.AppOptions = {
 	signingSecret: process.env["SLACK_SECRET"],
-	token: process.env["SLACK_TOKEN"],
-	socketMode: process.env["SLACK_SOCKET"] as unknown as boolean || false,
-	appToken: process.env["SLACK_APP_TOKEN"] || ""
-});
+	token: process.env["SLACK_TOKEN"]
+};
+if (socketMode) {
+	appOptions.appToken = process.env["SLACK_APP_TOKEN"] || "";
+	appOptions.socketMode = true;
+}
+
+const app = new App(appOptions);
 
 BotEvents.initEvents(app, settings);
 
@@ -83,20 +89,24 @@ app.event("app_home_opened", async args => {
 
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
-app.start(botPort).then(() => {
-	console.info(`Lounasbotti server started on port ${botPort}`);
+const portToUse = socketMode ? botPort : webPort;
+app.start(portToUse).then(() => {
+	console.info(`Lounasbotti server started on port ${portToUse} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
 
 	// Keep Heroku free Dyno running
 	if (process.env["HEROKU_INSTANCE_URL"]) {
-		http.createServer((_req, res) => {
-			res.writeHead(204).end();
-		}).listen(webPort, () => {
-			console.info(`Web server started on port ${webPort}`);
-			setInterval(() => {
-				fetch(process.env["HEROKU_INSTANCE_URL"] || "", {
-					method: "GET"
-				});
-			}, 1000 * 60 * 10);
-		});
+		if (socketMode) {
+			http.createServer((_req, res) => {
+				res.writeHead(204).end();
+			}).listen(webPort, () => {
+				console.info(`Web server started on port ${webPort}`);
+			});
+		}
+
+		setInterval(() => {
+			fetch(process.env["HEROKU_INSTANCE_URL"] || "", {
+				method: "GET"
+			});
+		}, 1000 * 60 * 10);
 	}
 });

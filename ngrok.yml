@@ -1,0 +1,9 @@
+region: eu
+console_ui: true
+tunnels:
+  lounasbotti-dev:
+    proto: http
+    addr: 8080
+    inspect: true
+    bind_tls: true
+    hostname: lounasbotti-dev.eu.ngrok.io
