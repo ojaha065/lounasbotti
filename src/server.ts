@@ -12,16 +12,23 @@ import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
-const VERSION = "1.1.7";
+import * as LounasRepository from "./model/LounasRepository.js";
+
+const VERSION = "1.2.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
 	console.error(error);
 });
 
-if (!process.env["SLACK_SECRET"] || !process.env["SLACK_TOKEN"] || (process.env["SLACK_SOCKET"] && !process.env["SLACK_APP_TOKEN"])) {
-	throw new Error("Missing required parameter(s)");
+if (!process.env["SLACK_SECRET"]
+	|| !process.env["SLACK_TOKEN"]
+	|| (process.env["SLACK_SOCKET"] && !process.env["SLACK_APP_TOKEN"])
+	|| !process.env["SLACK_MONGO_URL"]) {
+	throw new Error("Missing required environment variable(s)");
 }
+
+LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
 
 const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean || false;
 

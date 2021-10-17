@@ -4,6 +4,8 @@ import { Job } from "node-schedule";
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
+import * as LounasRepository from "./model/LounasRepository.js";
+
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 
 const voters: Record<string, Record<string, string[]>> = {};
@@ -28,55 +30,46 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			}
 
 			console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
-	
-			if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
-				console.debug(`User ${args.body.user.name} has already voted`);
-				args.respond({
-					response_type: "ephemeral",
-					replace_original: false,
-					delete_original: false,
-					text: `Hei, <@${args.body.user.id}>! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}. Voit äänestää kutakin vaihtoehtoa vain kerran.`
-				});
-				return;
+
+			let lounasMessage: LounasMessageEntry | undefined;
+			try {
+				lounasMessage = await LounasRepository.findByTs(message.ts);
+			} catch (error) {
+				console.error(error);
 			}
-			
+
 			const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
 			if (!blocks || !blocks.length) {
 				throw new Error("No blocks found in message body");
 			}
-	
-			const sections: any[] = blocks.filter(b => b.type === "section");
-			const votedSectionIndex = sections.findIndex(s => s.accessory?.value === actionValue);
-	
-			if (votedSectionIndex < 0) {
-				throw new Error(`Block with value ${actionValue} not found`);
-			}
-	
-			const split: string[] | undefined = sections[votedSectionIndex].accessory.text?.text?.split(" ");
-			if (!split) {
-				throw new Error("Could not find text in button");
-			}
-	
-			const currentNumberOfUpvotes: number = split.length === 2 ? Number(split[1]) : 0;
-	
-			sections[votedSectionIndex].accessory.text.text = `:thumbsup: ${currentNumberOfUpvotes + 1}`;
 
-			if (settings.displayVoters) {
-				const currentText: string | undefined = sections[votedSectionIndex].text?.text;
-				if (currentText) {
-					const split = currentText.split("\n");
-
-					if (split[1].includes("<@")) {
-						split[1] += ` <@${args.body.user.id}>`;
-					} else {
-						split.splice(1, 0, `<@${args.body.user.id}>`);
-					}
-	
-					sections[votedSectionIndex].text.text = split.join("\n");
-				} else {
-					console.error("Section without text?");
+			if (lounasMessage) {
+				if (lounasMessage.votes.find(vote => vote.userId === args.body.user.id && vote.action === actionValue)) {
+					return handleAlreadyVoted(args, actionValue);
+				}
+			} else {
+				if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
+					return handleAlreadyVoted(args, actionValue);
 				}
 			}
+
+			if (lounasMessage) {
+				try {
+					lounasMessage = await LounasRepository.addVote(message.ts, args.body.user.id, actionValue);
+					updateVoting(lounasMessage, blocks, settings.displayVoters);
+				} catch (error) {
+					console.error(error);
+					updateVotingLegacy(blocks, actionValue, settings.displayVoters, args);
+				}
+			} else {
+				updateVotingLegacy(blocks, actionValue, settings.displayVoters, args);
+			}
+
+			args.respond({
+				response_type: "in_channel",
+				replace_original: true,
+				blocks: blocks
+			});
 
 			if (!voters[message.ts]) {
 				voters[message.ts] = {};
@@ -87,12 +80,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			} else {
 				voters[message.ts][args.body.user.id] = [actionValue];
 			}
-
-			await args.respond({
-				response_type: "in_channel",
-				replace_original: true,
-				blocks: blocks
-			});
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -165,6 +152,10 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 	});
 
 	if (response.ok && response.ts) {
+		LounasRepository.create(response.ts).catch(error => {
+			console.error(error);
+		});
+
 		toBeTruncated.push({
 			channel: args.event.channel,
 			ts: response.ts
@@ -263,4 +254,94 @@ function truncateMessage(app: bolt.App): void {
 		blocks: [], // Remove all blocks
 		text: "_Viesti poistettiin_"
 	});
+}
+
+function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs, actionValue: string) {
+	console.debug(`User ${args.body.user.name} has already voted`);
+	args.respond({
+		response_type: "ephemeral",
+		replace_original: false,
+		delete_original: false,
+		text: `Hei, <@${args.body.user.id}>! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}. Voit äänestää kutakin vaihtoehtoa vain kerran.`
+	});
+	return;
+}
+
+// eslint-disable-next-line max-params
+function updateVoting(lounasMessage: LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
+	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
+
+	blocks.forEach(block => {
+		if (block.type === "section" && (block as bolt.SectionBlock).accessory?.type === "button") {
+			const section: bolt.SectionBlock = block as bolt.SectionBlock;
+			const sectionVoteAction: string | undefined = (section.accessory as bolt.Button).value;
+
+			const upvotes: number = allVotes.filter(vote => vote === sectionVoteAction).length;
+
+			(section.accessory as bolt.Button).text.text = `:thumbsup: ${upvotes || ""}`;
+
+			if (displayVoters) {
+				const currentText: string | undefined = section.text?.text;
+				if (currentText) {
+					const voters: string | undefined = lounasMessage?.votes
+						.filter(vote => vote.action === sectionVoteAction)
+						.map(vote => vote.userId)
+						.map(id => `<@${id}>`)
+						.join(" ");
+
+					const split = currentText.split("\n");
+					if (split[1].includes("<@")) {
+						split[1] = voters || "";
+					} else if (voters) {
+						split.splice(1, 0, voters);
+					}
+
+					if (section.text) {
+						section.text.text = split.join("\n");
+					}
+				} else {
+					console.error("Section without text?");
+				}
+			}
+		}
+	});
+}
+
+/**
+ * @deprecated
+ */
+// eslint-disable-next-line max-params
+function updateVotingLegacy(blocks: (bolt.Block | bolt.KnownBlock)[], actionValue: string, displayVoters: boolean, args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs) {
+	const sections: any[] = blocks.filter(b => b.type === "section");
+	const votedSectionIndex = sections.findIndex(s => s.accessory?.value === actionValue);
+
+	if (votedSectionIndex < 0) {
+		throw new Error(`Block with value ${actionValue} not found`);
+	}
+
+	const split: string[] | undefined = sections[votedSectionIndex].accessory.text?.text?.split(" ");
+	if (!split) {
+		throw new Error("Could not find text in button");
+	}
+
+	const currentNumberOfUpvotes: number = split.length === 2 ? Number(split[1]) : 0;
+
+	sections[votedSectionIndex].accessory.text.text = `:thumbsup: ${currentNumberOfUpvotes + 1}`;
+
+	if (displayVoters) {
+		const currentText: string | undefined = sections[votedSectionIndex].text?.text;
+		if (currentText) {
+			const split = currentText.split("\n");
+
+			if (split[1].includes("<@")) {
+				split[1] += ` <@${args.body.user.id}>`;
+			} else {
+				split.splice(1, 0, `<@${args.body.user.id}>`);
+			}
+
+			sections[votedSectionIndex].text.text = split.join("\n");
+		} else {
+			console.error("Section without text?");
+		}
+	}
 }
