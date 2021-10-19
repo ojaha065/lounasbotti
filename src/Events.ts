@@ -29,11 +29,15 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				throw new Error("No actionValue!");
 			}
 
+			if (!args.body.channel) {
+				throw new Error("Event is not from channel!");
+			}
+
 			console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 
-			let lounasMessage: LounasMessageEntry | undefined;
+			let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
 			try {
-				lounasMessage = await LounasRepository.findByTs(message.ts);
+				lounasMessage = await LounasRepository.find(message.ts, args.body.channel.id);
 			} catch (error) {
 				console.error(error);
 			}
@@ -152,7 +156,15 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 	});
 
 	if (response.ok && response.ts) {
-		LounasRepository.create(response.ts).catch(error => {
+		LounasRepository.create({
+			ts: response.ts,
+			channel: response.channel || args.event.channel,
+			menu: data.map(lounasResponse => {
+				return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
+			}),
+			date: new Date(),
+			votes: []
+		}).catch(error => {
 			console.error(error);
 		});
 
@@ -268,7 +280,7 @@ function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockActio
 }
 
 // eslint-disable-next-line max-params
-function updateVoting(lounasMessage: LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
+function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
 	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
 
 	blocks.forEach(block => {
