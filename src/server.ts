@@ -9,12 +9,14 @@ import { Job, scheduleJob } from "node-schedule";
 
 import { LounasDataProvider } from "model/LounasDataProvider.js";
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
+import MockDataProvider from "./model/MockDataProvider.js";
+
 import { Restaurant, Settings } from "./model/Settings.js";
 import * as BotEvents from "./Events.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.1";
+const VERSION = "1.2.2";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -27,8 +29,6 @@ if (!process.env["SLACK_SECRET"]
 	|| !process.env["SLACK_MONGO_URL"]) {
 	throw new Error("Missing required environment variable(s)");
 }
-
-LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
 
 const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean || false;
 
@@ -52,11 +52,18 @@ const settings: Settings = {
 	displayVoters: true
 };
 
+if (!settings.debug?.noDb) {
+	LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
+}
+
 let dataProvider: LounasDataProvider;
 
 switch (settings.dataProvider) {
 	case "ruokapaikkaFi":
 		dataProvider = new RuokapaikkaFiDataProvider(settings);
+		break;
+	case "mock":
+		dataProvider = new MockDataProvider(settings);
 		break;
 	default:
 		throw new Error(`Unknown data provider ${settings.dataProvider}`);

@@ -1,9 +1,12 @@
 type Settings = {
-	dataProvider: "ruokapaikkaFi",
+	dataProvider: "ruokapaikkaFi" | "mock",
 	userAgent: string,
 	defaultRestaurants: Restaurant[],
 	gitUrl: string,
-	displayVoters: boolean
+	displayVoters: boolean,
+	debug?: {
+		noDb: boolean
+	}
 }
 
 enum Restaurant {
