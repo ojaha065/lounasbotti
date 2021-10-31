@@ -37,6 +37,10 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 			let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
 			try {
+				if (settings.debug?.noDb) {
+					throw new Error("Database connection is disabled by debug config");
+				}
+
 				lounasMessage = await LounasRepository.find(message.ts, args.body.channel.id);
 			} catch (error) {
 				console.error(error);
@@ -108,7 +112,7 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 			type: "section",
 			text: {
 				type: "mrkdwn",
-				text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+				text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}`
 			},
 		};
 
@@ -156,17 +160,19 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 	});
 
 	if (response.ok && response.ts) {
-		LounasRepository.create({
-			ts: response.ts,
-			channel: response.channel || args.event.channel,
-			menu: data.map(lounasResponse => {
-				return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
-			}),
-			date: new Date(),
-			votes: []
-		}).catch(error => {
-			console.error(error);
-		});
+		if (!settings.debug?.noDb) {
+			LounasRepository.create({
+				ts: response.ts,
+				channel: response.channel || args.event.channel,
+				menu: data.map(lounasResponse => {
+					return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
+				}),
+				date: new Date(),
+				votes: []
+			}).catch(error => {
+				console.error(error);
+			});
+		}
 
 		toBeTruncated.push({
 			channel: args.event.channel,
@@ -317,6 +323,18 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 			}
 		}
 	});
+}
+
+function getEmojiForLounasItem(lounasItem = "", settings: Settings): string {
+	if (settings.emojiRules) {
+		for (const [key, value] of settings.emojiRules) {
+			if (key.test(lounasItem)) {
+				return value;
+			}
+		}
+	}
+
+	return "*";
 }
 
 /**

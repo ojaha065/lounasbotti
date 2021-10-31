@@ -20,7 +20,7 @@ interface LounasDataProvider {
      * Handles any quirks that this data source might have
      * @returns {string} String ready to be used
      */
-    parseLounasHTML: ($: cheerio.Cheerio<cheerio.Element>) => string[];
+    parseLounasHTML?: ($: cheerio.Cheerio<cheerio.Element>) => string[];
 }
 
 type LounasResponse = {
