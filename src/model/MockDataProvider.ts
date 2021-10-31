@@ -18,7 +18,14 @@ class MockDataProvider implements LounasDataProvider {
 	private mockItems: string[] = [
 		"Päärynä-puolukkavihersalaattia (M,G)",
 		"Savoijkaali-porkkanasalaattia (M,G) *luomuhunaja",
-		"Pekoni-perunasalaattia (M,G)"
+		"Kanaa carrykastikkeessa",
+		"Jotakin aivan muuta ja kanaa",
+		"Rapeaa crispykanaa ja  tuoretomaattisalsaa",
+		"Pekoni-perunasalaattia (M,G)",
+		"Kahden kalan keittoa",
+		"Lohta bearnaisekastikkeella",
+		"Broilerin paistikkeita",
+		"Seitipyörykät"
 	];
 
 	public constructor(settings: Settings) {

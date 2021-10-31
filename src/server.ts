@@ -16,7 +16,7 @@ import * as BotEvents from "./Events.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.2";
+const VERSION = "1.2.3";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -49,7 +49,11 @@ const settings: Settings = {
 	userAgent: `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
 	defaultRestaurants: [Restaurant.savo, Restaurant.talli, Restaurant.rami, Restaurant.august],
 	gitUrl: "https://github.com/ojaha065/lounasbotti",
-	displayVoters: true
+	displayVoters: true,
+	emojiRules: new Map([
+		[/((?<!pork)kana)|(broileri)/i, ":chicken:"],
+		[/(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)/i, ":fish:"]
+	])
 };
 
 if (!settings.debug?.noDb) {

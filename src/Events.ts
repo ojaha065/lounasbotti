@@ -112,7 +112,7 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 			type: "section",
 			text: {
 				type: "mrkdwn",
-				text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse .items || [lounasResponse .error]).map(item => `  * ${item}`).join("\n"))}`
+				text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}`
 			},
 		};
 
@@ -323,6 +323,18 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 			}
 		}
 	});
+}
+
+function getEmojiForLounasItem(lounasItem = "", settings: Settings): string {
+	if (settings.emojiRules) {
+		for (const [key, value] of settings.emojiRules) {
+			if (key.test(lounasItem)) {
+				return value;
+			}
+		}
+	}
+
+	return "*";
 }
 
 /**
