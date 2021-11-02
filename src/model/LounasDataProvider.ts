@@ -23,11 +23,21 @@ interface LounasDataProvider {
     parseLounasHTML?: ($: cheerio.Cheerio<cheerio.Element>) => string[];
 }
 
-type LounasResponse = {
+interface LounasResponseBasic {
     restaurant: Restaurant,
     date?: string
-    items?: string[]
-    error?: Error
 }
+
+interface LounasResponseSuccess extends LounasResponseBasic {
+    items: string[]
+    error?: never
+}
+
+interface LounasResponseFailure extends LounasResponseBasic {
+    items?: never
+    error: Error
+}
+
+type LounasResponse = LounasResponseSuccess | LounasResponseFailure;
 
 export { LounasDataProvider, LounasResponse };
