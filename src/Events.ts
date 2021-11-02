@@ -334,7 +334,7 @@ function getEmojiForLounasItem(lounasItem = "", settings: Settings): string {
 		}
 	}
 
-	return "*";
+	return ":grey_question:";
 }
 
 /**
