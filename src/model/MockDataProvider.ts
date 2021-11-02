@@ -20,12 +20,20 @@ class MockDataProvider implements LounasDataProvider {
 		"Savoijkaali-porkkanasalaattia (M,G) *luomuhunaja",
 		"Kanaa carrykastikkeessa",
 		"Jotakin aivan muuta ja kanaa",
-		"Rapeaa crispykanaa ja  tuoretomaattisalsaa",
+		"Kananmunia lisukkeeksi (sis. kananmuna)",
+		"Rapeaa crispykanaa, tuoretomaattisalsaa ja kasviksia",
+		"Välimerellistä kasvispaistosta (M,G)",
 		"Pekoni-perunasalaattia (M,G)",
 		"Kahden kalan keittoa",
 		"Lohta bearnaisekastikkeella",
 		"Broilerin paistikkeita",
-		"Seitipyörykät"
+		"Seitipyörykät",
+		"Voilla terästettyä perunamuusia",
+		"Isoäidin jauhelihapullat riisipedillä",
+		"Lihaa riisipedillä",
+		"Riistakäristystä",
+		"Pannupizzaa",
+		"Perunasalaattia ja kurpitsaa"
 	];
 
 	public constructor(settings: Settings) {
