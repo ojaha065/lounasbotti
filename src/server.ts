@@ -16,7 +16,7 @@ import * as BotEvents from "./Events.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.4";
+const VERSION = "1.2.5";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -55,10 +55,13 @@ const settings: Settings = {
 		[/((?<!pork)kana(?!nmun))|(broileri)/i, ":chicken:"],
 		[/(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)/i, ":fish:"],
 		[/liha(?:pul|pyöry)/i, ":falafel:"],
+		[/pannukak/i, ":pancakes:"],
 		[/riisi/i, ":rice:"],
+		[/porkkan/i, ":carrot:"],
 		[/kasvi(?:s|k)/i, ":tomato:"],
 		[/salaat{1,2}i/i, ":green_salad:"],
 		[/peru(?:na|no)/i, ":potato:"],
+		[/keitto/i, ":bowl_with_spoon:"]
 	])
 };
 
