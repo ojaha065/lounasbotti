@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import http from "http";
+import { AddressInfo } from "net";
 
 import fetch from "node-fetch";
 import bolt from "@slack/bolt";
@@ -117,8 +118,12 @@ app.event("app_home_opened", async args => {
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
 const portToUse = socketMode ? botPort : webPort;
-app.start(portToUse).then(() => {
-	console.info(`Lounasbotti server started on port ${portToUse} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
+app.start({
+	port: portToUse,
+	host: "0.0.0.0"
+}).then(server => {
+	const address = server.address() as AddressInfo;
+	console.info(`Lounasbotti server started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
 
 	// Keep Heroku free Dyno running
 	if (process.env["HEROKU_INSTANCE_URL"]) {
