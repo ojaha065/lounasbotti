@@ -6,7 +6,7 @@ import { AddressInfo } from "net";
 
 import fetch from "node-fetch";
 import bolt from "@slack/bolt";
-import { Job, scheduleJob } from "node-schedule";
+import { Job, Range, scheduleJob } from "node-schedule";
 
 import { LounasDataProvider } from "model/LounasDataProvider.js";
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
@@ -40,7 +40,7 @@ if (process.env["HEROKU_INSTANCE_URL"]) {
 		second: 30,
 		minute: 0,
 		hour: 3,
-		dayOfWeek: "1-5",
+		dayOfWeek: new Range(1, 5),
 		tz: "Europe/Helsinki"
 	}, () => {
 		console.info("Process will now exit for the daily automatic restart");
