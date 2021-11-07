@@ -17,7 +17,7 @@ import * as BotEvents from "./Events.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.5";
+const VERSION = "1.2.7";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -62,11 +62,12 @@ const settings: Settings = {
 		[/((?<!pork)kana(?!nmun))|(broileri)/i, ":chicken:"],
 		[/(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)/i, ":fish:"],
 		[/liha(?:pul|pyöry)/i, ":falafel:"],
-		[/pannukak/i, ":pancakes:"],
+		[/(?:po(?:rsa|ss))|(?:si(?:an|ka))/i, ":pig2:"],
+		[/pannukak|ohukai/i, ":pancakes:"],
 		[/riisi/i, ":rice:"],
 		[/porkkan/i, ":carrot:"],
-		[/kasvi(?:s|k)/i, ":tomato:"],
-		[/salaat{1,2}i/i, ":green_salad:"],
+		[/(?:kasvi(?:s|k))|(?:juurek)/i, ":tomato:"],
+		[/salaat{1,2}(?:i|eja)/i, ":green_salad:"],
 		[/peru(?:na|no)/i, ":potato:"],
 		[/keitto/i, ":bowl_with_spoon:"]
 	])
@@ -100,8 +101,6 @@ if (socketMode) {
 
 const app = new App(appOptions);
 
-BotEvents.initEvents(app, settings);
-
 app.message("!ping", async ({say}) => {
 	say("Pong!");
 });
@@ -112,14 +111,7 @@ app.message("!whoami", async ({say, message}) => {
 	}
 });
 
-app.message(/!(lounas|ruokaa)/, async args => {
-	await BotEvents.handleLounas(args, dataProvider, settings, app);
-});
-
-// Home tab
-app.event("app_home_opened", async args => {
-	await BotEvents.handleHomeTab(args, VERSION, restartJob);
-});
+BotEvents.initEvents(app, settings, dataProvider, restartJob, VERSION);
 
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
