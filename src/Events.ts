@@ -1,5 +1,7 @@
 import bolt from "@slack/bolt";
-import { Job } from "node-schedule";
+import { Job, scheduleJob, Range } from "node-schedule";
+
+import * as Utils from "./Utils.js";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
@@ -11,7 +13,28 @@ const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const voters: Record<string, Record<string, string[]>> = {};
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
-const initEvents = (app: bolt.App, settings: Settings): void => {
+let prefetchJob: Job;
+const lounasCache: Record<string, { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
+
+// eslint-disable-next-line max-params
+const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, restartJob: Job | undefined, version: string): void => {
+	prefetchJob = scheduleJob({
+		second: 30,
+		minute: 30,
+		hour: 10,
+		dayOfWeek: new Range(1, 5),
+		tz: "Europe/Helsinki",
+
+	}, () => {
+		console.debug("Prefetching data...");
+		getDataAndCache(dataProvider, settings);
+	});
+
+	app.message("!clearCache", async ({say}) => {
+		Utils.clearObject(lounasCache);
+		say("OK! Cache cleared");
+	});
+
 	app.action("githubButtonLinkAction", async ({ack}) => {
 		console.debug("GitHub link opened!");
 		ack();
@@ -94,58 +117,14 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			args.ack();
 		}
 	});
-};
 
-// eslint-disable-next-line max-params
-const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, dataProvider: LounasDataProvider, settings: Settings, appRef: bolt.App): Promise<null> => {
-	if (args.message.subtype) {
-		return Promise.resolve(null);
-	}
-	
-	const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
-	const hasDate = data.filter(lounas => lounas.date);
-	const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
-
-	const lounasBlocks: (bolt.Block | bolt.KnownBlock)[] = [];
-	data.forEach(lounasResponse => {
-		const lounasBlock: (bolt.Block | bolt.KnownBlock) = {
-			type: "section",
-			text: {
-				type: "mrkdwn",
-				text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}`
-			},
-		};
-
-		if (lounasResponse.items) {
-			lounasBlock.accessory = {
-				type: "button",
-				text: {
-					type: "plain_text",
-					text: ":thumbsup:",
-					emoji: true
-				},
-				value: `upvote-${lounasResponse.restaurant}`,
-				action_id: "upvoteButtonAction"
-			};
+	app.message(/!(lounas|ruokaa)/, async args => {
+		if (args.message.subtype) {
+			return Promise.resolve();
 		}
-
-		lounasBlocks.push(lounasBlock);
-	});
-
-	const response = await args.say({
-		text: header, // Fallback for notifications
-		blocks: [
-			{
-				type: "header",
-				text: {
-					type: "plain_text",
-					text: header
-				}
-			},
-			...lounasBlocks,
-			{
-				type: "divider"
-			},
+	
+		const cachedData = await getDataAndCache(dataProvider, settings);
+		cachedData.blocks.push(
 			{
 				type: "context",
 				elements: [
@@ -156,109 +135,115 @@ const handleLounas = async (args: bolt.SlackEventMiddlewareArgs<"message">, data
 				]
 			
 			}
-		]
+		);
+		const response = await args.say(cachedData);
+	
+		if (response.ok && response.ts) {
+			if (!settings.debug?.noDb) {
+				LounasRepository.create({
+					ts: response.ts,
+					channel: response.channel || args.event.channel,
+					menu: cachedData.data.map(lounasResponse => {
+						return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
+					}),
+					date: new Date(),
+					votes: []
+				}).catch(error => {
+					console.error(error);
+				});
+			}
+	
+			toBeTruncated.push({
+				channel: args.event.channel,
+				ts: response.ts
+			});
+	
+			// Something to think about: Is the reference to app always usable after 8 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
+			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
+		} else {
+			console.warn("Response not okay!");
+			console.debug(response);
+		}
+	
+		return Promise.resolve();
 	});
 
-	if (response.ok && response.ts) {
-		if (!settings.debug?.noDb) {
-			LounasRepository.create({
-				ts: response.ts,
-				channel: response.channel || args.event.channel,
-				menu: data.map(lounasResponse => {
-					return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
-				}),
-				date: new Date(),
-				votes: []
-			}).catch(error => {
-				console.error(error);
-			});
-		}
+	app.event("app_home_opened", async args => {
+		const debugInforamtion: string[] = [
+			restartJob ? `Next scheduled restart is at ${restartJob.nextInvocation().toLocaleString("en-US")}` : null,
+			prefetchJob ? `Next data prefetching will occur at ${prefetchJob.nextInvocation().toLocaleString("en-US")}` : null
+		].filter(Boolean) as string[];
 
-		toBeTruncated.push({
-			channel: args.event.channel,
-			ts: response.ts
-		});
-
-		// Something to think about: Is the reference to app always usable after 8 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
-		setTimeout(truncateMessage.bind(null, appRef), AUTO_TRUNCATE_TIMEOUT);
-	} else {
-		console.warn("Response not okay!");
-		console.debug(response);
-	}
-
-	return Promise.resolve(null);
-};
-
-const handleHomeTab = async (args: bolt.SlackEventMiddlewareArgs<"app_home_opened"> & bolt.AllMiddlewareArgs, version: string, restartJob: Job | undefined) => {
-	return args.client.views.publish({
-		user_id: args.event.user,
-		view: {
-			type: "home",
-			blocks: [
-				{
-					type: "header",
-					text: {
-						type: "plain_text",
-						text: `Lounasbotti V${version}`
-					}
-				},
-				{
-					type: "section",
-					text: {
-						type: "mrkdwn",
-						text: "_By @Jani_"
-					}
-				},
-				{
-					type: "divider"
-				},
-				{
-					type: "section",
-					text: {
-						type: "mrkdwn",
-						text: `Tervehdys <@${args.event.user}>, nimeni on Lounasbotti. Kutsu minua komennoilla *!lounas* tai *!ruokaa* millä tahansa kanavalla, jonne minut on kutsuttu ja haen päivän lounaslistat valonnopeudella! _...tai ainakin yritän..._`
-					}
-				},
-				{
-					type: "section",
-					text: {
-						type: "plain_text",
-						text: "Voit myös avata yksityisen chatin kanssani ja käyttää edellä mainittuja komentoja siellä."
-					}
-				},
-				{
-					type: "section",
-					text: {
-						type: "mrkdwn",
-						text: "_Olen vielä beta-versio, mutta voit auttaa minua kehittymään paremmaksi_ -->"
-					},
-					accessory: {
-						type: "button",
+		args.client.views.publish({
+			user_id: args.event.user,
+			view: {
+				type: "home",
+				blocks: [
+					{
+						type: "header",
 						text: {
 							type: "plain_text",
-							text: ":link: GitHub",
-							emoji: true
-						},
-						url: "https://github.com/ojaha065/lounasbotti",
-						action_id: "githubButtonLinkAction"
-					}
-				},
-				{
-					type: "context",
-					elements: [
-						{
-							type: "plain_text",
-							text: restartJob ? `Debug information: Next scheduled restart is at ${restartJob.nextInvocation().toLocaleString("en-US")}` : "---"
+							text: `Lounasbotti V${version}`
 						}
-					]
-				
-				}
-			]
-		}
+					},
+					{
+						type: "section",
+						text: {
+							type: "mrkdwn",
+							text: "_By @Jani_"
+						}
+					},
+					{
+						type: "divider"
+					},
+					{
+						type: "section",
+						text: {
+							type: "mrkdwn",
+							text: `Tervehdys <@${args.event.user}>, nimeni on Lounasbotti. Kutsu minua komennoilla *!lounas* tai *!ruokaa* millä tahansa kanavalla, jonne minut on kutsuttu ja haen päivän lounaslistat valonnopeudella! _...tai ainakin yritän..._`
+						}
+					},
+					{
+						type: "section",
+						text: {
+							type: "plain_text",
+							text: "Voit myös avata yksityisen chatin kanssani ja käyttää edellä mainittuja komentoja siellä."
+						}
+					},
+					{
+						type: "section",
+						text: {
+							type: "mrkdwn",
+							text: "_Olen vielä beta-versio, mutta voit auttaa minua kehittymään paremmaksi_ -->"
+						},
+						accessory: {
+							type: "button",
+							text: {
+								type: "plain_text",
+								text: ":link: GitHub",
+								emoji: true
+							},
+							url: "https://github.com/ojaha065/lounasbotti",
+							action_id: "githubButtonLinkAction"
+						}
+					},
+					{
+						type: "context",
+						elements: [
+							{
+								type: "plain_text",
+								text: debugInforamtion.length ? `Debug information:\n${debugInforamtion.join("\n")}` : "---"
+							}
+						]
+					
+					}
+				]
+			}
+		});
 	});
 };
 
-export { initEvents, handleLounas, handleHomeTab };
+export { initEvents };
 
 function truncateMessage(app: bolt.App): void {
 	const message = toBeTruncated.shift();
@@ -272,6 +257,77 @@ function truncateMessage(app: bolt.App): void {
 		blocks: [], // Remove all blocks
 		text: "_Viesti poistettiin_"
 	});
+}
+
+async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+	try {
+		const now = new Date();
+		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}`;
+	
+		if (lounasCache[cacheIdentifier]) {
+			return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
+		}
+	
+		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
+		const hasDate = data.filter(lounas => lounas.date);
+		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
+		let hasErrors = false;
+	
+		const lounasBlocks: (bolt.Block | bolt.KnownBlock)[] = [];
+		data.forEach(lounasResponse => {
+			const lounasBlock: (bolt.Block | bolt.KnownBlock) = {
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}`
+				},
+			};
+	
+			if (lounasResponse.items) {
+				lounasBlock.accessory = {
+					type: "button",
+					text: {
+						type: "plain_text",
+						text: ":thumbsup:",
+						emoji: true
+					},
+					value: `upvote-${lounasResponse.restaurant}`,
+					action_id: "upvoteButtonAction"
+				};
+			}
+	
+			lounasBlocks.push(lounasBlock);
+			hasErrors = hasErrors || !!lounasResponse.error;
+		});
+
+		const parsedData = {
+			data,
+			text: header,
+			blocks: [
+				{
+					type: "header",
+					text: {
+						type: "plain_text",
+						text: header
+					}
+				},
+				...lounasBlocks,
+				{
+					type: "divider"
+				}
+			]
+		};
+
+		if (hasErrors) {
+			console.warn("This result won't be cached as it contained errors");
+			return Promise.resolve(parsedData);
+		}
+	
+		lounasCache[cacheIdentifier] = parsedData;
+		return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
+	} catch (error) {
+		return Promise.reject(error);
+	}
 }
 
 function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs, actionValue: string) {

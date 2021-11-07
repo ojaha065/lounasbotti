@@ -1,3 +1,5 @@
+import { deserialize, serialize } from "v8";
+
 const BR_EXP = /<br\s*\/?>/i;
 
 /**
@@ -27,4 +29,26 @@ const capitalizeString = (string: string): string => {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString};
+/**
+ * Deep clones any object using V8 structuredClone
+ * @param obj Object to clone
+ * @returns Cloned object
+ * @experimental
+ */
+const deepClone = <T extends object>(obj: T): T => {
+	return deserialize(serialize(obj));
+};
+
+/**
+ * Removes all non-inherited fields from any object
+ * @param obj Object to clear
+ */
+const clearObject = <T extends Object>(obj: T): void => {
+	for (const key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			delete obj[key];
+		}
+	}
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject };
