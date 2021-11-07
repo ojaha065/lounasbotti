@@ -17,7 +17,7 @@ import * as BotEvents from "./Events.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.6";
+const VERSION = "1.2.7";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -36,7 +36,13 @@ const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean ||
 let restartJob: Job | undefined;
 if (process.env["HEROKU_INSTANCE_URL"]) {
 	// We'll restart at 3 AM every weekday night to reset the Heroku automatic restart timer that could get triggered at a bad time
-	restartJob = scheduleJob("30 0 3 * * 1-5", () => {
+	restartJob = scheduleJob({
+		second: 30,
+		minute: 0,
+		hour: 3,
+		dayOfWeek: "1-5",
+		tz: "Europe/Helsinki"
+	}, () => {
 		console.info("Process will now exit for the daily automatic restart");
 		process.exit();
 	});
@@ -95,8 +101,6 @@ if (socketMode) {
 
 const app = new App(appOptions);
 
-BotEvents.initEvents(app, settings);
-
 app.message("!ping", async ({say}) => {
 	say("Pong!");
 });
@@ -107,14 +111,7 @@ app.message("!whoami", async ({say, message}) => {
 	}
 });
 
-app.message(/!(lounas|ruokaa)/, async args => {
-	await BotEvents.handleLounas(args, dataProvider, settings, app);
-});
-
-// Home tab
-app.event("app_home_opened", async args => {
-	await BotEvents.handleHomeTab(args, VERSION, restartJob);
-});
+BotEvents.initEvents(app, settings, dataProvider, restartJob, VERSION);
 
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
