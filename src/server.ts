@@ -6,7 +6,7 @@ import { AddressInfo } from "net";
 
 import fetch from "node-fetch";
 import bolt from "@slack/bolt";
-import { Job, scheduleJob } from "node-schedule";
+import { Job, Range, scheduleJob } from "node-schedule";
 
 import { LounasDataProvider } from "model/LounasDataProvider.js";
 import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
@@ -36,7 +36,13 @@ const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean ||
 let restartJob: Job | undefined;
 if (process.env["HEROKU_INSTANCE_URL"]) {
 	// We'll restart at 3 AM every weekday night to reset the Heroku automatic restart timer that could get triggered at a bad time
-	restartJob = scheduleJob("30 0 3 * * 1-5", () => {
+	restartJob = scheduleJob({
+		second: 30,
+		minute: 0,
+		hour: 3,
+		dayOfWeek: new Range(1, 5),
+		tz: "Europe/Helsinki"
+	}, () => {
 		console.info("Process will now exit for the daily automatic restart");
 		process.exit();
 	});
