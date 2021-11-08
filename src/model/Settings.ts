@@ -6,7 +6,7 @@ type Settings = {
 	displayVoters: boolean,
 	emojiRules?: Map<RegExp, string>
 	debug?: {
-		noDb: boolean
+		noDb?: boolean
 	}
 }
 

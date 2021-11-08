@@ -170,6 +170,8 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 	app.event("app_home_opened", async args => {
 		const debugInforamtion: string[] = [
+			`Data provider: ${settings.dataProvider}`,
+			`[LounasEmoji] ${settings.emojiRules?.size ? `${settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
 			restartJob ? `Next scheduled restart is at ${restartJob.nextInvocation().toLocaleString("en-US")}` : null,
 			prefetchJob ? `Next data prefetching will occur at ${prefetchJob.nextInvocation().toLocaleString("en-US")}` : null
 		].filter(Boolean) as string[];
@@ -190,7 +192,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 						type: "section",
 						text: {
 							type: "mrkdwn",
-							text: "_By @Jani_"
+							text: "_By <https://github.com/ojaha065|Jani Haiko>_"
 						}
 					},
 					{
