@@ -64,13 +64,14 @@ const settings: Settings = {
 		[/(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)/i, ":fish:"],
 		[/(?:liha(?:pul|pyöry))|falafel/i, ":falafel:"],
 		[/(?:po(?:rsa|ss))|(?:si(?:an|ka))/i, ":pig2:"],
+		[/(?:pekoni)|(?:bacon)/i, ":bacon:"],
 		[/pannukak|ohukai/i, ":pancakes:"],
 		[/riisi/i, ":rice:"],
 		[/porkkan/i, ":carrot:"],
 		[/(?:kasvi(?:s|k))|(?:juurek)/i, ":tomato:"],
 		[/salaat{1,2}(?:i|eja)/i, ":green_salad:"],
+		[/(?:jälkiru(?:u|o))|(?:leipurin\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)/i, ":yum:"],
 		[/peru(?:na|no)/i, ":potato:"],
-		[/(?:jälkiru(?:u|o))|(?:leipurin\s*mak)|(?:vispipuur)|(?:vanuk)/i, ":yum:"]
 	])
 };
 
