@@ -65,6 +65,7 @@ const settings: Settings = {
 		[/(?:liha(?:pul|pyöry))|falafel/i, ":falafel:"],
 		[/(?:po(?:rsa|ss))|(?:si(?:an|ka))/i, ":pig2:"],
 		[/(?:pekoni)|(?:bacon)/i, ":bacon:"],
+		[/(?:spagetti)|(?:bolognese)/i, ":spaghetti:"],
 		[/pannukak|ohukai/i, ":pancakes:"],
 		[/riisi/i, ":rice:"],
 		[/porkkan/i, ":carrot:"],
