@@ -41,7 +41,7 @@
     "eslint-config-alloy": "^4.4.0",
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-plugin-import": "^2.25.2",
-    "nodemon": "^2.0.14",
+    "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
