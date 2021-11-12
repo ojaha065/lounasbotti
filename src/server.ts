@@ -13,11 +13,11 @@ import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./model/MockDataProvider.js";
 
 import { Restaurant, Settings } from "./model/Settings.js";
-import * as BotEvents from "./Events.js";
+import * as BotEvents from "./BotEvents.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.8";
+const VERSION = "1.3.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -55,6 +55,7 @@ const settings: Settings = {
 	dataProvider: "ruokapaikkaFi",
 	userAgent: `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
 	defaultRestaurants: [Restaurant.savo, Restaurant.talli, Restaurant.rami, Restaurant.august],
+	additionalRestaurants: [Restaurant.holvi, Restaurant.vino],
 	gitUrl: "https://github.com/ojaha065/lounasbotti",
 	displayVoters: true,
 	emojiRules: new Map([

@@ -2,6 +2,7 @@ type Settings = {
 	dataProvider: "ruokapaikkaFi" | "mock",
 	userAgent: string,
 	defaultRestaurants: Restaurant[],
+	additionalRestaurants?: Restaurant[],
 	gitUrl: string,
 	displayVoters: boolean,
 	emojiRules?: Map<RegExp, string>
@@ -15,7 +16,8 @@ enum Restaurant {
 	talli = "talli",
 	rami = "rami",
 	august = "august",
-	holvi = "holvi"
+	holvi = "holvi",
+	vino = "vino"
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
@@ -23,7 +25,8 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	talli: "Ravintola Talli",
 	rami: "Lounasravintola Rami",
 	august: "Ravintola August",
-	holvi: "Bistro Holvi"
+	holvi: "Bistro Holvi",
+	vino: "Ravintola Vino"
 
 };
 

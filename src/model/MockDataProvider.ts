@@ -10,7 +10,8 @@ class MockDataProvider implements LounasDataProvider {
 		talli: "",
 		rami: "",
 		august: "",
-		holvi: ""
+		holvi: "",
+		vino: ""
 	};
 
 	readonly settings: Settings;
@@ -48,18 +49,21 @@ class MockDataProvider implements LounasDataProvider {
 			if (i === 0) {
 				result.push({
 					restaurant: restaurants[i],
+					isAdditional: false,
 					date: today,
 					error: new Error("Mock error")
 				});
 			} else if (i === restaurants.length - 1) {
 				result.push({
 					restaurant: restaurants[i],
+					isAdditional: false,
 					date: today,
 					items: this.mockItems
 				});
 			} else {
 				result.push({
 					restaurant: restaurants[i],
+					isAdditional: false,
 					date: today,
 					items: []
 				});

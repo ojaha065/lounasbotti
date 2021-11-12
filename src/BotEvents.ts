@@ -1,6 +1,7 @@
 import bolt from "@slack/bolt";
 import { Job, scheduleJob, Range } from "node-schedule";
 
+import * as BlockParsers from "./BlockParsers.js";
 import * as Utils from "./Utils.js";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
@@ -14,7 +15,7 @@ const voters: Record<string, Record<string, string[]>> = {};
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
 let prefetchJob: Job;
-const lounasCache: Record<string, { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
+const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
 const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, restartJob: Job | undefined, version: string): void => {
@@ -39,6 +40,80 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		console.debug("GitHub link opened!");
 		ack();
 	});
+
+	if (settings.additionalRestaurants?.length) {
+		app.action({type: "block_actions", action_id: RegExp(`fetchAdditionalRestaurant-(?:${settings.additionalRestaurants.join("|")})`)}, async args => {
+			try {
+				const message = args.body.message;
+				if (!message) {
+					throw new Error("Message not found from action body");
+				}
+	
+				const actionValue: string = (args.action as bolt.ButtonAction).value;
+				if (!actionValue) {
+					throw new Error("No actionValue!");
+				}
+
+				if (!args.body.channel) {
+					throw new Error("Event is not from channel!");
+				}
+	
+				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
+	
+				const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
+				if (!blocks || !blocks.length) {
+					throw new Error("No blocks found in message body");
+				}
+	
+				const cachedData = await getDataAndCache(dataProvider, settings);
+				const lounasResponse: LounasResponse | undefined = cachedData.data.find(lounasResponse => lounasResponse.restaurant === actionValue);
+				if (!lounasResponse) {
+					throw new Error(`Could not find data for restaurant ${actionValue}`);
+				}
+	
+				// FIXME: There has to be a better way for this
+				const firstDividerIndex: number = blocks.findIndex(block => block.type === "divider");
+				if (firstDividerIndex < 1) {
+					throw new Error("Error parsing blocks (divider)");
+				}
+				blocks.splice(firstDividerIndex, 0, BlockParsers.parseLounasBlock(lounasResponse, settings));
+				if (blocks[firstDividerIndex + 3].type !== "actions") {
+					throw new Error("Error parsing blocks (actions)");
+				}
+				let elements = (blocks[firstDividerIndex + 3] as bolt.ActionsBlock).elements;
+				elements = elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
+				if (elements.length) {
+					(blocks[firstDividerIndex + 3] as bolt.ActionsBlock).elements = elements;
+				} else {
+					blocks.splice(firstDividerIndex + 2, 3);
+				}
+
+				let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
+				try {
+					if (settings.debug?.noDb) {
+						throw new Error("Database connection is disabled by debug config");
+					}
+	
+					lounasMessage = await LounasRepository.find(message.ts, args.body.channel.id);
+				} catch (error) {
+					console.error(error);
+				}
+				if (lounasMessage) {
+					updateVoting(lounasMessage, blocks, settings.displayVoters);
+				}
+	
+				args.respond({
+					response_type: "in_channel",
+					replace_original: true,
+					blocks: blocks
+				});
+			} catch (error) {
+				console.error(error);
+			} finally {
+				args.ack();
+			}
+		});
+	}
 
 	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
 		try {
@@ -158,7 +233,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				ts: response.ts
 			});
 	
-			// Something to think about: Is the reference to app always usable after 8 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
+			// Something to think about: Is the reference to app always usable after 6 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
 			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
 		} else {
 			console.warn("Response not okay!");
@@ -270,41 +345,18 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 			return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
 		}
 	
-		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants);
+		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants);
 		const hasDate = data.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
-		let hasErrors = false;
 	
 		const lounasBlocks: (bolt.Block | bolt.KnownBlock)[] = [];
-		data.forEach(lounasResponse => {
-			const lounasBlock: (bolt.Block | bolt.KnownBlock) = {
-				type: "section",
-				text: {
-					type: "mrkdwn",
-					text: `*${RestaurantNameMap[lounasResponse.restaurant]}*\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}`
-				},
-			};
-	
-			if (lounasResponse.items) {
-				lounasBlock.accessory = {
-					type: "button",
-					text: {
-						type: "plain_text",
-						text: ":thumbsup:",
-						emoji: true
-					},
-					value: `upvote-${lounasResponse.restaurant}`,
-					action_id: "upvoteButtonAction"
-				};
-			}
-	
-			lounasBlocks.push(lounasBlock);
-			hasErrors = hasErrors || !!lounasResponse.error;
+		data.filter(lounasResponse => !lounasResponse.isAdditional).forEach(lounasResponse => {
+			lounasBlocks.push(BlockParsers.parseLounasBlock(lounasResponse, settings));
 		});
 
-		const parsedData = {
+		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data,
-			text: header,
+			text: header, // Slack recommends having this this
 			blocks: [
 				{
 					type: "header",
@@ -320,7 +372,40 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 			]
 		};
 
-		if (hasErrors) {
+		if (settings.additionalRestaurants?.length) {
+			parsedData.blocks.push({
+				type: "section",
+				text: {
+					type: "mrkdwn",
+					text: "*Jotakin aivan muuta? Napsauta hakeaksesi*"
+				}
+			});
+
+			const actionElements: bolt.Button[] = [];
+			settings.additionalRestaurants.forEach(restaurant => {
+				actionElements.push({
+					type: "button",
+					text: {
+						type: "plain_text",
+						text: RestaurantNameMap[restaurant]
+					},
+					action_id: `fetchAdditionalRestaurant-${restaurant}`,
+					value: restaurant
+				});
+			});
+
+			parsedData.blocks.push(
+				{
+					type: "actions",
+					elements: actionElements
+				},
+				{
+					type: "divider"
+				}
+			);
+		}
+
+		if (data.filter(lounasResponse => lounasResponse.error).length) {
 			console.warn("This result won't be cached as it contained errors");
 			return Promise.resolve(parsedData);
 		}
@@ -381,18 +466,6 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 			}
 		}
 	});
-}
-
-function getEmojiForLounasItem(lounasItem = "", settings: Settings): string {
-	if (settings.emojiRules) {
-		for (const [key, value] of settings.emojiRules) {
-			if (key.test(lounasItem)) {
-				return value;
-			}
-		}
-	}
-
-	return ":grey_question:";
 }
 
 /**
