@@ -245,7 +245,8 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 	app.event("app_home_opened", async args => {
 		const debugInforamtion: string[] = [
-			`Data provider: ${settings.dataProvider}`,
+			settings.configSource ? `Config loaded from ${settings.configSource}` : null,
+			`Data provider: ${(settings.dataProvider as LounasDataProvider).id} (${(settings.dataProvider as LounasDataProvider).baseUrl})`,
 			`[LounasEmoji] ${settings.emojiRules?.size ? `${settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
 			restartJob ? `Next scheduled restart is at ${restartJob.nextInvocation().toLocaleString("en-US")}` : null,
 			prefetchJob ? `Next data prefetching will occur at ${prefetchJob.nextInvocation().toLocaleString("en-US")}` : null
@@ -291,7 +292,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 						type: "section",
 						text: {
 							type: "mrkdwn",
-							text: "_Olen vielä beta-versio, mutta voit auttaa minua kehittymään paremmaksi_ -->"
+							text: "_Auta minua kehittymään paremmaksi_ -->"
 						},
 						accessory: {
 							type: "button",

@@ -1,4 +1,6 @@
-import { readFileSync } from "fs";
+import { promises as fs } from "fs";
+
+import fetch from "node-fetch";
 
 import { LounasDataProvider } from "./LounasDataProvider.js";
 import * as Utils from "../Utils.js";
@@ -11,7 +13,8 @@ type Settings = {
 	additionalRestaurants?: Restaurant[],
 	gitUrl: string,
 	displayVoters: boolean,
-	emojiRules?: Map<RegExp, string>
+	emojiRules?: Map<RegExp, string>,
+	configSource?: string,
 	debug?: {
 		noDb?: boolean
 	}
@@ -36,15 +39,39 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 };
 
-/**
- * @throws If any error is encountered
- */
-const readAndParseSettings = (VERSION: string, config?: string | undefined): Settings => {
-	const json = JSON.parse(readFileSync(`${process.cwd()}/${config || "config"}.json`, "utf-8"));
+const readAndParseSettings = async (VERSION: string, config?: string | URL | undefined): Promise<Settings> => {
+	let json: any;
+	if (typeof config === "object") { // Is URL
+		try {
+			const response = await fetch(config.toString(), {
+				method: "GET",
+				headers: {
+					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
+					Accept: "application/json"
+				}
+			});
+			
+			if (response.ok) {
+				json = await response.json();
+				json.configSource = json.configSource || response.url;
+			} else {
+				console.warn(`HTTP error ${response.status}: ${response.statusText}`);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	if (!json) {
+		console.info("Using local configuration file...");
+		json = await fs.readFile(`${process.cwd()}/${(typeof config === "string" ? config : null) || "config"}.json`, "utf-8");
+		json = JSON.parse(json);
+		json.configSource = json.configSource || "[Local configuration file]";
+	}
 
 	const defaultRestaurantsValue = Utils.requireNonNullOrUndefined(json.defaultRestaurants, "Parameter defaultRestaurants is required");
 	if (!Array.isArray(defaultRestaurantsValue)) {
-		throw new Error("Error parsing defaultRestaurants");
+		return Promise.reject(Error("Error parsing defaultRestaurants"));
 	}
 	const defaultRestaurants: Restaurant[] = defaultRestaurantsValue
 		.map(o => String(o))
@@ -52,7 +79,7 @@ const readAndParseSettings = (VERSION: string, config?: string | undefined): Set
 		.map(s => Restaurant[s as Restaurant]);
 
 	if (json.additionalRestaurants && !Array.isArray(json.additionalRestaurants)) {
-		throw new Error("Error parsing additionalRestaurants");
+		return Promise.reject(Error("Error parsing additionalRestaurants"));
 	}
 	const additionalRestaurants: Restaurant[] = (json.additionalRestaurants as unknown[] || [])
 		.map(o => String(o))
@@ -77,14 +104,14 @@ const readAndParseSettings = (VERSION: string, config?: string | undefined): Set
 			dataProvider = new MockDataProvider(settings);
 			break;
 		default:
-			throw new Error(`Unknown data provider ${json.dataProvider}`);
+			return Promise.reject(Error(`Unknown data provider ${json.dataProvider}`));
 	}
 	settings.dataProvider = dataProvider;
 
 	// Emoji rules
 	if (json.emojiRules) {
 		if (!Array.isArray(json.emojiRules)) {
-			throw new Error("Error parsing emojiRules");
+			return Promise.reject(Error("Error parsing emojiRules"));
 		}
 
 		settings.emojiRules = new Map(json.emojiRules
@@ -97,13 +124,18 @@ const readAndParseSettings = (VERSION: string, config?: string | undefined): Set
 		);
 	}
 
+	// Config source
+	if (json.configSource) {
+		settings.configSource = json.configSource;
+	}
+
 	// Debug
 	if (json.debug) {
 		console.warn("Current configuration has debug options");
 		settings.debug = json.debug;
 	}
 
-	return settings;
+	return Promise.resolve(settings);
 };
 
 export { Settings, Restaurant, RestaurantNameMap, readAndParseSettings };
