@@ -19,9 +19,11 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	};
 
 	readonly settings: Settings;
+	readonly VERSION: string;
 
-	public constructor(settings: Settings) {
+	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
+		this.VERSION = VERSION;
 	}
 
 	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[]): Promise<LounasResponse[]> {
@@ -37,7 +39,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const response = await fetch(url, {
 					method: "GET",
 					headers: {
-						"User-Agent": this.settings.userAgent
+						"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION};)`
 					}
 				});
 

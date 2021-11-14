@@ -1,0 +1,24 @@
+{
+	"dataProvider": "ruokapaikkaFi",
+	"defaultRestaurants": ["savo", "talli", "rami", "august"],
+	"additionalRestaurants": ["holvi", "vino"],
+	"gitUrl": "https://github.com/ojaha065/lounasbotti",
+	"displayVoters": true,
+	"emojiRules": [
+		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
+		["keitto", ":bowl_with_spoon:"],
+		["((?<!pork)kana(?!nmun))|(broileri)", ":chicken:"],
+		["(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)", ":fish:"],
+		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
+		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
+		["(?:pekoni)|(?:bacon)", ":bacon:"],
+		["(?:spagetti)|(?:bolognese)", ":spaghetti:"],
+		["pannukak|ohukai", ":pancakes:"],
+		["riisi", ":rice:"],
+		["porkkan", ":carrot:"],
+		["(?:kasvi(?:s|k))|(?:juurek)", ":tomato:"],
+		["salaat{1,2}(?:i|eja)", ":green_salad:"],
+		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)", ":yum:"],
+		["peru(?:na|no)", ":potato:"]
+	]
+}
