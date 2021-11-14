@@ -14,25 +14,32 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		talli: "ravintolatalli.php",
 		rami: "lounasravintola_rami.php",
 		august: "august.php",
-		holvi: "bistroholvi.php"
+		holvi: "bistroholvi.php",
+		vino: "vino.php"
 	};
 
 	readonly settings: Settings;
+	readonly VERSION: string;
 
-	public constructor(settings: Settings) {
+	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
+		this.VERSION = VERSION;
 	}
 
-	public async getData(restaurants: Restaurant[]): Promise<LounasResponse[]> {
+	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[]): Promise<LounasResponse[]> {
+		console.debug("Fetching data from ruokapaikkaFi...");
+
 		const result: LounasResponse[] = [];
 
-		await Promise.all(restaurants.map(async restaurant => {
+		await Promise.all([...restaurants, ...(additionalRestaurants || [])].map(async restaurant => {
 			const url = `${this.baseUrl}/${this.restaurantMap[restaurant]}`;
+			const isAdditional = !!additionalRestaurants?.includes(restaurant);
+
 			try {
 				const response = await fetch(url, {
 					method: "GET",
 					headers: {
-						"User-Agent": this.settings.userAgent
+						"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION};)`
 					}
 				});
 
@@ -49,6 +56,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					const errorMessage = `Error scraping data for restaurant ${restaurant}`;
 					console.warn(errorMessage);
 					result.push({
+						isAdditional,
 						restaurant: restaurant,
 						error: new Error(errorMessage)
 					});
@@ -57,6 +65,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					const date = $lounasHTML.children("b").first().text().toLowerCase();
 					if (date.includes(today)) {
 						result.push({
+							isAdditional,
 							restaurant: restaurant,
 							date: date,
 							items: this.parseLounasHTML($lounasHTML)
@@ -65,6 +74,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						const errorMessage = `Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${date}"`;
 						console.warn(errorMessage);
 						result.push({
+							isAdditional,
 							restaurant: restaurant,
 							error: new Error(errorMessage)
 						});
@@ -73,6 +83,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			} catch (error) {
 				console.error(error);
 				result.push({
+					isAdditional,
 					restaurant: restaurant,
 					error: new Error("Unspecified error. See logs for details")
 				});
@@ -90,7 +101,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 
 		return Utils.splitByBrTag(html)
 			.slice(1)
-			.map(s => s.trim());
+			.map(s => s.trim())
+			.filter(Boolean);
 	}
 }
 

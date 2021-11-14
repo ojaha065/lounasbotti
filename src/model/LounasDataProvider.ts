@@ -14,7 +14,7 @@ interface LounasDataProvider {
     readonly settings: Settings;
     readonly restaurantMap: Record<Restaurant, string>
 
-    getData: (restaurants: Restaurant[]) => Promise<LounasResponse[]>;
+    getData: (restaurants: Restaurant[], additionalRestaurants?: Restaurant[]) => Promise<LounasResponse[]>;
 
     /**
      * Handles any quirks that this data source might have
@@ -25,16 +25,17 @@ interface LounasDataProvider {
 
 interface LounasResponseBasic {
     restaurant: Restaurant,
+    isAdditional: boolean,
     date?: string
 }
 
 interface LounasResponseSuccess extends LounasResponseBasic {
-    items: string[]
+    items: string[],
     error?: never
 }
 
 interface LounasResponseFailure extends LounasResponseBasic {
-    items?: never
+    items?: never,
     error: Error
 }
 

@@ -51,4 +51,17 @@ const clearObject = <T extends Object>(obj: T): void => {
 	}
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject };
+/**
+ * Returns the passed parameter as is, unless it's missing, in which case throws
+ * @returns The passed value
+ * @throws When the value is missing
+ */
+const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
+	if (value === undefined || value === null) {
+		throw new Error(message || "Required value missing");
+	}
+
+	return value;
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined };

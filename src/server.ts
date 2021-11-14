@@ -8,16 +8,12 @@ import fetch from "node-fetch";
 import bolt from "@slack/bolt";
 import { Job, Range, scheduleJob } from "node-schedule";
 
-import { LounasDataProvider } from "model/LounasDataProvider.js";
-import RuokapaikkaFiDataProvider from "./model/RuokapaikkaFiDataProvider.js";
-import MockDataProvider from "./model/MockDataProvider.js";
-
-import { Restaurant, Settings } from "./model/Settings.js";
-import * as BotEvents from "./Events.js";
+import { Settings, readAndParseSettings } from "./model/Settings.js";
+import * as BotEvents from "./BotEvents.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.2.8";
+const VERSION = "1.3.1";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -48,49 +44,12 @@ if (process.env["HEROKU_INSTANCE_URL"]) {
 	});
 }
 
-const { App } = bolt;
+const settings: Settings = readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"]);
 
-// TODO: Read settings from JSON file
-const settings: Settings = {
-	dataProvider: "ruokapaikkaFi",
-	userAgent: `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
-	defaultRestaurants: [Restaurant.savo, Restaurant.talli, Restaurant.rami, Restaurant.august],
-	gitUrl: "https://github.com/ojaha065/lounasbotti",
-	displayVoters: true,
-	emojiRules: new Map([
-		[/(?<!kur)pi(?:zz|ts)a/i, ":pizza:"],
-		[/keitto/i, ":bowl_with_spoon:"],
-		[/((?<!pork)kana(?!nmun))|(broileri)/i, ":chicken:"],
-		[/(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)/i, ":fish:"],
-		[/(?:liha(?:pul|pyöry))|falafel/i, ":falafel:"],
-		[/(?:po(?:rsa|ss))|(?:si(?:an|ka))/i, ":pig2:"],
-		[/(?:pekoni)|(?:bacon)/i, ":bacon:"],
-		[/(?:spagetti)|(?:bolognese)/i, ":spaghetti:"],
-		[/pannukak|ohukai/i, ":pancakes:"],
-		[/riisi/i, ":rice:"],
-		[/porkkan/i, ":carrot:"],
-		[/(?:kasvi(?:s|k))|(?:juurek)/i, ":tomato:"],
-		[/salaat{1,2}(?:i|eja)/i, ":green_salad:"],
-		[/(?:jälkiru(?:u|o))|(?:leipurin\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)/i, ":yum:"],
-		[/peru(?:na|no)/i, ":potato:"],
-	])
-};
+const { App } = bolt;
 
 if (!settings.debug?.noDb) {
 	LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
-}
-
-let dataProvider: LounasDataProvider;
-
-switch (settings.dataProvider) {
-	case "ruokapaikkaFi":
-		dataProvider = new RuokapaikkaFiDataProvider(settings);
-		break;
-	case "mock":
-		dataProvider = new MockDataProvider(settings);
-		break;
-	default:
-		throw new Error(`Unknown data provider ${settings.dataProvider}`);
 }
 
 const appOptions: bolt.AppOptions = {
@@ -114,7 +73,10 @@ app.message("!whoami", async ({say, message}) => {
 	}
 });
 
-BotEvents.initEvents(app, settings, dataProvider, restartJob, VERSION);
+if (typeof settings.dataProvider === "string") {
+	throw new Error("Incorrect dataProvider");
+}
+BotEvents.initEvents(app, settings, settings.dataProvider, restartJob, VERSION);
 
 const botPort = 3000;
 const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
