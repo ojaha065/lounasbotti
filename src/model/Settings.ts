@@ -39,11 +39,11 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 };
 
-const readAndParseSettings = async (VERSION: string, config?: string | URL | undefined): Promise<Settings> => {
+const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURL?: URL | undefined): Promise<Settings> => {
 	let json: any;
-	if (typeof config === "object") { // Is URL
+	if (configURL) {
 		try {
-			const response = await fetch(config.toString(), {
+			const response = await fetch(configURL.toString(), {
 				method: "GET",
 				headers: {
 					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
@@ -63,8 +63,9 @@ const readAndParseSettings = async (VERSION: string, config?: string | URL | und
 	}
 
 	if (!json) {
-		console.info("Using local configuration file...");
-		json = await fs.readFile(`${process.cwd()}/${(typeof config === "string" ? config : null) || "config"}.json`, "utf-8");
+		const configFile = config || "config";
+		console.info(`Using local configuration file "${configFile}"...`);
+		json = await fs.readFile(`${process.cwd()}/${configFile}.json`, "utf-8");
 		json = JSON.parse(json);
 		json.configSource = json.configSource || "[Local configuration file]";
 	}

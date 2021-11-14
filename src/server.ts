@@ -44,14 +44,11 @@ if (process.env["HEROKU_INSTANCE_URL"]) {
 	});
 }
 
-let configLocation: string | URL | undefined;
+let configURL: URL | undefined;
 if (process.env["SLACK_CONFIG_URL"]) {
-	configLocation = new URL(process.env["SLACK_CONFIG_URL"]);
-} else if (process.env["SLACK_CONFIG_NAME"]) {
-	configLocation = process.env["SLACK_CONFIG_NAME"];
+	configURL = new URL(process.env["SLACK_CONFIG_URL"]);
 }
-
-readAndParseSettings(VERSION, configLocation).then(settings => {
+readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(settings => {
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {
