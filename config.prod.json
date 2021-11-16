@@ -8,7 +8,7 @@
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["keitto", ":bowl_with_spoon:"],
 		["((?<!pork)kana(?!nmun))|(broileri)", ":chicken:"],
-		["(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)", ":fish:"],
+		["(loh(i|ta){1})|(kala)|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
 		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
@@ -18,7 +18,8 @@
 		["porkkan", ":carrot:"],
 		["(?:kasvi(?:s|k))|(?:juurek)", ":tomato:"],
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
-		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)", ":yum:"],
+		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)|(?:kermavaah)", ":yum:"],
+		["pihv", ":cut_of_meat:"],
 		["peru(?:na|no)", ":potato:"]
 	]
 }
