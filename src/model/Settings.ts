@@ -1,7 +1,5 @@
 import { promises as fs } from "fs";
 
-import fetch from "node-fetch";
-
 import { LounasDataProvider } from "./LounasDataProvider.js";
 import * as Utils from "../Utils.js";
 import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
@@ -43,7 +41,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	let json: any;
 	if (configURL) {
 		try {
-			const response = await fetch(configURL.toString(), {
+			const response = await Utils.fetchWithTimeout(configURL.toString(), {
 				method: "GET",
 				headers: {
 					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
