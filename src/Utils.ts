@@ -71,7 +71,7 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
  */
 const fetchWithTimeout = async (url: RequestInfo, init: RequestInit = {}): Promise<Response> => {
 	const controller = new AbortController();
-	const timeout = setTimeout(controller.abort, 10000);
+	const timeout = setTimeout(() => controller.abort(), 10000);
 
 	const response = await fetch(url, {...init, signal: controller.signal});
 	clearTimeout(timeout);
