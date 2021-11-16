@@ -1,7 +1,7 @@
 {
 	"dataProvider": "mock",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino"],
+	"additionalRestaurants": ["holvi", "vino", "fernando"],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"emojiRules": [

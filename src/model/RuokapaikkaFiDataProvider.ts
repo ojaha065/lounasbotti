@@ -14,7 +14,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		rami: "lounasravintola_rami.php",
 		august: "august.php",
 		holvi: "bistroholvi.php",
-		vino: "vino.php"
+		vino: "vino.php",
+		fernando: "fernando.php"
 	};
 
 	readonly settings: Settings;

@@ -11,7 +11,8 @@ class MockDataProvider implements LounasDataProvider {
 		rami: "",
 		august: "",
 		holvi: "",
-		vino: ""
+		vino: "",
+		fernando: ""
 	};
 
 	readonly settings: Settings;
