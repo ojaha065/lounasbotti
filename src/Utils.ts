@@ -1,4 +1,5 @@
 import { deserialize, serialize } from "v8";
+import fetch, { RequestInfo, RequestInit, Response } from "node-fetch";
 
 const BR_EXP = /<br\s*\/?>/i;
 
@@ -64,4 +65,18 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
 	return value;
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined };
+/**
+ * Fetch with a sensible timeout
+ * See {@link Fetch} for documentation
+ */
+const fetchWithTimeout = async (url: RequestInfo, init: RequestInit = {}): Promise<Response> => {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), 10000);
+
+	const response = await fetch(url, {...init, signal: controller.signal});
+	clearTimeout(timeout);
+
+	return response;
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined, fetchWithTimeout };

@@ -1,7 +1,5 @@
 import { promises as fs } from "fs";
 
-import fetch from "node-fetch";
-
 import { LounasDataProvider } from "./LounasDataProvider.js";
 import * as Utils from "../Utils.js";
 import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
@@ -26,7 +24,8 @@ enum Restaurant {
 	rami = "rami",
 	august = "august",
 	holvi = "holvi",
-	vino = "vino"
+	vino = "vino",
+	fernando = "fernando"
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
@@ -35,7 +34,8 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	rami: "Lounasravintola Rami",
 	august: "Ravintola August",
 	holvi: "Bistro Holvi",
-	vino: "Ravintola Vino"
+	vino: "Ravintola Vino",
+	fernando: "Ravintola Fernando"
 
 };
 
@@ -43,7 +43,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	let json: any;
 	if (configURL) {
 		try {
-			const response = await fetch(configURL.toString(), {
+			const response = await Utils.fetchWithTimeout(configURL.toString(), {
 				method: "GET",
 				headers: {
 					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,

@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import htmlparser2 from "htmlparser2";
 
@@ -15,7 +14,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		rami: "lounasravintola_rami.php",
 		august: "august.php",
 		holvi: "bistroholvi.php",
-		vino: "vino.php"
+		vino: "vino.php",
+		fernando: "fernando.php"
 	};
 
 	readonly settings: Settings;
@@ -36,7 +36,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			const isAdditional = !!additionalRestaurants?.includes(restaurant);
 
 			try {
-				const response = await fetch(url, {
+				const response = await Utils.fetchWithTimeout(url, {
 					method: "GET",
 					headers: {
 						"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION};)`
