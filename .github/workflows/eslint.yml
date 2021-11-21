@@ -1,0 +1,17 @@
+name: "Run ESLint"
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - main
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: npm
+      run: npm install --only=dev
+    - name: lint
+      run: npm run lint
