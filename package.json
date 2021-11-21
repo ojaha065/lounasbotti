@@ -15,7 +15,7 @@
     "dev": "nodemon -e ts,json,env --exec \"npm run refresh\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "lint": "eslint . --no-fix --max-warnings 0"
+    "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\""
   },
   "keywords": [
     "bot",
