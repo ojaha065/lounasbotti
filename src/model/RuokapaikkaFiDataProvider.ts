@@ -51,7 +51,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const dom = htmlparser2.parseDocument(html);
 				const $ = cheerio.load(dom);
 
-				const $lounasHTML = $(".tekstit2 > p:nth-child(3)").first();
+				const $lounasHTML = $(`.tekstit2 > p:nth-child(${this.settings.debug?.tomorrow ? 4 : 3})`).first();
 				if (!$lounasHTML.length) {
 					const errorMessage = `Error scraping data for restaurant ${restaurant}`;
 					console.warn(errorMessage);
@@ -63,7 +63,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				} else {
 					const today = Utils.getCurrentWeekdayNameInFinnish();
 					const date = $lounasHTML.children("b").first().text().toLowerCase();
-					if (date.includes(today)) {
+					if (this.settings.debug?.tomorrow || date.includes(today)) {
 						result.push({
 							isAdditional,
 							restaurant: restaurant,

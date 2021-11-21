@@ -13,7 +13,7 @@ import * as BotEvents from "./BotEvents.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.3.3";
+const VERSION = "1.3.4";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
