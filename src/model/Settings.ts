@@ -14,7 +14,8 @@ type Settings = {
 	emojiRules?: Map<RegExp, string>,
 	configSource?: string,
 	debug?: {
-		noDb?: boolean
+		noDb?: boolean,
+		tomorrow?: boolean
 	}
 };
 

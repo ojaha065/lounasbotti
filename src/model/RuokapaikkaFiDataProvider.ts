@@ -51,7 +51,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const dom = htmlparser2.parseDocument(html);
 				const $ = cheerio.load(dom);
 
-				const $lounasHTML = $(".tekstit2 > p:nth-child(3)").first();
+				const $lounasHTML = $(`.tekstit2 > p:nth-child(${this.settings.debug?.tomorrow ? 4 : 3})`).first();
 				if (!$lounasHTML.length) {
 					const errorMessage = `Error scraping data for restaurant ${restaurant}`;
 					console.warn(errorMessage);
@@ -63,7 +63,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				} else {
 					const today = Utils.getCurrentWeekdayNameInFinnish();
 					const date = $lounasHTML.children("b").first().text().toLowerCase();
-					if (date.includes(today)) {
+					if (this.settings.debug?.tomorrow || date.includes(today)) {
 						result.push({
 							isAdditional,
 							restaurant: restaurant,
@@ -73,11 +73,23 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					} else {
 						const errorMessage = `Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${date}"`;
 						console.warn(errorMessage);
-						result.push({
-							isAdditional,
-							restaurant: restaurant,
-							error: new Error(errorMessage)
-						});
+
+						let isOK = false;
+						if (restaurant === Restaurant.fernando) {
+							const fernandoResult = this.fernandoSpecialHandling($);
+							if (fernandoResult) {
+								result.push(fernandoResult);
+								isOK = true;
+							}
+						}
+
+						if (!isOK) {
+							result.push({
+								isAdditional,
+								restaurant: restaurant,
+								error: new Error(errorMessage)
+							});
+						}
 					}
 				}
 			} catch (error) {
@@ -103,6 +115,27 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			.slice(1)
 			.map(s => s.trim())
 			.filter(Boolean);
+	}
+
+	fernandoSpecialHandling($: cheerio.CheerioAPI): LounasResponse | false {
+		console.debug("Special handling for Fernando...");
+		const $fernandoHTML = $(`.tekstit2 > p:nth-child(${3 + (Math.max(new Date().getUTCDay() - 1, 0))})`).first();
+		if ($fernandoHTML.length) {
+			const fernandoDate = $fernandoHTML.children("b").first().text().toLowerCase();
+			if (fernandoDate.includes(Utils.getCurrentWeekdayNameInFinnish())) {
+				return {
+					isAdditional: true,
+					restaurant: Restaurant.fernando,
+					date: $fernandoHTML.children("b").first().text().toLowerCase(),
+					items: this.parseLounasHTML($fernandoHTML)
+				};
+			} else {
+				console.debug(`RuokapaikkaFi provided data for ${fernandoDate}`);
+			}
+		}
+
+		console.error("Fernando special handling failed");
+		return false;
 	}
 }
 
