@@ -8,22 +8,23 @@
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["keitto", ":bowl_with_spoon:"],
 		["((?<!pork)kana(?!nmun))|(broileri)", ":chicken:"],
-		["(loh(i|ta){1})|(kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)", ":fish:"],
+		["(loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
 		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
 		["(?:spagetti)|(?:bolognese)", ":spaghetti:"],
+		["härk?ä", ":ox:"],
 		["pannukak|ohukai", ":pancakes:"],
 		["riisi", ":rice:"],
 		["porkkan", ":carrot:"],
-		["(?:kasvi(?:s|k))|(?:juurek)", ":tomato:"],
+		["(?:kasvi(?:s|k))|(?:juure)", ":tomato:"],
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
 		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)|(?:kermavaah)|(?:mous{1,2}e)", ":yum:"],
-		["(?<!(?:kasvis)|(?:punajuuri))pihv", ":cut_of_meat:"],
+		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["peru(?:na|no)", ":potato:"]
 	],
     "debug": {
         "noDb": true,
-		"tomorrow": true
+		"tomorrow": false
     }
 }
