@@ -14,7 +14,7 @@ interface LounasDataProvider {
     readonly settings: Settings;
     readonly restaurantMap: Record<Restaurant, string>
 
-    getData: (restaurants: Restaurant[], additionalRestaurants?: Restaurant[]) => Promise<LounasResponse[]>;
+    getData: (restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest?: boolean) => Promise<LounasResponse[]>;
 
     /**
      * Handles any quirks that this data source might have

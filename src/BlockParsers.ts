@@ -3,7 +3,7 @@ import bolt from "@slack/bolt";
 import { LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
 
-const parseLounasBlock = (lounasResponse: LounasResponse, settings: Settings): bolt.Block | bolt.KnownBlock => {
+const parseLounasBlock = (lounasResponse: LounasResponse, settings: Settings, voting = true): bolt.Block | bolt.KnownBlock => {
 	const lounasBlock: (bolt.Block | bolt.KnownBlock) = {
 		type: "section",
 		text: {
@@ -12,7 +12,7 @@ const parseLounasBlock = (lounasResponse: LounasResponse, settings: Settings): b
 		},
 	};
 
-	if (lounasResponse.items) {
+	if (voting && lounasResponse.items) {
 		lounasBlock.accessory = {
 			type: "button",
 			text: {

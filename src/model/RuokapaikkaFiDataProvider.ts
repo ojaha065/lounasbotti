@@ -26,7 +26,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		this.VERSION = VERSION;
 	}
 
-	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[]): Promise<LounasResponse[]> {
+	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
 		console.debug("Fetching data from ruokapaikkaFi...");
 
 		const result: LounasResponse[] = [];
@@ -39,7 +39,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const response = await Utils.fetchWithTimeout(url, {
 					method: "GET",
 					headers: {
-						"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION};)`
+						"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION}; +${this.settings.gitUrl})`
 					}
 				});
 
@@ -51,7 +51,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const dom = htmlparser2.parseDocument(html);
 				const $ = cheerio.load(dom);
 
-				const $lounasHTML = $(`.tekstit2 > p:nth-child(${this.settings.debug?.tomorrow ? 4 : 3})`).first();
+				const $lounasHTML = $(`.tekstit2 > p:nth-child(${tomorrowRequest ? 4 : 3})`).first();
 				if (!$lounasHTML.length) {
 					const errorMessage = `Error scraping data for restaurant ${restaurant}`;
 					console.warn(errorMessage);
@@ -61,9 +61,9 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						error: new Error(errorMessage)
 					});
 				} else {
-					const today = Utils.getCurrentWeekdayNameInFinnish();
+					const today = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest);
 					const date = $lounasHTML.children("b").first().text().toLowerCase();
-					if (this.settings.debug?.tomorrow || date.includes(today)) {
+					if (date.includes(today)) {
 						result.push({
 							isAdditional,
 							restaurant: restaurant,
