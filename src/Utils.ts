@@ -15,8 +15,13 @@ const splitByBrTag = (input: string): string[] => {
 /**
  * @returns {string}
  */
-const getCurrentWeekdayNameInFinnish = (): string => {
-	return new Date().toLocaleDateString("fi-FI", {
+const getCurrentWeekdayNameInFinnish = (tomorrow = false): string => {
+	const now = new Date();
+	if (tomorrow) {
+		now.setDate(now.getDate() + 1);
+	}
+
+	return now.toLocaleDateString("fi-FI", {
 		weekday: "long"
 	}).toLowerCase();
 };

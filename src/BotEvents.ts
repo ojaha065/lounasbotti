@@ -10,6 +10,7 @@ import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 import * as LounasRepository from "./model/LounasRepository.js";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
+const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const voters: Record<string, Record<string, string[]>> = {};
 const toBeTruncated: { channel: string, ts: string }[] = [];
@@ -193,12 +194,17 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	});
 
-	app.message(/!(lounas|ruokaa)/, async args => {
+	app.message(/!(lounas|ruokaa|nälkä)/i, async args => {
 		if (args.message.subtype) {
 			return Promise.resolve();
 		}
+
+		const isTomorrowRequest = !!args.message.text && TOMORROW_REQUEST_REGEXP.test(args.message.text);
+		if (isTomorrowRequest) {
+			console.debug("Tomorrow request!");
+		}
 	
-		const cachedData = await getDataAndCache(dataProvider, settings);
+		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
 		cachedData.blocks.push(
 			{
 				type: "context",
@@ -214,7 +220,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		const response = await args.say(cachedData);
 	
 		if (response.ok && response.ts) {
-			if (!settings.debug?.noDb) {
+			if (!settings.debug?.noDb && !isTomorrowRequest) {
 				LounasRepository.create({
 					ts: response.ts,
 					channel: response.channel || args.event.channel,
@@ -292,6 +298,13 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 						type: "section",
 						text: {
 							type: "mrkdwn",
+							text: "UUTTA: Kokeile myös komentoa *!ruokaa huomenna*."
+						}
+					},
+					{
+						type: "section",
+						text: {
+							type: "mrkdwn",
 							text: "_Auta minua kehittymään paremmaksi_ -->"
 						},
 						accessory: {
@@ -337,22 +350,22 @@ function truncateMessage(app: bolt.App): void {
 	});
 }
 
-async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, tomorrowRequest = false): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
 	try {
 		const now = new Date();
-		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}`;
+		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
 	
 		if (lounasCache[cacheIdentifier]) {
 			return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
 		}
 	
-		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants);
+		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants, tomorrowRequest);
 		const hasDate = data.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
 	
 		const lounasBlocks: (bolt.Block | bolt.KnownBlock)[] = [];
 		data.filter(lounasResponse => !lounasResponse.isAdditional).forEach(lounasResponse => {
-			lounasBlocks.push(BlockParsers.parseLounasBlock(lounasResponse, settings));
+			lounasBlocks.push(BlockParsers.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
 		});
 
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
@@ -373,7 +386,7 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 			]
 		};
 
-		if (settings.additionalRestaurants?.length) {
+		if (settings.additionalRestaurants?.length && !tomorrowRequest) {
 			parsedData.blocks.push({
 				type: "section",
 				text: {
