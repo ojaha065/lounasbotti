@@ -13,7 +13,7 @@ import * as BotEvents from "./BotEvents.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = "1.3.6";
+const VERSION = process.env["npm_package_version"] || "1.0.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -74,6 +74,12 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 		if (!message.subtype) {
 			say(message.user);
 		}
+	});
+
+	app.message("!restart lounasbotti", async ({say}) => {
+		say("Okay! Restarting, BRB");
+		console.info("Process will now exit due to restart command");
+		setTimeout(() => process.exit(), 1000);
 	});
 	
 	if (typeof settings.dataProvider === "string") {
