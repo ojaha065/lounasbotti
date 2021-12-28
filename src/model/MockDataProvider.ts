@@ -5,15 +5,6 @@ import * as Utils from "../Utils.js";
 class MockDataProvider implements LounasDataProvider {
 	readonly id: string = "mock";
 	readonly baseUrl: string = "";
-	readonly restaurantMap: Record<Restaurant, string> = {
-		savo: "",
-		talli: "",
-		rami: "",
-		august: "",
-		holvi: "",
-		vino: "",
-		fernando: ""
-	};
 
 	readonly settings: Settings;
 

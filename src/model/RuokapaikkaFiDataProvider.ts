@@ -3,14 +3,15 @@ import htmlparser2 from "htmlparser2";
 
 import * as Utils from "../Utils.js";
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
+import TalliDataProvider from "./TalliDataProvider.js";
 import { Restaurant, Settings } from "./Settings.js";
 
 class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly id: string = "RuokapaikkaFi";
 	readonly baseUrl: string = "https://www.ruokapaikka.fi/";
-	readonly restaurantMap: Record<Restaurant, string> = {
+	readonly restaurantMap: Record<Restaurant, string | LounasDataProvider> = {
 		savo: "ravintolasavo.php",
-		talli: "ravintolatalli.php",
+		talli: "CUSTOM",
 		rami: "lounasravintola_rami.php",
 		august: "august.php",
 		holvi: "bistroholvi.php",
@@ -24,6 +25,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
 		this.VERSION = VERSION;
+
+		this.restaurantMap.talli = new TalliDataProvider(settings, VERSION);
 	}
 
 	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
@@ -32,10 +35,18 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		const result: LounasResponse[] = [];
 
 		await Promise.all([...restaurants, ...(additionalRestaurants || [])].map(async restaurant => {
-			const url = `${this.baseUrl}/${this.restaurantMap[restaurant]}`;
 			const isAdditional = !!additionalRestaurants?.includes(restaurant);
 
 			try {
+				if (typeof this.restaurantMap[restaurant] === "object") {
+					const customResult = await (this.restaurantMap[restaurant] as LounasDataProvider).getData([restaurant], undefined, tomorrowRequest);
+					customResult[0].isAdditional = isAdditional;
+					result.push(customResult[0]);
+					return;
+				}
+	
+				const url = `${this.baseUrl}/${this.restaurantMap[restaurant]}`;
+
 				const response = await Utils.fetchWithTimeout(url, {
 					method: "GET",
 					headers: {
@@ -111,13 +122,19 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			throw new Error("Empty HTML!");
 		}
 
-		return Utils.splitByBrTag(html)
+		const parsedList = Utils.splitByBrTag(html)
 			.slice(1)
 			.map(s => s.trim())
 			.filter(Boolean);
+		
+		if (!parsedList.length) {
+			parsedList.push("Tätä ruokalistaa ei juuri nyt ole saatavilla. Tämä johtuu todennäköisesti siitä, että ravintola ei ole auki.");
+		}
+
+		return parsedList;
 	}
 
-	fernandoSpecialHandling($: cheerio.CheerioAPI): LounasResponse | false {
+	private fernandoSpecialHandling($: cheerio.CheerioAPI): LounasResponse | false {
 		console.debug("Special handling for Fernando...");
 		const $fernandoHTML = $(`.tekstit2 > p:nth-child(${3 + (Math.max(new Date().getUTCDay() - 1, 0))})`).first();
 		if ($fernandoHTML.length) {
