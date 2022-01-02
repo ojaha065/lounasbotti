@@ -1,5 +1,5 @@
 {
-	"dataProvider": "mock",
+	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando"],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
