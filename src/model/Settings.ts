@@ -29,7 +29,7 @@ enum Restaurant {
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
-	savo: "Ravintola Savo",
+	savo: "Vaiha Savo",
 	talli: "Ravintola Talli",
 	rami: "Lounasravintola Rami",
 	august: "Ravintola August",
