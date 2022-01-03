@@ -94,7 +94,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					return {
 						isAdditional,
 						restaurant,
-						error: new Error("Ravintolalla ei ole voimassaolevaa lounaslistaa.")
+            error: new Error("Ravintolalla ei ole voimassaolevaa lounaslistaa.")
 					};
 				}
 	
@@ -130,7 +130,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					isAdditional,
 					restaurant,
 					items: items.map(s => s.trim()).filter(Boolean),
-					date: dataBlock.header.replace("Lounas", Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest)).trim()
+          date: dataBlock.header.replace("Lounas", Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest)).trim()
 				};
 			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 		} catch (error) {

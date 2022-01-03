@@ -290,7 +290,7 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data,
 			text: header, // Slack recommends having this this
-			blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
+      blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
 		};
 
 		if (data.filter(lounasResponse => lounasResponse.error).length) {
