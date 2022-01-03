@@ -25,6 +25,9 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			if (tomorrowRequest) {
 				throw new Error("tomorrowRequest currently not supported");
 			}
+
+			const ts = new Date();
+			ts.setUTCHours(9);
 	
 			const url = new URL(this.baseUrl);
 			url.search = new URLSearchParams({
@@ -39,7 +42,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				size: "100",
 
 				l: "fi",
-				ts: Date.now().toString(),
+				ts: ts.getTime().toString(),
 				channel: "collections_ruokapaikka"
 			}).toString();
 			console.debug(url.toString());
@@ -91,7 +94,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					return {
 						isAdditional,
 						restaurant,
-						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block missing`)
+						error: new Error("Ravintolalla ei ole voimassaolevaa lounaslistaa.")
 					};
 				}
 	
@@ -109,7 +112,12 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				if (dataBlock.lunchMenu) {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
-					items = Utils.splitByBrTag(dataBlock.body);
+					const split = Utils.splitByBrTag(dataBlock.body);
+					const spliceEndIndex = split.findIndex(s => s === "Lounas tarjolla");
+					if (spliceEndIndex >= 0) {
+						split.splice(spliceEndIndex);
+					}
+					items = split;
 				} else {
 					return {
 						isAdditional,
@@ -122,7 +130,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					isAdditional,
 					restaurant,
 					items: items.map(s => s.trim()).filter(Boolean),
-					date: dataBlock.header
+					date: dataBlock.header.replace("Lounas", Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest)).trim()
 				};
 			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 		} catch (error) {

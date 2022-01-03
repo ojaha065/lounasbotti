@@ -11,6 +11,7 @@ type Settings = {
 	additionalRestaurants?: Restaurant[],
 	gitUrl: string,
 	displayVoters: boolean,
+	announcements?: string[],
 	emojiRules?: Map<RegExp, string>,
 	configSource?: string,
 	debug?: {
@@ -108,6 +109,11 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 			return Promise.reject(Error(`Unknown data provider ${json.dataProvider}`));
 	}
 	settings.dataProvider = dataProvider;
+
+	// Announcements
+	if (json.announcements) {
+		settings.announcements = json.announcements;
+	}
 
 	// Emoji rules
 	if (json.emojiRules) {

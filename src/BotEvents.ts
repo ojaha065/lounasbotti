@@ -8,6 +8,7 @@ import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
+import { BlockCollection } from "slack-block-builder";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
@@ -84,7 +85,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				if (firstDividerIndex < 1) {
 					throw new Error("Error parsing blocks (divider)");
 				}
-				blocks.splice(firstDividerIndex, 0, BlockParsers.parseLounasBlock(lounasResponse, settings));
+				blocks.splice(firstDividerIndex, 0, BlockCollection(BlockParsers.parseLounasBlock(lounasResponse, settings))[0]);
 				if (blocks[firstDividerIndex + 3].type !== "actions") {
 					throw new Error("Error parsing blocks (actions)");
 				}
@@ -286,68 +287,11 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 		const hasDate = data.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
 	
-		const lounasBlocks: (bolt.Block | bolt.KnownBlock)[] = [];
-		data.filter(lounasResponse => !lounasResponse.isAdditional).forEach(lounasResponse => {
-			lounasBlocks.push(BlockParsers.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
-		});
-
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data,
 			text: header, // Slack recommends having this this
-			blocks: [
-				{
-					type: "header",
-					text: {
-						type: "plain_text",
-						text: header
-					}
-				},
-				{
-					type: "section",
-					text: {
-						type: "plain_text",
-						text: "Hox! Ruokapaikka-sivusto on päivittynyt. Datan hakeminen uudelta sivustolta ei vielä toimi kunnolla."
-					}
-				},
-				...lounasBlocks,
-				{
-					type: "divider"
-				}
-			]
+			blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
 		};
-
-		if (settings.additionalRestaurants?.length && !tomorrowRequest) {
-			parsedData.blocks.push({
-				type: "section",
-				text: {
-					type: "mrkdwn",
-					text: "*Jotakin aivan muuta? Napsauta hakeaksesi*"
-				}
-			});
-
-			const actionElements: bolt.Button[] = [];
-			settings.additionalRestaurants.forEach(restaurant => {
-				actionElements.push({
-					type: "button",
-					text: {
-						type: "plain_text",
-						text: RestaurantNameMap[restaurant]
-					},
-					action_id: `fetchAdditionalRestaurant-${restaurant}`,
-					value: restaurant
-				});
-			});
-
-			parsedData.blocks.push(
-				{
-					type: "actions",
-					elements: actionElements
-				},
-				{
-					type: "divider"
-				}
-			);
-		}
 
 		if (data.filter(lounasResponse => lounasResponse.error).length) {
 			console.warn("This result won't be cached as it contained errors");
