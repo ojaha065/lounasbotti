@@ -60,14 +60,15 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			const json: any[] = (jsonResponse as any)["items"]
 				?.map((item: any) => {
 					const correctAdBlock = item.ads?.map((elem: any) => elem["ad"] ?? {}).find((ad: any) => this.HEADER_REGEXP.test(ad["header"]));
-					if (!correctAdBlock || !correctAdBlock["header"] || !correctAdBlock["lunchMenu"]) {
+					if (!correctAdBlock || !correctAdBlock["header"]) {
 						return false;
 					}
 	
 					return {
 						name: item["name"],
 						header: correctAdBlock["header"],
-						lunchMenu: correctAdBlock["lunchMenu"]
+						lunchMenu: correctAdBlock["lunchMenu"],
+						body: correctAdBlock["body"]
 					};
 				}).filter(Boolean);
 	
@@ -90,7 +91,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					return {
 						isAdditional,
 						restaurant,
-						error: new Error(`Error scraping data for restaurant ${restaurant}: Data missing`)
+						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block missing`)
 					};
 				}
 	
@@ -103,11 +104,24 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						error: new Error(`Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${dataBlock.header}"`)
 					};
 				}
+
+				let items: string[];
+				if (dataBlock.lunchMenu) {
+					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
+				} else if (dataBlock.body) {
+					items = Utils.splitByBrTag(dataBlock.body);
+				} else {
+					return {
+						isAdditional,
+						restaurant,
+						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block is missing both lunchMenu and body`)
+					};
+				}
 	
 				return {
 					isAdditional,
 					restaurant,
-					items: dataBlock.lunchMenu.map((menuItem: any) => menuItem.food),
+					items: items.map(s => s.trim()).filter(Boolean),
 					date: dataBlock.header
 				};
 			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
