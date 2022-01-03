@@ -302,6 +302,13 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 						text: header
 					}
 				},
+				{
+					type: "section",
+					text: {
+						type: "plain_text",
+						text: "Hox! Ruokapaikka-sivusto on päivittynyt. Datan hakeminen uudelta sivustolta ei vielä toimi kunnolla."
+					}
+				},
 				...lounasBlocks,
 				{
 					type: "divider"
