@@ -9,7 +9,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly settings: Settings;
 	readonly VERSION: string;
 
-	readonly HEADER_REGEXP = /Lounas\s\d\.\d\./;
+	readonly HEADER_REGEXP = /Lounas\s\d{1,2}\.\d{1,2}\./;
 
 	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
