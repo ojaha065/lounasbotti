@@ -138,7 +138,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					items: items
 						.map(s => s.trim())
 						.filter(Boolean)
-						.filter(s => !new RegExp(`^${weekdayName}\s*(?:\.|[0-9])*$`, "i").test(s))
+						.filter(s => !new RegExp(`^${weekdayName}\\s*(?:\\.|[0-9])*$`, "i").test(s))
 						.map(s => s.replaceAll(new RegExp(`${weekdayName}:?`, "gi"), ""))
 						.map(s => s.trim())
 						.filter(Boolean),
