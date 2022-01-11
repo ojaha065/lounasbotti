@@ -8,7 +8,7 @@ import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
-import { BlockCollection } from "slack-block-builder";
+import { BlockCollection, Blocks, Md } from "slack-block-builder";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
@@ -213,18 +213,10 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	
 		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
-		cachedData.blocks.push(
-			{
-				type: "context",
-				elements: [
-					{
-						type: "mrkdwn",
-						text: `:alarm_clock: Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n:robot_face: Pyynnön lähetti <@${args.message.user}>`
-					},
-				]
-			
-			}
-		);
+		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
+			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(args.message.user)}`
+		))[0]);
+
 		const response = await args.say(cachedData);
 	
 		if (response.ok && response.ts) {
@@ -270,7 +262,7 @@ function truncateMessage(app: bolt.App): void {
 		channel: message.channel,
 		ts: message.ts,
 		blocks: [], // Remove all blocks
-		text: "_Viesti poistettiin_"
+		text: Md.italic("Viesti poistettiin")
 	});
 }
 
@@ -289,7 +281,7 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 	
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data,
-			text: header, // Slack recommends having this this
+			text: header, // Slack recommends having this
 			blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
 		};
 
