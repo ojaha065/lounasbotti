@@ -1,6 +1,7 @@
 import * as Utils from "../Utils.js";
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./Settings.js";
+import TalliDataProvider from "./TalliDataProvider.js";
 
 class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly id: string = "RuokapaikkaFi";
@@ -14,20 +15,18 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
 		this.VERSION = VERSION;
-
-		// this.restaurantMap.talli = new TalliDataProvider(settings, VERSION);
 	}
 
 	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
 		try {
 			console.debug("Fetching data from ruokapaikkaFi...");
 
-			if (tomorrowRequest) {
-				throw new Error("tomorrowRequest currently not supported");
-			}
+			const now = new Date();
+			now.setUTCHours(9);
 
-			const ts = new Date();
-			ts.setUTCHours(9);
+			if (tomorrowRequest) {
+				now.setDate(now.getDate() + 1);
+			}
 	
 			const url = new URL(this.baseUrl);
 			url.search = new URLSearchParams({
@@ -42,7 +41,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				size: "100",
 
 				l: "fi",
-				ts: ts.getTime().toString(),
+				ts: now.getTime().toString(),
 				channel: "collections_ruokapaikka"
 			}).toString();
 			console.debug(url.toString());
@@ -78,15 +77,22 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			if (!json) {
 				throw new Error("No data received from Ruokapaikka.fi");
 			}
+
+			const combinedRestaurants: Restaurant[] = [...restaurants, ...(additionalRestaurants || [])];
+
+			let talliResponse: LounasResponse;
+			if (combinedRestaurants.includes(Restaurant.talli)) {
+				const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], undefined, tomorrowRequest);
+				talliResponse = talliResponseArr[0];
+			}
 	
-			return [...restaurants, ...(additionalRestaurants || [])].map(restaurant => {
+			return combinedRestaurants.map(restaurant => {
 				const isAdditional = !!additionalRestaurants?.includes(restaurant);
-	
-				/* if (typeof this.restaurantMap[restaurant] === "object") {
-					const customResult = await (this.restaurantMap[restaurant] as LounasDataProvider).getData([restaurant], undefined, tomorrowRequest);
-					customResult[0].isAdditional = isAdditional;
-					return customResult[0];
-				} */
+
+				if (restaurant === Restaurant.talli && talliResponse) {
+					talliResponse.isAdditional = isAdditional;
+					return talliResponse;
+				}
 				
 				// const dataBlock = json.find((_block, i) => i === 0);
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
@@ -98,7 +104,6 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					};
 				}
 	
-				const now = new Date();
 				const today = `${now.getUTCDate()}.${now.getUTCMonth() + 1}.`;
 				if (!dataBlock.header.includes(today)) {
 					return {
@@ -126,11 +131,18 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					};
 				}
 	
+				const weekdayName = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest);
 				return {
 					isAdditional,
 					restaurant,
-					items: items.map(s => s.trim()).filter(Boolean),
-					date: dataBlock.header.replace("Lounas", Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest)).trim()
+					items: items
+						.map(s => s.trim())
+						.filter(Boolean)
+						.filter(s => !new RegExp(`^${weekdayName}\s*(?:\.|[0-9])*$`, "i").test(s))
+						.map(s => s.replaceAll(new RegExp(`${weekdayName}:?`, "gi"), ""))
+						.map(s => s.trim())
+						.filter(Boolean),
+					date: dataBlock.header.replace("Lounas", weekdayName).trim()
 				};
 			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 		} catch (error) {
