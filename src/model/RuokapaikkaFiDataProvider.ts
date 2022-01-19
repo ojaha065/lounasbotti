@@ -89,7 +89,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			return combinedRestaurants.map(restaurant => {
 				const isAdditional = !!additionalRestaurants?.includes(restaurant);
 
-				if (restaurant === Restaurant.talli && talliResponse) {
+				if (restaurant === Restaurant.talli && talliResponse?.items?.length) {
 					talliResponse.isAdditional = isAdditional;
 					return talliResponse;
 				}

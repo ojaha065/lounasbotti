@@ -61,7 +61,7 @@ const addVote = async (ts: string, userId: string, action: string): Promise<Loun
 			}
 		}, {new: true})
 			.maxTimeMS(5000)
-			.exec((error, document)=> {
+			.exec((error, document) => {
 				if (error) {
 					return reject(error);
 				}
