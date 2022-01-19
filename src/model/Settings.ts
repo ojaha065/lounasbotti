@@ -4,7 +4,6 @@ import { LounasDataProvider } from "./LounasDataProvider.js";
 import * as Utils from "../Utils.js";
 import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./MockDataProvider.js";
-import { Md } from "slack-block-builder";
 
 type Settings = {
 	dataProvider: LounasDataProvider | "self",
@@ -32,7 +31,7 @@ enum Restaurant {
 
 const RestaurantNameMap: Record<Restaurant, string> = {
 	savo: "Vaiha Savo",
-	talli: `Ravintola Talli (${Md.italic("Tietojen haku vielä testiasteella")})`,
+	talli: "Ravintola Talli",
 	rami: "Lounasravintola Rami",
 	august: "Ravintola August",
 	holvi: "Bistro Holvi",
@@ -112,7 +111,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	settings.dataProvider = dataProvider;
 
 	// Announcements
-	if (json.announcements) {
+	if (json.announcements?.length) {
 		settings.announcements = json.announcements;
 	}
 
