@@ -1,5 +1,3 @@
-import * as cheerio from "cheerio";
-
 import { Restaurant, Settings } from "./Settings.js";
 
 interface LounasDataProvider {
@@ -15,12 +13,6 @@ interface LounasDataProvider {
     readonly restaurantMap?: Record<Restaurant, string | LounasDataProvider>
 
     getData: (restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest?: boolean) => Promise<LounasResponse[]>;
-
-    /**
-     * Handles any quirks that this data source might have
-     * @returns {string} String ready to be used
-     */
-    parseLounasHTML?: ($: cheerio.Cheerio<cheerio.Element>) => string[];
 }
 
 interface LounasResponseBasic {
