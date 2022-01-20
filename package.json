@@ -46,7 +46,7 @@
     "typescript": "^4.5.2"
   },
   "dependencies": {
-    "@slack/bolt": "^3.8.1",
+    "@slack/bolt": "^3.9.0",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^14.2.0",
     "htmlparser2": "^7.2.0",
