@@ -117,6 +117,10 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				if (dataBlock.lunchMenu) {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
+					if (restaurant === Restaurant.rami) {
+						dataBlock.body = dataBlock.body.split("<br><br>")[0];
+					}
+
 					const split = Utils.splitByBrTag(dataBlock.body);
 					const spliceEndIndex = split.findIndex(s => s === "Lounas tarjolla");
 					if (spliceEndIndex >= 0) {
