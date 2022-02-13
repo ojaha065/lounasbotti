@@ -50,14 +50,16 @@ class MockDataProvider implements LounasDataProvider {
 					restaurant: restaurants[i],
 					isAdditional: false,
 					date: today,
-					items: this.mockItems
+					items: this.mockItems,
+					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg")
 				});
 			} else {
 				result.push({
 					restaurant: restaurants[i],
 					isAdditional: false,
 					date: today,
-					items: []
+					items: [],
+					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg")
 				});
 			}
 		}

@@ -10,7 +10,7 @@ export default class BlockParsers {
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: BlockBuilder[] = [];
 		data.filter(lounasResponse => !lounasResponse.isAdditional).forEach(lounasResponse => {
-			lounasBlocks.push(this.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
+			lounasBlocks.push(...this.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
 		});
 
 		return BlockCollection(
@@ -64,10 +64,17 @@ export default class BlockParsers {
 			.buildToObject();
 	}
 
-	public static parseLounasBlock(lounasResponse: LounasResponse, settings: Settings, voting = true): BlockBuilder {
-		return Blocks.Section({ text: `${Md.bold(RestaurantNameMap[lounasResponse.restaurant])}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
-			.accessory(setIfTruthy(voting && lounasResponse.items, Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })))
-			.end();
+	public static parseLounasBlock(lounasResponse: LounasResponse, settings: Settings, voting = true): BlockBuilder[] {
+		const arr = [];
+		arr.push(Blocks.Section({ text: `${Md.bold(RestaurantNameMap[lounasResponse.restaurant])}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
+			.accessory(setIfTruthy(lounasResponse.iconUrl && settings.iconsEnabled, Elements.Img({ imageUrl: lounasResponse.iconUrl?.toString() ?? "", altText: `${lounasResponse.restaurant} icon` })))
+			.end());
+
+		if (voting && lounasResponse.items) {
+			arr.push(Blocks.Actions().elements(Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })));
+		}
+
+		return arr;
 	}
 
 	private static getEmojiForLounasItem(lounasItem = "", settings: Settings) {

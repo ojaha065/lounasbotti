@@ -59,7 +59,7 @@ class TalliDataProvider implements LounasDataProvider {
 			}
 
 			let items = Utils.splitByBrTag(titleP.html() ?? "");
-			if (items.length <= 1) {
+			if (items.length <= 2) {
 				items = Utils.splitByBrTag(titleP.next().html() ?? "");
 			}
 			if (!items?.length) {
@@ -72,7 +72,8 @@ class TalliDataProvider implements LounasDataProvider {
 				date: expectedTitle,
 				items: items
 					.map(s => s.trim())
-					.filter(Boolean)
+					.filter(Boolean),
+				iconUrl: new URL("https://kuvat.tassa.fi/logos/2472908-2/poihrIcon896137910962908439.jpg")
 			}];
 		} catch(error) {
 			console.error(error);

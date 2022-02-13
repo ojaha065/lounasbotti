@@ -68,6 +68,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	
 					return {
 						name: item["name"],
+						icon: item["icon"] || item["hricon"],
 						header: correctAdBlock["header"],
 						lunchMenu: correctAdBlock["lunchMenu"],
 						body: correctAdBlock["body"]
@@ -103,13 +104,24 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						error: new Error("Ravintolalla ei ole voimassaolevaa lounaslistaa.")
 					};
 				}
+
+				// eslint-disable-next-line no-undef-init
+				let iconUrl: URL | undefined = undefined;
+				if (dataBlock.icon) {
+					try {
+						iconUrl = new URL(dataBlock.icon, "https://kuvat.tassa.fi");
+					} catch (urlError) {
+						console.warn(urlError);
+					}
+				}
 	
 				const today = `${now.getUTCDate()}.${now.getUTCMonth() + 1}.`;
 				if (!dataBlock.header.includes(today)) {
 					return {
 						isAdditional,
 						restaurant,
-						error: new Error(`Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${dataBlock.header}"`)
+						error: new Error(`Error scraping data for restaurant ${restaurant}: Today is ${today} but RuokapaikkaFi provided data for "${dataBlock.header}"`),
+						iconUrl
 					};
 				}
 
@@ -131,7 +143,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					return {
 						isAdditional,
 						restaurant,
-						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block is missing both lunchMenu and body`)
+						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block is missing both lunchMenu and body`),
+						iconUrl
 					};
 				}
 	
@@ -146,7 +159,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						.map(s => s.replaceAll(new RegExp(`${weekdayName}:?`, "gi"), ""))
 						.map(s => s.trim())
 						.filter(Boolean),
-					date: dataBlock.header.replace("Lounas", weekdayName).trim()
+					date: dataBlock.header.replace("Lounas", weekdayName).trim(),
+					iconUrl
 				};
 			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 		} catch (error) {

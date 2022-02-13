@@ -1,9 +1,10 @@
 {
-	"dataProvider": "ruokapaikkaFi",
+	"dataProvider": "mock",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando"],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
+	"iconsEnabled": true,
 	"announcements": [],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
@@ -23,7 +24,7 @@
 		["porkkan", ":carrot:"],
 		["(?:kasvi(?:s|k))|(?:juure)", ":tomato:"],
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
-		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)|(?:vaah(?:toa|don))|(?:mous{1,2}e)|(?:rahkaa)|(?:pannacot)|(?:trif{1,2}le)|smoothie", ":yum:"],
+		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)|(?:vaah(?:toa|don))|(?:mous{1,2}e)|(?:rahkaa)|(?:pannacot)|(?:trif{1,2}le)|smoothie|(?:rita(?:rit|reita))|kakku", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
@@ -31,7 +32,7 @@
 		["kahvi", ":coffee:"]
 	],
     "debug": {
-        "noDb": true,
+        "noDb": false,
 		"tomorrow": false
     }
 }
