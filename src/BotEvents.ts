@@ -1,4 +1,4 @@
-import bolt from "@slack/bolt";
+import bolt, { SectionBlock } from "@slack/bolt";
 import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
@@ -174,10 +174,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 					updateVoting(lounasMessage, blocks, settings.displayVoters);
 				} catch (error) {
 					console.error(error);
-					updateVotingLegacy(blocks, actionValue, settings.displayVoters, args);
 				}
-			} else {
-				updateVotingLegacy(blocks, actionValue, settings.displayVoters, args);
 			}
 
 			args.respond({
@@ -312,20 +309,23 @@ function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockActio
 function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
 	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
 
-	blocks.forEach(block => {
-		if (block.type === "section" && (block as bolt.SectionBlock).accessory?.type === "button") {
-			const section: bolt.SectionBlock = block as bolt.SectionBlock;
-			const sectionVoteAction: string | undefined = (section.accessory as bolt.Button).value;
+	blocks.forEach((block, index) => {
+		if (block.type === "actions" && (block as bolt.ActionsBlock).elements?.find(element => element.action_id === "upvoteButtonAction")) {
+			const actionBlock: bolt.ActionsBlock = block as bolt.ActionsBlock;
+			const voteButtonValue: string | undefined = (actionBlock.elements[0] as bolt.Button).value;
 
-			const upvotes: number = allVotes.filter(vote => vote === sectionVoteAction).length;
+			const upvotes: number = allVotes.filter(vote => vote === voteButtonValue).length;
 
-			(section.accessory as bolt.Button).text.text = `:thumbsup: ${upvotes || ""}`;
+			(actionBlock.elements[0] as bolt.Button).text.text = `:thumbsup: ${upvotes || ""}`;
 
 			if (displayVoters) {
+				const sectionIndex = index - 1;
+				const section: SectionBlock = blocks[sectionIndex] as SectionBlock;
+
 				const currentText: string | undefined = section.text?.text;
 				if (currentText) {
 					const voters: string | undefined = lounasMessage?.votes
-						.filter(vote => vote.action === sectionVoteAction)
+						.filter(vote => vote.action === voteButtonValue)
 						.map(vote => vote.userId)
 						.map(id => `<@${id}>`)
 						.join(" ");
@@ -339,6 +339,7 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 
 					if (section.text) {
 						section.text.text = split.join("\n");
+						blocks[sectionIndex] = section;
 					}
 				} else {
 					console.error("Section without text?");
@@ -346,43 +347,4 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 			}
 		}
 	});
-}
-
-/**
- * @deprecated
- */
-// eslint-disable-next-line max-params
-function updateVotingLegacy(blocks: (bolt.Block | bolt.KnownBlock)[], actionValue: string, displayVoters: boolean, args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs) {
-	const sections: any[] = blocks.filter(b => b.type === "section");
-	const votedSectionIndex = sections.findIndex(s => s.accessory?.value === actionValue);
-
-	if (votedSectionIndex < 0) {
-		throw new Error(`Block with value ${actionValue} not found`);
-	}
-
-	const split: string[] | undefined = sections[votedSectionIndex].accessory.text?.text?.split(" ");
-	if (!split) {
-		throw new Error("Could not find text in button");
-	}
-
-	const currentNumberOfUpvotes: number = split.length === 2 ? Number(split[1]) : 0;
-
-	sections[votedSectionIndex].accessory.text.text = `:thumbsup: ${currentNumberOfUpvotes + 1}`;
-
-	if (displayVoters) {
-		const currentText: string | undefined = sections[votedSectionIndex].text?.text;
-		if (currentText) {
-			const split = currentText.split("\n");
-
-			if (split[1].includes("<@")) {
-				split[1] += ` <@${args.body.user.id}>`;
-			} else {
-				split.splice(1, 0, `<@${args.body.user.id}>`);
-			}
-
-			sections[votedSectionIndex].text.text = split.join("\n");
-		} else {
-			console.error("Section without text?");
-		}
-	}
 }

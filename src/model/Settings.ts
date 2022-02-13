@@ -11,6 +11,7 @@ type Settings = {
 	additionalRestaurants?: Restaurant[],
 	gitUrl: string,
 	displayVoters: boolean,
+	iconsEnabled: boolean,
 	announcements?: string[],
 	emojiRules?: Map<RegExp, string>,
 	configSource?: string,
@@ -93,7 +94,8 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		defaultRestaurants,
 		additionalRestaurants,
 		gitUrl: String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required")),
-		displayVoters: Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required")
+		displayVoters: Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required"),
+		iconsEnabled: Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required")
 	};
 
 	// Data provider
