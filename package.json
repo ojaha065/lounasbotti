@@ -5,8 +5,9 @@
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
+  "engineStrict": true,
   "engines": {
-    "node": ">=16.13.0"
+    "node": ">=16.14.0 <17.0.0"
   },
   "scripts": {
     "start": "node dist/server.js",
