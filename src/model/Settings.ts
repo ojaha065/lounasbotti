@@ -12,6 +12,7 @@ type Settings = {
 	gitUrl: string,
 	displayVoters: boolean,
 	iconsEnabled: boolean,
+	overrideIconsUrl?: URL,
 	announcements?: string[],
 	emojiRules?: Map<RegExp, string>,
 	configSource?: string,
@@ -111,6 +112,11 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 			return Promise.reject(Error(`Unknown data provider ${json.dataProvider}`));
 	}
 	settings.dataProvider = dataProvider;
+
+	// Override icons
+	if (json.overrideIconsUrl) {
+		settings.overrideIconsUrl = new URL(json.overrideIconsUrl);
+	}
 
 	// Announcements
 	if (json.announcements?.length) {

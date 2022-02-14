@@ -51,7 +51,7 @@ class MockDataProvider implements LounasDataProvider {
 					isAdditional: false,
 					date: today,
 					items: this.mockItems,
-					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg")
+					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg").toString()
 				});
 			} else {
 				result.push({
@@ -59,7 +59,7 @@ class MockDataProvider implements LounasDataProvider {
 					isAdditional: false,
 					date: today,
 					items: [],
-					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg")
+					iconUrl: new URL("https://www.kissakala.fi/test_image.jpg").toString()
 				});
 			}
 		}
