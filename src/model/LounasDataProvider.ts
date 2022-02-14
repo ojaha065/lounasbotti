@@ -19,7 +19,7 @@ interface LounasResponseBasic {
     restaurant: Restaurant,
     isAdditional: boolean,
     date?: string,
-    iconUrl?: URL | undefined
+    iconUrl?: string | undefined
 }
 
 interface LounasResponseSuccess extends LounasResponseBasic {

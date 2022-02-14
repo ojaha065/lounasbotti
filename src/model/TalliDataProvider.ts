@@ -73,7 +73,7 @@ class TalliDataProvider implements LounasDataProvider {
 				items: items
 					.map(s => s.trim())
 					.filter(Boolean),
-				iconUrl: new URL("https://kuvat.tassa.fi/logos/2472908-2/poihrIcon896137910962908439.jpg")
+				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_logos/${Restaurant.talli}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
 			console.error(error);

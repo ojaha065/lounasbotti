@@ -89,15 +89,14 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	
 			return combinedRestaurants.map(restaurant => {
 				const isAdditional = !!additionalRestaurants?.includes(restaurant);
-
-				if (restaurant === Restaurant.talli && talliResponse?.items?.length) {
-					talliResponse.isAdditional = isAdditional;
-					return talliResponse;
-				}
 				
 				// const dataBlock = json.find((_block, i) => i === 0);
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
 				if (!dataBlock) {
+					if (restaurant === Restaurant.talli && talliResponse?.items?.length) {
+						return talliResponse;
+					}
+
 					return {
 						isAdditional,
 						restaurant,
@@ -106,10 +105,12 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				}
 
 				// eslint-disable-next-line no-undef-init
-				let iconUrl: URL | undefined = undefined;
-				if (dataBlock.icon) {
+				let iconUrl: string | undefined = undefined;
+				if (this.settings.overrideIconsUrl) {
+					iconUrl = new URL(`/lounas_icons/${restaurant}.png`, this.settings.overrideIconsUrl).toString();
+				} else if (dataBlock.icon) {
 					try {
-						iconUrl = new URL(dataBlock.icon, "https://kuvat.tassa.fi");
+						iconUrl = new URL(dataBlock.icon, "https://kuvat.tassa.fi").toString();
 					} catch (urlError) {
 						console.warn(urlError);
 					}

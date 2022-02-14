@@ -85,16 +85,20 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				if (firstDividerIndex < 1) {
 					throw new Error("Error parsing blocks (divider)");
 				}
-				blocks.splice(firstDividerIndex, 0, BlockCollection(BlockParsers.parseLounasBlock(lounasResponse, settings))[0]);
-				if (blocks[firstDividerIndex + 3].type !== "actions") {
+
+				const newBlocks = BlockParsers.parseLounasBlock(lounasResponse, settings);
+				const newIndex = firstDividerIndex + 2 + newBlocks.length;
+				blocks.splice(firstDividerIndex, 0, ...newBlocks);
+
+				if (blocks[newIndex].type !== "actions") {
 					throw new Error("Error parsing blocks (actions)");
 				}
-				let elements = (blocks[firstDividerIndex + 3] as bolt.ActionsBlock).elements;
+				let elements = (blocks[newIndex] as bolt.ActionsBlock).elements;
 				elements = elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
 				if (elements.length) {
-					(blocks[firstDividerIndex + 3] as bolt.ActionsBlock).elements = elements;
+					(blocks[newIndex] as bolt.ActionsBlock).elements = elements;
 				} else {
-					blocks.splice(firstDividerIndex + 2, 3);
+					blocks.splice(newIndex - 1, 3);
 				}
 
 				let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
