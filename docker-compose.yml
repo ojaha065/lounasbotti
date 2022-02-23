@@ -10,6 +10,8 @@ services:
       - SLACK_TOKEN
       - SLACK_SOCKET
       - SLACK_APP_TOKEN
+      - SLACK_CONFIG_NAME
+      - SLACK_CONFIG_URL
     ports:
       - "8080:8080"
     depends_on:
