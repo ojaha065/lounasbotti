@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  lounasbotti:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - SLACK_MONGO_URL=mongodb://mongo:27017
+      - SLACK_SECRET
+      - SLACK_TOKEN
+      - SLACK_SOCKET
+      - SLACK_APP_TOKEN
+      - SLACK_CONFIG_NAME
+      - SLACK_CONFIG_URL
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+volumes:
+  mongo-data:

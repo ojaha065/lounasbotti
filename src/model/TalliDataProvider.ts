@@ -48,7 +48,7 @@ class TalliDataProvider implements LounasDataProvider {
 				throw new Error("Error parsing HTML! Could not find proper container");
 			}
 	
-			const expectedTitle: string = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase();
+			const expectedTitle = `${Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase()} `;
 
 			const titleP = containerDiv
 				.find("p")
