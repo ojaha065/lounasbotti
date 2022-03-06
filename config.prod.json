@@ -21,7 +21,7 @@
 		["riista", ":deer:"],
 		["pannukak", ":pancakes:"],
 		["riisi", ":rice:"],
-		["chips|ranskalaiset", ":fries:"],
+		["chips|ranskalai(?:set|sia)|ranskanperu", ":fries:"],
 		["porkkan", ":carrot:"],
 		["(?:kasvi(?:s|k))|(?:juure)", ":tomato:"],
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
