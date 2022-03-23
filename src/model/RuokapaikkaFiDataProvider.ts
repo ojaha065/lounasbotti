@@ -11,6 +11,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly VERSION: string;
 
 	readonly HEADER_REGEXP = /Lounas\s\d{1,2}\.\d{1,2}\./;
+	readonly EXTRA_SPACES_REGEXP = /\s{5,}/g;
 
 	public constructor(settings: Settings, VERSION: string) {
 		this.settings = settings;
@@ -131,7 +132,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
 					if (restaurant === Restaurant.rami) {
-						dataBlock.body = dataBlock.body.split("<br><br>")[0];
+						dataBlock.body = dataBlock.body.split("<br><br>")[0]
+							.replaceAll(this.EXTRA_SPACES_REGEXP, "<br>");
 					}
 
 					const split = Utils.splitByBrTag(dataBlock.body);
