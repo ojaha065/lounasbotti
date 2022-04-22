@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.4.7",
+  "version": "1.4.9",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -31,7 +31,7 @@
   },
   "bugs": {
     "url": "https://github.com/ojaha065/lounasbotti/issues",
-    "email": "haiko.jani@gmail.com"
+    "email": "hello@jhaiko.tech"
   },
   "devDependencies": {
     "@types/node": "^17.0.23",

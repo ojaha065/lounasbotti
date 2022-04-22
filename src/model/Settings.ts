@@ -7,6 +7,7 @@ import MockDataProvider from "./MockDataProvider.js";
 
 type Settings = {
 	dataProvider: LounasDataProvider | "self",
+	triggerRegExp: RegExp,
 	defaultRestaurants: Restaurant[],
 	additionalRestaurants?: Restaurant[],
 	gitUrl: string,
@@ -28,7 +29,9 @@ enum Restaurant {
 	august = "august",
 	holvi = "holvi",
 	vino = "vino",
-	fernando = "fernando"
+	fernando = "fernando",
+	pormestari = "pormestari",
+	lale = "lale"
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
@@ -38,7 +41,9 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	august: "Ravintola August",
 	holvi: "Bistro Holvi",
 	vino: "Ravintola Vino",
-	fernando: "Ravintola Fernando"
+	fernando: "Ravintola Fernando",
+	pormestari: "Vaiha Oy / Pormestari",
+	lale: "Ravintola Lale"
 
 };
 
@@ -92,6 +97,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 
 	const settings: Settings = {
 		dataProvider: "self",
+		triggerRegExp: RegExp(Utils.requireNonNullOrUndefined(json.triggerRegExp, "Parameter triggerRegExp is required"), "i"),
 		defaultRestaurants,
 		additionalRestaurants,
 		gitUrl: String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required")),

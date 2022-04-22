@@ -203,7 +203,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	});
 
-	app.message(/!(lounas|ruokaa|nälkä)/i, async args => {
+	app.message(settings.triggerRegExp, async args => {
 		if (args.message.subtype) {
 			return Promise.resolve();
 		}

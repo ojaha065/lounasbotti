@@ -63,6 +63,18 @@ export default class BlockParsers {
 				Blocks.Section({ text: `${Md.italic("Auta minua kehittymään paremmaksi")} ${Md.emoji("arrow_right")}` })
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
 					.end(),
+				Blocks.Divider().end(),
+				Blocks.Input({ label: "Asetukset", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Tulevaisuudessa voit muokata sitä täällä." })
+					.dispatchAction(false)
+					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.toString(), minLength: 3, maxLength: 256, placeholder: "esim. '/!lounas/i'" })
+						.dispatchActionOnCharacterEntered(false)
+						.dispatchActionOnEnterPressed(false)
+						.focusOnLoad(false)
+						.multiline(false)
+						.end()
+					)
+					.end(),
+				Blocks.Divider().end(),
 				setIfTruthy(debugInformation.length, Blocks.Context().elements(`Debug information:\n${debugInformation.join("\n")}`).end())
 			)
 			.buildToObject();
