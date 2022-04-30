@@ -6,6 +6,7 @@ import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./MockDataProvider.js";
 
 type Settings = {
+	instanceId: string,
 	dataProvider: LounasDataProvider | "self",
 	triggerRegExp: RegExp,
 	defaultRestaurants: Restaurant[],
@@ -96,6 +97,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		.map(s => Restaurant[s as Restaurant]);
 
 	const settings: Settings = {
+		instanceId: Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required"),
 		dataProvider: "self",
 		triggerRegExp: RegExp(Utils.requireNonNullOrUndefined(json.triggerRegExp, "Parameter triggerRegExp is required"), "i"),
 		defaultRestaurants,

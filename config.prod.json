@@ -1,4 +1,5 @@
 {
+	"instanceId": "changeThis",
 	"dataProvider": "ruokapaikkaFi",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],

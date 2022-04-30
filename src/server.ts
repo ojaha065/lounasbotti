@@ -98,7 +98,7 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 		host: "0.0.0.0"
 	}).then(server => {
 		const address = server.address() as AddressInfo;
-		console.info(`Lounasbotti server started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
+		console.info(`Lounasbotti server with instanceId "${settings.instanceId}" started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
 	
 		// Keep Heroku free Dyno running
 		if (process.env["HEROKU_INSTANCE_URL"]) {

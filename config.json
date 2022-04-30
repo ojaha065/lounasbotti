@@ -1,4 +1,5 @@
 {
+	"instanceId": "dev",
 	"dataProvider": "mock",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä|t)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
