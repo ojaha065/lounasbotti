@@ -10,10 +10,11 @@ import { Job, Range, scheduleJob } from "node-schedule";
 
 import { readAndParseSettings } from "./model/Settings.js";
 import * as BotEvents from "./BotEvents.js";
+import BotActions from "./BotActions.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.9";
+const VERSION = process.env["npm_package_version"] ?? "1.4.10";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -85,7 +86,9 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	if (typeof settings.dataProvider === "string") {
 		throw new Error("Incorrect dataProvider");
 	}
+
 	BotEvents.initEvents(app, settings, settings.dataProvider, restartJob, VERSION);
+	BotActions(app, settings);
 	
 	const botPort = 3000;
 	const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
