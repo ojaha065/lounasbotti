@@ -4,6 +4,7 @@ import { LounasDataProvider } from "./LounasDataProvider.js";
 import * as Utils from "../Utils.js";
 import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./MockDataProvider.js";
+import * as SettingsRepository from "./SettingsRepository.js";
 
 type Settings = {
 	instanceId: string,
@@ -21,6 +22,11 @@ type Settings = {
 	debug?: {
 		noDb?: boolean
 	}
+};
+
+type InstanceSettings = {
+	instanceId: string,
+	triggerRegExp?: RegExp | undefined,
 };
 
 enum Restaurant {
@@ -161,4 +167,15 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	return Promise.resolve(settings);
 };
 
-export { Settings, Restaurant, RestaurantNameMap, readAndParseSettings };
+const readInstanceSettings = (settings: Settings): void => {
+	SettingsRepository.findOrCreate(settings.instanceId).then(instanceSettings => {
+		if (instanceSettings.triggerRegExp) {
+			console.debug(`Custom trigger enabled for instance "${settings.instanceId}" (${instanceSettings.triggerRegExp.source})`);
+			settings.triggerRegExp = instanceSettings.triggerRegExp;
+		}
+	}).catch(error => {
+		console.error(error);
+	});
+};
+
+export { Settings, InstanceSettings, Restaurant, RestaurantNameMap, readAndParseSettings, readInstanceSettings };

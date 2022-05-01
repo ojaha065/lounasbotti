@@ -8,13 +8,13 @@ import fetch from "node-fetch";
 import bolt from "@slack/bolt";
 import { Job, Range, scheduleJob } from "node-schedule";
 
-import { readAndParseSettings } from "./model/Settings.js";
+import mongoose from "mongoose";
+
+import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js";
 import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 
-import * as LounasRepository from "./model/LounasRepository.js";
-
-const VERSION = process.env["npm_package_version"] ?? "1.4.10";
+const VERSION = process.env["npm_package_version"] ?? "1.4.11";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -53,7 +53,13 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {
-		LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
+		mongoose.connect(process.env["SLACK_MONGO_URL"] as string, {
+			socketTimeoutMS: 10000,
+			keepAlive: true
+		}).then(() => {
+			console.debug("Connection to MongoDB opened successfully");
+			readInstanceSettings(settings);
+		});
 	}
 	
 	const appOptions: bolt.AppOptions = {
