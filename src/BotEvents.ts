@@ -203,12 +203,16 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	});
 
-	app.message(settings.triggerRegExp, async args => {
-		if (args.message.subtype) {
+	app.message(async args => {
+		if (args.message.subtype || !args.message.text) {
 			return Promise.resolve();
 		}
 
-		const isTomorrowRequest = !!args.message.text && TOMORROW_REQUEST_REGEXP.test(args.message.text);
+		if (!settings.triggerRegExp.test(args.message.text)) {
+			return Promise.resolve();
+		}
+
+		const isTomorrowRequest = TOMORROW_REQUEST_REGEXP.test(args.message.text);
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
 		}

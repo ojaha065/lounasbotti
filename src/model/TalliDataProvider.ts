@@ -1,5 +1,4 @@
 import * as cheerio from "cheerio";
-import htmlparser2 from "htmlparser2";
 
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import { Restaurant, Settings } from "./Settings.js";
@@ -41,8 +40,7 @@ class TalliDataProvider implements LounasDataProvider {
 			}
 	
 			const responseHTML = await response.text();
-			const dom = htmlparser2.parseDocument(responseHTML);
-			const $ = cheerio.load(dom);
+			const $ = cheerio.load(responseHTML);
 			const containerDiv = $("section.cols-1 > div.container:first-child");
 			if (!containerDiv.length) {
 				throw new Error("Error parsing HTML! Could not find proper container");

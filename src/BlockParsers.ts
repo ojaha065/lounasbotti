@@ -53,7 +53,7 @@ export default class BlockParsers {
 				Blocks.Header({ text: `Lounasbotti V${data.version}` }).end(),
 				Blocks.Section({ text: Md.italic("By <https://github.com/ojaha065|Jani Haiko>") }).end(),
 				Blocks.Divider().end(),
-				Blocks.Section({ text: `Tervehdys ${user(data.userId)}, nimeni on Lounasbotti. Kutsu minua komennoilla ${Md.bold("!lounas")} tai ${Md.bold("!ruokaa")} millä tahansa kanavalla, jonne minut on kutsuttu ja haen päivän lounaslistat valonnopeudella! ${Md.italic("...tai ainakin yritän...")}` }).end(),
+				Blocks.Section({ text: `Tervehdys ${user(data.userId)}, nimeni on Lounasbotti. Kutsu minua millä tahansa kanavalla, jonne minut on kutsuttu ja haen päivän lounaslistat valonnopeudella! ${Md.italic("...tai ainakin yritän...")}` }).end(),
 				Blocks.Section({ text: "Voit myös avata yksityisen chatin kanssani ja käyttää edellä mainittuja komentoja siellä." }).end(),
 				Blocks.Section({ text: `UUTTA: Kokeile myös komentoa ${Md.bold("!ruokaa huomenna")}` }).end(),
 				setIfTruthy(data.settings.announcements?.length, [
@@ -64,11 +64,12 @@ export default class BlockParsers {
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
 					.end(),
 				Blocks.Divider().end(),
-				Blocks.Input({ label: "Asetukset", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Tulevaisuudessa voit muokata sitä täällä." })
-					.dispatchAction(false)
-					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.toString(), minLength: 3, maxLength: 256, placeholder: "esim. '/!lounas/i'" })
+				Blocks.Input({ label: "Asetukset", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
+					.dispatchAction(true)
+					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.source, minLength: 1, maxLength: 256, placeholder: "esim. '!lounas'" })
+						.actionId("lounasbotti-updateRegExp")
 						.dispatchActionOnCharacterEntered(false)
-						.dispatchActionOnEnterPressed(false)
+						.dispatchActionOnEnterPressed(true)
 						.focusOnLoad(false)
 						.multiline(false)
 						.end()

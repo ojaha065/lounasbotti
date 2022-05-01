@@ -9,12 +9,6 @@ type LounasMessageEntry = {
     votes: {userId: string, action: string}[]
 };
 
-const init = (url: string) => {
-	mongoose.connect(url, {
-		socketTimeoutMS: 10000
-	}).then(() => console.debug("Connection to MongoDB opened successfully"));
-}; 
-
 const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
 	ts: String,
 	channel: String,
@@ -74,4 +68,4 @@ const addVote = async (ts: string, userId: string, action: string): Promise<Loun
 	});
 };
 
-export { init, create, find, addVote, LounasMessageEntry };
+export { create, find, addVote, LounasMessageEntry };

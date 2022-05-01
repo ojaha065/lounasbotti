@@ -8,12 +8,13 @@ import fetch from "node-fetch";
 import bolt from "@slack/bolt";
 import { Job, Range, scheduleJob } from "node-schedule";
 
-import { readAndParseSettings } from "./model/Settings.js";
+import mongoose from "mongoose";
+
+import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js";
 import * as BotEvents from "./BotEvents.js";
+import BotActions from "./BotActions.js";
 
-import * as LounasRepository from "./model/LounasRepository.js";
-
-const VERSION = process.env["npm_package_version"] ?? "1.4.9";
+const VERSION = process.env["npm_package_version"] ?? "1.4.11";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -52,7 +53,13 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {
-		LounasRepository.init(process.env["SLACK_MONGO_URL"] as string);
+		mongoose.connect(process.env["SLACK_MONGO_URL"] as string, {
+			socketTimeoutMS: 10000,
+			keepAlive: true
+		}).then(() => {
+			console.debug("Connection to MongoDB opened successfully");
+			readInstanceSettings(settings);
+		});
 	}
 	
 	const appOptions: bolt.AppOptions = {
@@ -85,7 +92,9 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	if (typeof settings.dataProvider === "string") {
 		throw new Error("Incorrect dataProvider");
 	}
+
 	BotEvents.initEvents(app, settings, settings.dataProvider, restartJob, VERSION);
+	BotActions(app, settings);
 	
 	const botPort = 3000;
 	const webPort: number = (process.env["PORT"] || 8080) as unknown as number;
@@ -95,7 +104,7 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 		host: "0.0.0.0"
 	}).then(server => {
 		const address = server.address() as AddressInfo;
-		console.info(`Lounasbotti server started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
+		console.info(`Lounasbotti server with instanceId "${settings.instanceId}" started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
 	
 		// Keep Heroku free Dyno running
 		if (process.env["HEROKU_INSTANCE_URL"]) {
