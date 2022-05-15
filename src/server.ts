@@ -14,7 +14,7 @@ import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js"
 import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.11";
+const VERSION = process.env["npm_package_version"] ?? "1.4.12";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
