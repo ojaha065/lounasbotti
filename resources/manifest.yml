@@ -1,6 +1,3 @@
-_metadata:
-  major_version: 1
-  minor_version: 1
 display_information:
   name: Lounasbotti
 features:
@@ -14,9 +11,10 @@ features:
 oauth_config:
   scopes:
     bot:
-      - chat:write
       - channels:history
+      - chat:write
       - im:history
+      - reactions:write
 settings:
   event_subscriptions:
     request_url: https://lounasbotti-disec.herokuapp.com/slack/events

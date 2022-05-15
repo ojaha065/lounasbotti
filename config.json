@@ -3,7 +3,7 @@
 	"dataProvider": "mock",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä|t)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "lale"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "lale", "ramiVisulahti"],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"iconsEnabled": true,

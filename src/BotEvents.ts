@@ -74,7 +74,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 					throw new Error("No blocks found in message body");
 				}
 	
-				const cachedData = await getDataAndCache(dataProvider, settings);
+				const cachedData = await getDataAndCache(dataProvider, settings, false, Restaurant[actionValue as Restaurant]);
 				const lounasResponse: LounasResponse | undefined = cachedData.data.find(lounasResponse => lounasResponse.restaurant === actionValue);
 				if (!lounasResponse) {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
@@ -212,6 +212,15 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			return Promise.resolve();
 		}
 
+		args.client.reactions.add({
+			channel: args.message.channel,
+			name: "hourglass",
+			timestamp: args.message.ts,
+
+		}).catch(error => {
+			console.error(error);
+		});
+
 		const isTomorrowRequest = TOMORROW_REQUEST_REGEXP.test(args.message.text);
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
@@ -246,6 +255,17 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	
 			// Something to think about: Is the reference to app always usable after 6 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
 			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
+
+			if (response.channel) {
+				args.client.reactions.add({
+					channel: response.channel,
+					name: "thumbsup",
+					timestamp: response.ts,
+		
+				}).catch(error => {
+					console.error(error);
+				});
+			}
 		} else {
 			console.warn("Response not okay!");
 			console.debug(response);
@@ -271,7 +291,8 @@ function truncateMessage(app: bolt.App): void {
 	});
 }
 
-async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, tomorrowRequest = false): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+// eslint-disable-next-line max-params
+async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
 	try {
 		const now = new Date();
 		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
@@ -280,7 +301,10 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 			return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
 		}
 	
-		const data: LounasResponse[] = await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants, tomorrowRequest);
+		const data: LounasResponse[] = singleRestaurant
+			? (await dataProvider.getData([singleRestaurant], undefined, tomorrowRequest))
+			: (await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants, tomorrowRequest));
+
 		const hasDate = data.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
 	
@@ -289,6 +313,11 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 			text: header, // Slack recommends having this
 			blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
 		};
+
+		// Do not cache single restaurant
+		if (singleRestaurant) {
+			return Promise.resolve(parsedData);
+		}
 
 		if (data.filter(lounasResponse => lounasResponse.error).length) {
 			console.warn("This result won't be cached as it contained errors");
