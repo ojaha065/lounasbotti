@@ -2,8 +2,11 @@ version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
-    open-pull-requests-limit: 2
+    open-pull-requests-limit: 3
     target-branch: "develop"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
     schedule:
       interval: "daily"
     reviewers:
