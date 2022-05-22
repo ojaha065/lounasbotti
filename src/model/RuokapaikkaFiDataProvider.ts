@@ -34,7 +34,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				// Disec Oy
 				lat: "61.681",
 				lon: "27.258",
-				maxdist: "5000", // 5 km
+				maxdist: "10000", // 10 km
 
 				page: "0",
 

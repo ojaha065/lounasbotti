@@ -14,7 +14,7 @@ import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js"
 import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.12";
+const VERSION = process.env["npm_package_version"] ?? "1.4.13";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -80,6 +80,12 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	app.message("!whoami", async ({say, message}) => {
 		if (!message.subtype) {
 			say(message.user);
+		}
+	});
+
+	app.message("!channel", async ({say, message}) => {
+		if (!message.subtype) {
+			say(message.channel);
 		}
 	});
 
