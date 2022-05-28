@@ -8,6 +8,7 @@
 	"displayVoters": true,
 	"iconsEnabled": true,
 	"overrideIconsUrl": "https://www.kissakala.fi",
+	"adminUsers": ["U02EQR970J2", "USBEQSRUL"],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],

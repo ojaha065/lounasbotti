@@ -8,6 +8,7 @@
 	"displayVoters": true,
 	"iconsEnabled": true,
 	"announcements": [],
+	"adminUsers": ["U02EQR970J2"],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],
