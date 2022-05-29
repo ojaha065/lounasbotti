@@ -17,6 +17,7 @@ type Settings = {
 	iconsEnabled: boolean,
 	overrideIconsUrl?: URL,
 	announcements?: string[],
+	adminUsers: string[],
 	emojiRules?: Map<RegExp, string>,
 	configSource?: string,
 	debug?: {
@@ -56,6 +57,7 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 };
 
+// eslint-disable-next-line complexity
 const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURL?: URL | undefined): Promise<Settings> => {
 	let json: any;
 	if (configURL) {
@@ -112,7 +114,8 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		additionalRestaurants,
 		gitUrl: String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required")),
 		displayVoters: Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required"),
-		iconsEnabled: Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required")
+		iconsEnabled: Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required"),
+		adminUsers: []
 	};
 
 	// Data provider
@@ -137,6 +140,11 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	// Announcements
 	if (json.announcements?.length) {
 		settings.announcements = json.announcements;
+	}
+
+	// Admin users
+	if (json.adminUsers) {
+		settings.adminUsers.push(...json.adminUsers);
 	}
 
 	// Emoji rules

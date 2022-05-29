@@ -13,8 +13,9 @@ import mongoose from "mongoose";
 import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js";
 import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
+import AdminEvents from "./AdminEvents.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.13";
+const VERSION = process.env["npm_package_version"] ?? "1.4.14";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -100,6 +101,7 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(
 	}
 
 	BotEvents.initEvents(app, settings, settings.dataProvider, restartJob, VERSION);
+	AdminEvents(app, settings);
 	BotActions(app, settings);
 	
 	const botPort = 3000;
