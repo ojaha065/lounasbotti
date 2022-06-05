@@ -15,7 +15,7 @@ import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 import AdminEvents from "./AdminEvents.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.14";
+const VERSION = process.env["npm_package_version"] ?? "1.4.15";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {
@@ -46,11 +46,8 @@ if (process.env["HEROKU_INSTANCE_URL"]) {
 	});
 }
 
-let configURL: URL | undefined;
-if (process.env["SLACK_CONFIG_URL"]) {
-	configURL = new URL(process.env["SLACK_CONFIG_URL"]);
-}
-readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURL).then(settings => {
+const configURLs: URL[] | undefined = process.env["SLACK_CONFIG_URL"]?.split(",").map(s => new URL(s));
+readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then(settings => {
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {

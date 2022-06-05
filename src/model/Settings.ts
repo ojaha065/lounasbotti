@@ -57,33 +57,19 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 };
 
-// eslint-disable-next-line complexity
-const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURL?: URL | undefined): Promise<Settings> => {
+const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
 	let json: any;
-	if (configURL) {
-		try {
-			const response = await Utils.fetchWithTimeout(configURL.toString(), {
-				method: "GET",
-				headers: {
-					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
-					Accept: "application/json"
-				}
-			});
-			
-			if (response.ok) {
-				json = await response.json();
-				json.configSource = json.configSource || response.url;
-			} else {
-				console.warn(`HTTP error ${response.status}: ${response.statusText}`);
-			}
-		} catch (error) {
-			console.error(error);
+	if (configURLs?.length) {
+		for (const url of configURLs) {
+			json = await tryToReadSettingsFromURL(url, VERSION);
 		}
 	}
 
-	if (!json) {
+	if (json) {
+		console.info(`Using configuration from ${json.configSource}`);
+	} else {
 		const configFile = config || "config";
-		console.info(`Using local configuration file "${configFile}"...`);
+		console.warn(`Using local configuration file "${configFile}"...`);
 		json = await fs.readFile(`${process.cwd()}/${configFile}.json`, "utf-8");
 		json = JSON.parse(json);
 		json.configSource = json.configSource || "[Local configuration file]";
@@ -189,3 +175,25 @@ const readInstanceSettings = (settings: Settings): void => {
 };
 
 export { Settings, InstanceSettings, Restaurant, RestaurantNameMap, readAndParseSettings, readInstanceSettings };
+
+async function tryToReadSettingsFromURL(url: URL, VERSION: string): Promise<any> {
+	try {
+		const response = await Utils.fetchWithTimeout(url.toString(), {
+			method: "GET",
+			headers: {
+				"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
+				Accept: "application/json"
+			}
+		});
+
+		if (response.ok) {
+			const json: any = await response.json();
+			json.configSource = json.configSource || response.url;
+			return json;
+		}
+		throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+}
