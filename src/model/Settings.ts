@@ -62,6 +62,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 	if (configURLs?.length) {
 		for (const url of configURLs) {
 			json = await tryToReadSettingsFromURL(url, VERSION);
+			if (json) {break;}
 		}
 	}
 
