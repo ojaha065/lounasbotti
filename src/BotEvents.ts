@@ -8,7 +8,7 @@ import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
-import { BlockCollection, Blocks, Md } from "slack-block-builder";
+import { BlockCollection, Blocks, Md, user } from "slack-block-builder";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
@@ -163,8 +163,12 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			}
 
 			if (lounasMessage) {
-				if (lounasMessage.votes.find(vote => vote.userId === args.body.user.id && vote.action === actionValue)) {
-					return handleAlreadyVoted(args, actionValue);
+				const duplicateVote = lounasMessage.votes.find(vote =>
+					vote.userId === args.body.user.id
+						&& (settings.limitToOneVotePerUser || vote.action === actionValue)
+				);
+				if (duplicateVote) {
+					return handleAlreadyVoted(args, actionValue, duplicateVote.action !== actionValue);
 				}
 			} else {
 				if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
@@ -332,13 +336,16 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 	}
 }
 
-function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs, actionValue: string) {
-	console.debug(`User ${args.body.user.name} has already voted`);
+function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs, actionValue: string, causedByLimiting = false) {
+	const text = causedByLimiting
+		? `Hei, ${user(args.body.user.id)}! Voit äänestää vain yhtä vaihtoehtoa. Useamman vaihtoehdon äänestäminen voidaan ottaa käyttöön Lounasbotin asetuksista.`
+		: `Hei, ${user(args.body.user.id)}! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}.`;
+
 	args.respond({
 		response_type: "ephemeral",
 		replace_original: false,
 		delete_original: false,
-		text: `Hei, <@${args.body.user.id}>! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}. Voit äänestää kutakin vaihtoehtoa vain kerran.`
+		text
 	});
 	return;
 }
