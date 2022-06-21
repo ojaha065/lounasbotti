@@ -3,7 +3,8 @@ import { InstanceSettings } from "./Settings";
 
 const instanceSettingsSchema = new mongoose.Schema<InstanceSettings>({
 	instanceId: String,
-	triggerRegExp: String
+	triggerRegExp: String,
+	limitToOneVotePerUser: Boolean
 });
 
 const InstanceSettingsModel = mongoose.model<InstanceSettings>("InstanceSettings", instanceSettingsSchema);
@@ -31,7 +32,8 @@ const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
 
 			return resolve({
 				instanceId: json.instanceId,
-				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined
+				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
+				limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
 			});
 		});
 	});
@@ -62,7 +64,8 @@ const update = async (update: InstanceSettings): Promise<InstanceSettings> => {
 
 			return resolve({
 				instanceId: json.instanceId,
-				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined
+				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
+				limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
 			});
 		});
 	});

@@ -22,12 +22,16 @@ type Settings = {
 	configSource?: string,
 	debug?: {
 		noDb?: boolean
-	}
+	},
+
+	// Instance settings
+	limitToOneVotePerUser: boolean
 };
 
 type InstanceSettings = {
 	instanceId: string,
 	triggerRegExp?: RegExp | undefined,
+	limitToOneVotePerUser?: boolean
 };
 
 enum Restaurant {
@@ -102,7 +106,10 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		gitUrl: String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required")),
 		displayVoters: Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required"),
 		iconsEnabled: Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required"),
-		adminUsers: []
+		adminUsers: [],
+
+		// Instance settings default values
+		limitToOneVotePerUser: false
 	};
 
 	// Data provider
@@ -166,6 +173,8 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 
 const readInstanceSettings = (settings: Settings): void => {
 	SettingsRepository.findOrCreate(settings.instanceId).then(instanceSettings => {
+		settings.limitToOneVotePerUser = Boolean(instanceSettings.limitToOneVotePerUser);
+
 		if (instanceSettings.triggerRegExp) {
 			console.debug(`Custom trigger enabled for instance "${settings.instanceId}" (${instanceSettings.triggerRegExp.source})`);
 			settings.triggerRegExp = instanceSettings.triggerRegExp;

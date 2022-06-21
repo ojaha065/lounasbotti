@@ -15,7 +15,7 @@ import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 import AdminEvents from "./AdminEvents.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.15";
+const VERSION = process.env["npm_package_version"] ?? "1.4.16";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 process.on("unhandledRejection", error => {

@@ -1,11 +1,13 @@
 import { Job } from "node-schedule";
-import { BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
+import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
 import { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
 
 export default class BlockParsers {
+	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
+
 	// eslint-disable-next-line max-params
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
@@ -64,7 +66,7 @@ export default class BlockParsers {
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
 					.end(),
 				Blocks.Divider().end(),
-				Blocks.Input({ label: "Asetukset", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
+				Blocks.Input({ label: "Asetukset: Säännöllinen lauseke", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
 					.dispatchAction(true)
 					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.source, minLength: 1, maxLength: 256, placeholder: "esim. '!lounas'" })
 						.actionId("lounasbotti-updateRegExp")
@@ -72,6 +74,17 @@ export default class BlockParsers {
 						.dispatchActionOnEnterPressed(true)
 						.focusOnLoad(false)
 						.multiline(false)
+						.end()
+					)
+					.end(),
+				Blocks.Divider().end(),
+				Blocks.Input({ label: "Asetukset: Äänestys", hint: "Jos tämä valinta on käytössä, jokainen käyttäjä voi äänestää vain yhtä vaihtoehtoa." })
+					.dispatchAction(true)
+					.element(Elements.Checkboxes()
+						.actionId("lounasbotti-limitVotesToOne")
+						.options(this.limitVotesToOneOptionBit)
+						.initialOptions(setIfTruthy(data.settings.limitToOneVotePerUser, this.limitVotesToOneOptionBit))
+						.focusOnLoad(false)
 						.end()
 					)
 					.end(),

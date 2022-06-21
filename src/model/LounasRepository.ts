@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { Restaurant } from "./Settings";
 
 type LounasMessageEntry = {
+	instanceId: string,
     ts: string,
     channel: string,
     menu: {restaurant: Restaurant, items: string[] | null}[],
@@ -10,6 +11,7 @@ type LounasMessageEntry = {
 };
 
 const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
+	instanceId: String,
 	ts: String,
 	channel: String,
 	menu: [new mongoose.Schema({
