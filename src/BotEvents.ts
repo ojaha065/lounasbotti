@@ -236,6 +236,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		if (response.ok && response.ts) {
 			if (!settings.debug?.noDb && !isTomorrowRequest) {
 				LounasRepository.create({
+					instanceId: settings.instanceId,
 					ts: response.ts,
 					channel: response.channel || args.event.channel,
 					menu: cachedData.data.map(lounasResponse => {
