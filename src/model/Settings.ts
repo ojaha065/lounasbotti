@@ -63,15 +63,16 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
 	let json: any;
+	
 	if (configURLs?.length) {
 		for (const url of configURLs) {
 			json = await tryToReadSettingsFromURL(url, VERSION);
 			if (json) {break;}
 		}
-	}
 
-	if (json) {
-		console.info(`Using configuration from ${json.configSource}`);
+		if (!json) {
+			throw new Error("Could not read config from any URL");
+		}
 	} else {
 		const configFile = config || "config";
 		console.warn(`Using local configuration file "${configFile}"...`);
@@ -79,6 +80,8 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		json = JSON.parse(json);
 		json.configSource = json.configSource || "[Local configuration file]";
 	}
+
+	console.info(`Using configuration from ${json.configSource}`);
 
 	const defaultRestaurantsValue = Utils.requireNonNullOrUndefined(json.defaultRestaurants, "Parameter defaultRestaurants is required");
 	if (!Array.isArray(defaultRestaurantsValue)) {
