@@ -1,4 +1,5 @@
 {
+	"$schema": "https://jhaiko.tech/lounasbotti.schema.json",
 	"instanceId": "changeThis",
 	"dataProvider": "ruokapaikkaFi",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
