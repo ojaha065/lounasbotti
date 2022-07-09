@@ -6,27 +6,97 @@ import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./MockDataProvider.js";
 import * as SettingsRepository from "./SettingsRepository.js";
 
-type Settings = {
-	instanceId: string,
-	dataProvider: LounasDataProvider | "self",
-	triggerRegExp: RegExp,
-	defaultRestaurants: Restaurant[],
-	additionalRestaurants?: Restaurant[],
-	gitUrl: string,
-	displayVoters: boolean,
-	iconsEnabled: boolean,
-	overrideIconsUrl?: URL,
-	announcements?: string[],
-	adminUsers: string[],
-	emojiRules?: Map<RegExp, string>,
-	configSource?: string,
-	debug?: {
+class Settings {
+	public instanceId: string;
+	public dataProvider: LounasDataProvider | "self" = "self";
+	public triggerRegExp: RegExp;
+	public defaultRestaurants: Restaurant[];
+	public additionalRestaurants?: Restaurant[];
+	public gitUrl: string;
+	public displayVoters: boolean;
+	public iconsEnabled: boolean;
+	public overrideIconsUrl?: URL;
+	public announcements?: string[];
+	public adminUsers: string[] = [];
+	public emojiRules?: Map<RegExp, string>;
+	public configSource?: string;
+	public debug?: {
 		noDb?: boolean
-	},
+	};
 
 	// Instance settings
-	limitToOneVotePerUser: boolean
-};
+	public limitToOneVotePerUser = false;
+
+	constructor(json: any, VERSION: string) {
+		this.instanceId = Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required");
+
+		switch (Utils.requireNonNullOrUndefined(json.dataProvider, "Parameter dataProvider is required")) {
+			case "ruokapaikkaFi":
+				this.dataProvider = new RuokapaikkaFiDataProvider(this, VERSION);
+				break;
+			case "mock":
+				this.dataProvider = new MockDataProvider(this);
+				break;
+			default:
+				throw new Error(`Unknown data provider ${json.dataProvider}`);
+		}
+
+		this.triggerRegExp = RegExp(Utils.requireNonNullOrUndefined(json.triggerRegExp, "Parameter triggerRegExp is required"), "i");
+
+		const defaultRestaurantsValue = Utils.requireNonNullOrUndefined(json.defaultRestaurants, "Parameter defaultRestaurants is required");
+		if (!Array.isArray(defaultRestaurantsValue)) {
+			throw new Error("Error parsing defaultRestaurants");
+		}
+		this.defaultRestaurants = defaultRestaurantsValue
+			.map(o => String(o))
+			.filter(s => Object.values<string>(Restaurant).includes(s))
+			.map(s => Restaurant[s as Restaurant]);
+
+		if (json.additionalRestaurants && !Array.isArray(json.additionalRestaurants)) {
+			throw new Error("Error parsing additionalRestaurants");
+		}
+		this.additionalRestaurants = (json.additionalRestaurants as unknown[] || [])
+			.map(o => String(o))
+			.filter(s => Object.values<string>(Restaurant).includes(s))
+			.map(s => Restaurant[s as Restaurant]);
+
+		this.gitUrl = String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required"));
+		this.displayVoters = Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required");
+		this.iconsEnabled = Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required");
+
+		if (json.overrideIconsUrl) {
+			this.overrideIconsUrl = new URL(json.overrideIconsUrl);
+		}
+
+		if (json.announcements?.length) {
+			this.announcements = json.announcements;
+		}
+
+		if (json.adminUsers) {
+			this.adminUsers.push(...json.adminUsers);
+		}
+
+		if (json.emojiRules) {
+			this.emojiRules = new Map(json.emojiRules
+				.filter(Array.isArray)
+				.filter((arr: any[]) => arr.length === 2)
+				.map((arr: any[]) => {
+					arr[0] = RegExp(arr[0], "i");
+					return arr;
+				})
+			);
+		}
+
+		if (json.configSource) {
+			this.configSource = json.configSource;
+		}
+
+		if (json.debug) {
+			console.warn("Current configuration has debug options");
+			this.debug = json.debug;
+		}
+	}
+}
 
 type InstanceSettings = {
 	instanceId: string,
@@ -63,15 +133,16 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 
 const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
 	let json: any;
+	
 	if (configURLs?.length) {
 		for (const url of configURLs) {
 			json = await tryToReadSettingsFromURL(url, VERSION);
 			if (json) {break;}
 		}
-	}
 
-	if (json) {
-		console.info(`Using configuration from ${json.configSource}`);
+		if (!json) {
+			throw new Error("Could not read config from any URL");
+		}
 	} else {
 		const configFile = config || "config";
 		console.warn(`Using local configuration file "${configFile}"...`);
@@ -80,95 +151,9 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 		json.configSource = json.configSource || "[Local configuration file]";
 	}
 
-	const defaultRestaurantsValue = Utils.requireNonNullOrUndefined(json.defaultRestaurants, "Parameter defaultRestaurants is required");
-	if (!Array.isArray(defaultRestaurantsValue)) {
-		return Promise.reject(Error("Error parsing defaultRestaurants"));
-	}
-	const defaultRestaurants: Restaurant[] = defaultRestaurantsValue
-		.map(o => String(o))
-		.filter(s => Object.values<string>(Restaurant).includes(s))
-		.map(s => Restaurant[s as Restaurant]);
+	console.info(`Using configuration from ${json.configSource}`);
 
-	if (json.additionalRestaurants && !Array.isArray(json.additionalRestaurants)) {
-		return Promise.reject(Error("Error parsing additionalRestaurants"));
-	}
-	const additionalRestaurants: Restaurant[] = (json.additionalRestaurants as unknown[] || [])
-		.map(o => String(o))
-		.filter(s => Object.values<string>(Restaurant).includes(s))
-		.map(s => Restaurant[s as Restaurant]);
-
-	const settings: Settings = {
-		instanceId: Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required"),
-		dataProvider: "self",
-		triggerRegExp: RegExp(Utils.requireNonNullOrUndefined(json.triggerRegExp, "Parameter triggerRegExp is required"), "i"),
-		defaultRestaurants,
-		additionalRestaurants,
-		gitUrl: String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required")),
-		displayVoters: Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required"),
-		iconsEnabled: Utils.requireNonNullOrUndefined(json.iconsEnabled, "Parameter iconsEnabled is required"),
-		adminUsers: [],
-
-		// Instance settings default values
-		limitToOneVotePerUser: false
-	};
-
-	// Data provider
-	let dataProvider: LounasDataProvider;
-	switch (Utils.requireNonNullOrUndefined(json.dataProvider, "Parameter dataProvider is required")) {
-		case "ruokapaikkaFi":
-			dataProvider = new RuokapaikkaFiDataProvider(settings, VERSION);
-			break;
-		case "mock":
-			dataProvider = new MockDataProvider(settings);
-			break;
-		default:
-			return Promise.reject(Error(`Unknown data provider ${json.dataProvider}`));
-	}
-	settings.dataProvider = dataProvider;
-
-	// Override icons
-	if (json.overrideIconsUrl) {
-		settings.overrideIconsUrl = new URL(json.overrideIconsUrl);
-	}
-
-	// Announcements
-	if (json.announcements?.length) {
-		settings.announcements = json.announcements;
-	}
-
-	// Admin users
-	if (json.adminUsers) {
-		settings.adminUsers.push(...json.adminUsers);
-	}
-
-	// Emoji rules
-	if (json.emojiRules) {
-		if (!Array.isArray(json.emojiRules)) {
-			return Promise.reject(Error("Error parsing emojiRules"));
-		}
-
-		settings.emojiRules = new Map(json.emojiRules
-			.filter(Array.isArray)
-			.filter((arr: any[]) => arr.length === 2)
-			.map((arr: any[]) => {
-				arr[0] = RegExp(arr[0], "i");
-				return arr;
-			})
-		);
-	}
-
-	// Config source
-	if (json.configSource) {
-		settings.configSource = json.configSource;
-	}
-
-	// Debug
-	if (json.debug) {
-		console.warn("Current configuration has debug options");
-		settings.debug = json.debug;
-	}
-
-	return Promise.resolve(settings);
+	return new Settings(json, VERSION);
 };
 
 const readInstanceSettings = (settings: Settings): void => {

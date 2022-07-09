@@ -1,0 +1,82 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://jhaiko.tech/lounasbotti.schema.json",
+    "title": "Lounasbotti configuration",
+    "description": "Configuration JSON for Lounasbotti",
+    "type": "object",
+    "required": ["instanceId", "dataProvider", "triggerRegExp", "defaultRestaurants", "gitUrl", "displayVoters", "iconsEnabled", "adminUsers"],
+    "properties": {
+        "instanceId": {
+            "type": "string"
+        },
+        "dataProvider": {
+            "type": "string",
+            "pattern": "^ruokapaikkaFi|mock$"
+        },
+        "triggerRegExp": {
+            "type": "string",
+            "format": "regex"
+        },
+        "defaultRestaurants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "additionalRestaurants": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "gitUrl": {
+            "type": "string",
+            "format": "uri"
+        },
+        "displayVoters": {
+            "type": "boolean"
+        },
+        "iconsEnabled": {
+            "type": "boolean"
+        },
+        "overrideIconsUrl": {
+            "type": "string",
+            "format": "uri"
+        },
+        "announcements": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "adminUsers": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "emojiRules": {
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "minItems": 2,
+                    "maxItems": 2
+                }
+            }
+        },
+        "configSource": {
+            "type": "string"
+        },
+        "debug": {
+            "type": "object",
+            "properties": {
+                "noDb": {
+                    "type": "boolean"
+                }
+            }
+        }
+    }
+}

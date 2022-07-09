@@ -1,14 +1,14 @@
 {
-	"instanceId": "dev",
-	"dataProvider": "mock",
-	"triggerRegExp": "!(lounas|ruokaa|nälkä|t)",
+	"$schema": "https://jhaiko.tech/lounasbotti.schema.json",
+	"instanceId": "changeThis",
+	"dataProvider": "ruokapaikkaFi",
+	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "lale", "ramiVisulahti"],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"iconsEnabled": true,
-	"announcements": [],
-	"adminUsers": ["U02EQR970J2"],
+	"adminUsers": [],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],
@@ -36,9 +36,5 @@
 		["peru(?:na|no)", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"]
-	],
-    "debug": {
-        "noDb": false,
-		"tomorrow": false
-    }
+	]
 }
