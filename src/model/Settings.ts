@@ -12,6 +12,7 @@ class Settings {
 	public triggerRegExp: RegExp;
 	public defaultRestaurants: Restaurant[];
 	public additionalRestaurants?: Restaurant[];
+	public restaurantDisplayNames?: Map<Restaurant, string>;
 	public gitUrl: string;
 	public displayVoters: boolean;
 	public iconsEnabled: boolean;
@@ -59,6 +60,17 @@ class Settings {
 			.map(o => String(o))
 			.filter(s => Object.values<string>(Restaurant).includes(s))
 			.map(s => Restaurant[s as Restaurant]);
+
+		if (json.restaurantDisplayNames) {
+			this.restaurantDisplayNames = new Map(json.restaurantDisplayNames
+				.filter(Array.isArray)
+				.filter((arr: any[]) => arr.length === 2)
+				.map((arr: any[]) => {
+					arr[0] = Restaurant[arr[0] as Restaurant];
+					return arr;
+				})
+			);
+		}
 
 		this.gitUrl = String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required"));
 		this.displayVoters = Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required");

@@ -96,7 +96,10 @@ export default class BlockParsers {
 
 	public static parseLounasBlock(lounasResponse: LounasResponse, settings: Settings, voting = true): Readonly<SlackBlockDto>[] {
 		const arr = [];
-		arr.push(Blocks.Section({ text: `${Md.bold(RestaurantNameMap[lounasResponse.restaurant])}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
+
+		const restaurantDisplayName = settings.restaurantDisplayNames?.has(lounasResponse.restaurant) ? settings.restaurantDisplayNames.get(lounasResponse.restaurant) : RestaurantNameMap[lounasResponse.restaurant];
+
+		arr.push(Blocks.Section({ text: `${Md.bold(restaurantDisplayName ?? "Error: No name")}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
 			.accessory(setIfTruthy(lounasResponse.iconUrl && settings.iconsEnabled, Elements.Img({ imageUrl: lounasResponse.iconUrl?.toString() ?? "", altText: RestaurantNameMap[lounasResponse.restaurant] })))
 			.end());
 
