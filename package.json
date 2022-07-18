@@ -52,6 +52,6 @@
     "mongoose": "^6.4.0",
     "node-fetch": "^3.2.1",
     "node-schedule": "^2.1.0",
-    "slack-block-builder": "^2.4.2"
+    "slack-block-builder": "^2.6.0"
   }
 }
