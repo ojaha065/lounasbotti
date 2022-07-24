@@ -79,27 +79,21 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				if (!lounasResponse) {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
 				}
-	
-				// FIXME: There has to be a better way for this
-				const firstDividerIndex: number = blocks.findIndex(block => block.type === "divider");
-				if (firstDividerIndex < 1) {
+
+				const dividerIndex: number = blocks.findIndex(block => block.block_id === "additionalRestaurantsDivider");
+				if (dividerIndex < 1) {
 					throw new Error("Error parsing blocks (divider)");
 				}
 
-				const newBlocks = BlockParsers.parseLounasBlock(lounasResponse, settings);
-				const newIndex = firstDividerIndex + 2 + newBlocks.length;
-				blocks.splice(firstDividerIndex, 0, ...newBlocks);
+				// Append above the divider
+				blocks.splice(dividerIndex, 0, ...BlockParsers.parseLounasBlock(lounasResponse, settings));
 
-				if (blocks[newIndex].type !== "actions") {
-					throw new Error("Error parsing blocks (actions)");
+				// Remove the button
+				const actionsBlock = blocks.find(block => block.block_id === "additionalRestaurantsActions") as bolt.ActionsBlock;
+				if (!actionsBlock) {
+					throw new Error("Error parsing blocks (actionsBlock)");
 				}
-				let elements = (blocks[newIndex] as bolt.ActionsBlock).elements;
-				elements = elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
-				if (elements.length) {
-					(blocks[newIndex] as bolt.ActionsBlock).elements = elements;
-				} else {
-					blocks.splice(newIndex - 1, 3);
-				}
+				actionsBlock.elements = actionsBlock.elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
 
 				let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
 				try {
@@ -372,15 +366,11 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 					const voters: string | undefined = lounasMessage?.votes
 						.filter(vote => vote.action === voteButtonValue)
 						.map(vote => vote.userId)
-						.map(id => `<@${id}>`)
+						.map(Md.user)
 						.join(" ");
 
-					const split = currentText.split("\n");
-					if (split[1].includes("<@")) {
-						split[1] = voters || "";
-					} else if (voters) {
-						split.splice(1, 0, voters);
-					}
+					const split = currentText.split("\n"); // [titleRow, ...other stuff]
+					split[0] = `${split[0].split("<@", 2)[0].trim()} ${voters}`;
 
 					if (section.text) {
 						section.text.text = split.join("\n");

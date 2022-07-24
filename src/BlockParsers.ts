@@ -24,10 +24,10 @@ export default class BlockParsers {
 			),
 			...lounasBlocks,
 			...BlockCollection(
-				Blocks.Divider().end(),
+				Blocks.Divider({ blockId: "additionalRestaurantsDivider" }).end(),
 				setIfTruthy(settings.additionalRestaurants?.length && !tomorrowRequest, [
 					Blocks.Section({ text: Md.bold("Jotakin aivan muuta? Napsauta hakeaksesi") }).end(),
-					Blocks.Actions().elements(
+					Blocks.Actions({ blockId: "additionalRestaurantsActions" }).elements(
 						...(settings.additionalRestaurants ?? []).map(restaurant =>
 							Elements.Button({
 								actionId: `fetchAdditionalRestaurant-${restaurant}`,
@@ -101,6 +101,7 @@ export default class BlockParsers {
 
 		arr.push(Blocks.Section({ text: `${Md.bold(restaurantDisplayName ?? "Error: No name")}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
 			.accessory(setIfTruthy(lounasResponse.iconUrl && settings.iconsEnabled, Elements.Img({ imageUrl: lounasResponse.iconUrl?.toString() ?? "", altText: RestaurantNameMap[lounasResponse.restaurant] })))
+			.blockId(`voters-${lounasResponse.restaurant}`)
 			.end());
 
 		if (voting && lounasResponse.items) {
