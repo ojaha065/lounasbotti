@@ -15,7 +15,7 @@ import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 import AdminEvents from "./AdminEvents.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.4.18";
+const VERSION = process.env["npm_package_version"] ?? "1.4.19";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]
