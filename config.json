@@ -30,7 +30,7 @@
 		["sieni", ":mushroom:"],
 		["(?:kasvi(?:s|k))|(?:juure)", ":tomato:"],
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
-		["(?:jälkiru(?:u|o))|(?:leipurin\\s*mak)|(?:vispipuur)|(?:vanuk)|(?:kiisseli)|(?:vaah(?:toa|don))|(?:mous{1,2}e)|(?:rahkaa)|(?:pannacot)|(?:trif{1,2}le)|smoothie|(?:rita(?:rit|reita))|kakku|leivos|tuulihattu|(?:let(ut|tuja))|raparperi|pitko", ":yum:"],
+		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
