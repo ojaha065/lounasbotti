@@ -95,6 +95,11 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				}
 				actionsBlock.elements = actionsBlock.elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
 
+				// If all buttons are now removed, remove the whole actions block. Fixes invalid_blocks error
+				if (actionsBlock.elements.length === 0) {
+					blocks.splice(blocks.indexOf(actionsBlock) - 1, 3);
+				}
+
 				let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
 				try {
 					if (settings.debug?.noDb) {
