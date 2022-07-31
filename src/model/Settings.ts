@@ -13,6 +13,7 @@ class Settings {
 	public defaultRestaurants: Restaurant[];
 	public additionalRestaurants?: Restaurant[];
 	public restaurantDisplayNames?: Map<Restaurant, string>;
+	public customErrorMessages?: Map<Restaurant, string>;
 	public gitUrl: string;
 	public displayVoters: boolean;
 	public iconsEnabled: boolean;
@@ -61,16 +62,18 @@ class Settings {
 			.filter(s => Object.values<string>(Restaurant).includes(s))
 			.map(s => Restaurant[s as Restaurant]);
 
-		if (json.restaurantDisplayNames) {
-			this.restaurantDisplayNames = new Map(json.restaurantDisplayNames
-				.filter(Array.isArray)
-				.filter((arr: any[]) => arr.length === 2)
-				.map((arr: any[]) => {
-					arr[0] = Restaurant[arr[0] as Restaurant];
-					return arr;
-				})
-			);
-		}
+		["restaurantDisplayNames", "customErrorMessages"].forEach(settingName => {
+			if (json[settingName]) {
+				this[settingName as "restaurantDisplayNames" | "customErrorMessages"] = new Map(json[settingName]
+					.filter(Array.isArray)
+					.filter((arr: any[]) => arr.length === 2)
+					.map((arr: any[]) => {
+						arr[0] = Restaurant[arr[0] as Restaurant];
+						return arr;
+					})
+				);
+			}
+		});
 
 		this.gitUrl = String(Utils.requireNonNullOrUndefined(json.gitUrl, "Parameter gitUrl is required"));
 		this.displayVoters = Utils.requireNonNullOrUndefined(json.displayVoters, "Parameter displayVoters is required");

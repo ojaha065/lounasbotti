@@ -98,11 +98,18 @@ export default class BlockParsers {
 		const arr = [];
 
 		const restaurantDisplayName = settings.restaurantDisplayNames?.has(lounasResponse.restaurant) ? settings.restaurantDisplayNames.get(lounasResponse.restaurant) : RestaurantNameMap[lounasResponse.restaurant];
+		const text: string = lounasResponse.error
+			? `${Md.emoji("warning")} ${lounasResponse.error.message}${settings.customErrorMessages?.has(lounasResponse.restaurant) ? `\n${settings.customErrorMessages.get(lounasResponse.restaurant)}` : ""}`
+			: lounasResponse.items
+				.map(item => `${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`)
+				.join("\n");
 
-		arr.push(Blocks.Section({ text: `${Md.bold(restaurantDisplayName ?? "Error: No name")}\n${((lounasResponse.items || [lounasResponse.error]).map(item => `  ${BlockParsers.getEmojiForLounasItem(item?.toString(), settings)} ${item}`).join("\n"))}` })
+		arr.push(Blocks.Section()
+			.text(`${Md.bold(restaurantDisplayName ?? "Error: No name")}\n${text}`)
 			.accessory(setIfTruthy(lounasResponse.iconUrl && settings.iconsEnabled, Elements.Img({ imageUrl: lounasResponse.iconUrl?.toString() ?? "", altText: RestaurantNameMap[lounasResponse.restaurant] })))
 			.blockId(`voters-${lounasResponse.restaurant}`)
-			.end());
+			.end()
+		);
 
 		if (voting && lounasResponse.items) {
 			arr.push(Blocks.Actions().elements(Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })));

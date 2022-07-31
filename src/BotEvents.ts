@@ -234,7 +234,12 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(args.message.user)}`
 		))[0]);
 
-		const response = await args.say(cachedData);
+		const response = await args.say({
+			blocks: cachedData.blocks,
+			text: "Lounaslistat",
+			unfurl_links: false,
+			unfurl_media: false
+		});
 	
 		if (response.ok && response.ts) {
 			if (!settings.debug?.noDb && !isTomorrowRequest) {

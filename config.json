@@ -5,12 +5,22 @@
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "lale", "ramiVisulahti"],
+	"customErrorMessages": [
+		["savo", "Katso lounaslista osoitteesta https://www.vaiha.fi/savo-lounas"],
+		["talli", "Katso lounaslista osoitteesta https://www.xamkravintolat.fi/tallin-lounaslista/"],
+		["rami", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaslistat/"],
+		["august", "Katso lounaslista osoitteesta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
+		["holvi", "Katso lounaslista osoitteesta https://www.bistroholvi.fi/#lounas"],
+		["vino", "Katso lounaslista osoitteesta https://www.ravintolavino.fi/lounas"],
+		["pormestari", "Katso lounaslista osoitteesta https://www.vaiha.fi/lounas-pormestari"],
+		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa. Huomaa, että Ravintola Lale on suljettu maanantaisin, jolloin tämä virhe on odotettu."],
+		["ramiVisulahti", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaslistat/"]
+	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"iconsEnabled": true,
 	"adminUsers": [],
 	"emojiRules": [
-		["Error", ":warning:"],
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],
 		["joulu", ":christmas_tree:"],
