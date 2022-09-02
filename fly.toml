@@ -1,0 +1,28 @@
+# fly.toml file generated for lounasbotti-disec on 2022-09-02T11:07:55+03:00
+
+app = "lounasbotti-disec"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
+
+[build]
+  builder = "heroku/builder:22"
+
+[deploy]
+  strategy = "rolling"
+
+[[services]]
+  http_checks = []
+  internal_port = 8080
+  processes = ["app"]
+  protocol = "tcp"
+  script_checks = []
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "requests"
+
+  [[services.ports]]
+    handlers = ["tls"]
+    port = "443"

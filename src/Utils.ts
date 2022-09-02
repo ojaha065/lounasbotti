@@ -84,4 +84,13 @@ const fetchWithTimeout = async (url: RequestInfo, init: RequestInit = {}): Promi
 	return response;
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined, fetchWithTimeout };
+/**
+ * Decodes Base64 input
+ * @param input Base64 encoded input string
+ * @returns Decoded string
+ */
+const decodeBase64 = (input: string) => {
+	return Buffer.from(input, "base64").toString("ascii");
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64 };

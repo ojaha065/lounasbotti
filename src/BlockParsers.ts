@@ -41,12 +41,11 @@ export default class BlockParsers {
 		];
 	}
 
-	public static parseHomeTabView(data: { settings: Settings, version: string, userId: string, restartJob: Job | undefined, prefetchJob: Job | undefined }): Readonly<SlackHomeTabDto> {
+	public static parseHomeTabView(data: { settings: Settings, version: string, userId: string, prefetchJob: Job | undefined }): Readonly<SlackHomeTabDto> {
 		const debugInformation: string[] = [
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${(data.settings.dataProvider as LounasDataProvider).id} (${(data.settings.dataProvider as LounasDataProvider).baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
-			data.restartJob ? `Next scheduled restart is at ${data.restartJob.nextInvocation().toLocaleString("en-US")}` : null,
 			data.prefetchJob ? `Next data prefetching will occur at ${data.prefetchJob.nextInvocation().toLocaleString("en-US")}` : null
 		].filter(Boolean) as string[];
 	
