@@ -8,8 +8,14 @@ processes = []
 [build]
   builder = "heroku/builder:22"
 
+  [build.args]
+    NODE_ENV = "production"
+
 [deploy]
   strategy = "rolling"
+
+[env]
+  NODE_ENV = "production"
 
 [[services]]
   http_checks = []
