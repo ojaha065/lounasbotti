@@ -20,7 +20,7 @@ let prefetchJob: Job;
 const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
-const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, restartJob: Job | undefined, version: string): void => {
+const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, version: string): void => {
 	prefetchJob = scheduleJob({
 		second: 30,
 		minute: 30,
@@ -46,7 +46,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	app.event("app_home_opened", async args => {
 		args.client.views.publish({
 			user_id: args.event.user,
-			view: BlockParsers.parseHomeTabView({settings, version, restartJob, prefetchJob, userId: args.event.user})
+			view: BlockParsers.parseHomeTabView({settings, version, prefetchJob, userId: args.event.user})
 		});
 	});
 
