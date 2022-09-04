@@ -47,6 +47,18 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 		appOptions.appToken = process.env["SLACK_APP_TOKEN"] || "";
 		appOptions.socketMode = true;
 	}
+
+	appOptions.customRoutes = [
+		// Health check
+		{
+			path: "/health-check",
+			method: ["GET"],
+			handler: (_req, res) => {
+				res.writeHead(204);
+				res.end();
+			}
+		}
+	];
 	
 	const app = new App(appOptions);
 	
