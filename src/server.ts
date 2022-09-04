@@ -54,8 +54,8 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 			path: "/health-check",
 			method: ["GET"],
 			handler: (_req, res) => {
-				res.writeHead(204);
-				res.end();
+				res.writeHead(200);
+				res.end("OK");
 			}
 		}
 	];
