@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { UpdateQuery } from "mongoose";
 import { Restaurant } from "./Settings";
 
 type LounasMessageEntry = {
@@ -27,6 +27,11 @@ const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
 
 const LounasMessage = mongoose.model<LounasMessageEntry>("LounasMessage", lounasSchema);
 
+enum OperationType {
+	ADD,
+	REMOVE
+}
+
 // ###
 
 const create = async (lounasMessage: LounasMessageEntry): Promise<LounasMessageEntry> => {
@@ -49,13 +54,24 @@ const find = async (ts: string, channel: string): Promise<LounasMessageEntry> =>
 	});
 };
 
-const addVote = async (ts: string, userId: string, action: string): Promise<LounasMessageEntry> => {
-	return new Promise<LounasMessageEntry>((resolve, reject) => {
-		LounasMessage.findOneAndUpdate({ts}, {
+const addOrRemoveVote = async (ts: string, entry: {userId: string, action: string}, operationType: OperationType): Promise<LounasMessageEntry> => {
+	let updateBody: UpdateQuery<LounasMessageEntry>;
+	if (operationType === OperationType.ADD) {
+		updateBody = {
 			"$push": {
-				votes: {userId, action}
+				votes: {userId: entry.userId, action: entry.action}
 			}
-		}, {new: true})
+		};
+	} else if (operationType === OperationType.REMOVE) {
+		updateBody = {
+			"$pull": {
+				votes: {userId: entry.userId, action: entry.action}
+			}
+		};
+	}
+
+	return new Promise<LounasMessageEntry>((resolve, reject) => {
+		LounasMessage.findOneAndUpdate({ts}, updateBody, {new: true})
 			.maxTimeMS(5000)
 			.exec((error, document) => {
 				if (error) {
@@ -70,4 +86,4 @@ const addVote = async (ts: string, userId: string, action: string): Promise<Loun
 	});
 };
 
-export { create, find, addVote, LounasMessageEntry };
+export { create, find, addOrRemoveVote, LounasMessageEntry, OperationType };
