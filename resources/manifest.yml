@@ -17,14 +17,14 @@ oauth_config:
       - reactions:write
 settings:
   event_subscriptions:
-    request_url: https://lounasbotti-disec.herokuapp.com/slack/events
+    request_url: https://lounasbotti-disec.fly.dev/slack/events
     bot_events:
       - app_home_opened
       - message.channels
       - message.im
   interactivity:
     is_enabled: true
-    request_url: https://lounasbotti-disec.herokuapp.com/slack/events
+    request_url: https://lounasbotti-disec.fly.dev/slack/events
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
