@@ -4,16 +4,15 @@ import { Job, scheduleJob, Range } from "node-schedule";
 import * as Utils from "./Utils.js";
 
 import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
-import { Restaurant, RestaurantNameMap, Settings } from "./model/Settings.js";
+import { Restaurant, Settings } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
-import { BlockCollection, Blocks, Md, user } from "slack-block-builder";
+import { BlockCollection, Blocks, Md } from "slack-block-builder";
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
-const voters: Record<string, Record<string, string[]>> = {};
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
 let prefetchJob: Job;
@@ -145,43 +144,33 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 			console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 
-			let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
-			try {
-				if (settings.debug?.noDb) {
-					throw new Error("Database connection is disabled by debug config");
-				}
-
-				lounasMessage = await LounasRepository.find(message.ts, args.body.channel.id);
-			} catch (error) {
-				console.error(error);
+			if (settings.debug?.noDb) {
+				throw new Error("Database connection is disabled by debug config");
 			}
+
+			const lounasMessage: LounasRepository.LounasMessageEntry = await LounasRepository.find(message.ts, args.body.channel.id);
 
 			const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
 			if (!blocks || !blocks.length) {
 				throw new Error("No blocks found in message body");
 			}
 
-			if (lounasMessage) {
-				const duplicateVote = lounasMessage.votes.find(vote =>
-					vote.userId === args.body.user.id
-						&& (settings.limitToOneVotePerUser || vote.action === actionValue)
-				);
-				if (duplicateVote) {
-					return handleAlreadyVoted(args, actionValue, duplicateVote.action !== actionValue);
-				}
-			} else {
-				if (voters[message.ts]?.[args.body.user.id || "notFound"]?.includes(actionValue)) {
-					return handleAlreadyVoted(args, actionValue);
-				}
+			const duplicateVote = lounasMessage.votes.find(vote =>
+				vote.userId === args.body.user.id
+					&& (settings.limitToOneVotePerUser || vote.action === actionValue)
+			);
+			if (duplicateVote) {
+				console.debug("Duplicate vote! Removing vote...");
 			}
 
-			if (lounasMessage) {
-				try {
-					lounasMessage = await LounasRepository.addVote(message.ts, args.body.user.id, actionValue);
-					updateVoting(lounasMessage, blocks, settings.displayVoters);
-				} catch (error) {
-					console.error(error);
-				}
+			try {
+				const updated = await LounasRepository.addOrRemoveVote(
+					message.ts,
+					{userId: args.body.user.id, action: actionValue},
+					duplicateVote ? LounasRepository.OperationType.REMOVE : LounasRepository.OperationType.ADD);
+				updateVoting(updated, blocks, settings.displayVoters);
+			} catch (error) {
+				console.error(error);
 			}
 
 			args.respond({
@@ -189,16 +178,6 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				replace_original: true,
 				blocks: blocks
 			});
-
-			if (!voters[message.ts]) {
-				voters[message.ts] = {};
-			}
-	
-			if (voters[message.ts][args.body.user.id]) {
-				voters[message.ts][args.body.user.id].push(actionValue);
-			} else {
-				voters[message.ts][args.body.user.id] = [actionValue];
-			}
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -338,20 +317,6 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 	} catch (error) {
 		return Promise.reject(error);
 	}
-}
-
-function handleAlreadyVoted(args: bolt.SlackActionMiddlewareArgs<bolt.BlockAction<bolt.BlockElementAction>> & bolt.AllMiddlewareArgs, actionValue: string, causedByLimiting = false) {
-	const text = causedByLimiting
-		? `Hei, ${user(args.body.user.id)}! Voit äänestää vain yhtä vaihtoehtoa. Useamman vaihtoehdon äänestäminen voidaan ottaa käyttöön Lounasbotin asetuksista.`
-		: `Hei, ${user(args.body.user.id)}! Olet jo äänestänyt vaihtoehtoa ${RestaurantNameMap[Restaurant[actionValue.replace("upvote-", "") as Restaurant]] || "tuntematon"}.`;
-
-	args.respond({
-		response_type: "ephemeral",
-		replace_original: false,
-		delete_original: false,
-		text
-	});
-	return;
 }
 
 // eslint-disable-next-line max-params
