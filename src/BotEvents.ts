@@ -1,4 +1,4 @@
-import bolt, { SectionBlock } from "@slack/bolt";
+import bolt, {SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
@@ -9,6 +9,10 @@ import { Restaurant, Settings } from "./model/Settings.js";
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
 import { BlockCollection, Blocks, Md } from "slack-block-builder";
+import { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
+
+type MessageMiddlewareArgs = bolt.SlackEventMiddlewareArgs<"message"> & bolt.AllMiddlewareArgs<StringIndexed>;
+type CommandMiddlewareArgs = SlackCommandMiddlewareArgs & bolt.AllMiddlewareArgs<StringIndexed>;
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
@@ -49,6 +53,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		});
 	});
 
+	// Fetch additional
 	if (settings.additionalRestaurants?.length) {
 		app.action({type: "block_actions", action_id: RegExp(`fetchAdditionalRestaurant-(?:${settings.additionalRestaurants.join("|")})`)}, async args => {
 			try {
@@ -126,6 +131,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		});
 	}
 
+	// Voting
 	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
 		try {
 			const message = args.body.message;
@@ -185,6 +191,13 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	});
 
+	// Trigger by command
+	app.command("/lounas", async args => {
+		args.ack();
+		return mainTrigger(false, args);
+	});
+
+	// Trigger by message
 	app.message(async args => {
 		if (args.message.subtype || !args.message.text) {
 			return Promise.resolve();
@@ -194,23 +207,21 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			return Promise.resolve();
 		}
 
-		args.client.reactions.add({
-			channel: args.message.channel,
-			name: "hourglass",
-			timestamp: args.message.ts,
-
-		}).catch(error => {
-			console.error(error);
-		});
-
 		const isTomorrowRequest = TOMORROW_REQUEST_REGEXP.test(args.message.text);
+		return mainTrigger(isTomorrowRequest, args);
+	});
+
+	// The main business logic
+	async function mainTrigger(isTomorrowRequest: boolean, args: MessageMiddlewareArgs | CommandMiddlewareArgs): Promise<void> {
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
 		}
-	
+
+		const isMessage = args.payload.type === "message";
+
 		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
 		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
-			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(args.message.user)}`
+			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(args.body.user_id)}`
 		))[0]);
 
 		const response = await args.say({
@@ -219,13 +230,25 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			unfurl_links: false,
 			unfurl_media: false
 		});
-	
+
+		// Add hourglass reaction
+		if (isMessage) {
+			args.client.reactions.add({
+				channel: (args as MessageMiddlewareArgs).message.channel,
+				name: "hourglass",
+				timestamp: (args as MessageMiddlewareArgs).message.ts,
+
+			}).catch(error => {
+				console.error(error);
+			});
+		}
+
 		if (response.ok && response.ts) {
 			if (!settings.debug?.noDb && !isTomorrowRequest) {
 				LounasRepository.create({
 					instanceId: settings.instanceId,
 					ts: response.ts,
-					channel: response.channel || args.event.channel,
+					channel: response.channel ?? args.payload.channel,
 					menu: cachedData.data.map(lounasResponse => {
 						return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
 					}),
@@ -237,14 +260,14 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			}
 	
 			toBeTruncated.push({
-				channel: args.event.channel,
+				channel: response.channel ?? args.payload.channel,
 				ts: response.ts
 			});
 	
 			// Something to think about: Is the reference to app always usable after 6 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
 			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
 
-			if (response.channel) {
+			if (response.channel && isMessage) {
 				args.client.reactions.add({
 					channel: response.channel,
 					name: "thumbsup",
@@ -260,7 +283,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 	
 		return Promise.resolve();
-	});
+	}
 };
 
 export { initEvents };

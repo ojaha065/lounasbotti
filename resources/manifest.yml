@@ -8,6 +8,11 @@ features:
   bot_user:
     display_name: Lounasbotti
     always_online: true
+  slash_commands:
+    - command: /lounas
+      url: https://lounasbotti-disec.fly.dev/slack/events
+      description: Triggers Lounasbotti
+      should_escape: false
 oauth_config:
   scopes:
     bot:
@@ -15,6 +20,7 @@ oauth_config:
       - chat:write
       - im:history
       - reactions:write
+      - commands
 settings:
   event_subscriptions:
     request_url: https://lounasbotti-disec.fly.dev/slack/events

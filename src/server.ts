@@ -13,7 +13,7 @@ import BotActions from "./BotActions.js";
 import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.6.0";
+const VERSION = process.env["npm_package_version"] ?? "1.6.1";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]
