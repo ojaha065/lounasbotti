@@ -1,4 +1,4 @@
-import bolt, {SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
+import bolt, {GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
@@ -218,10 +218,12 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 
 		const isMessage = args.payload.type === "message";
+		console.log(args);
 
 		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
 		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
-			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(args.body.user_id)}`
+			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n`
+			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(isMessage ? ((args as MessageMiddlewareArgs).message as GenericMessageEvent).user : args.body.user_id)}`
 		))[0]);
 
 		const response = await args.say({
@@ -267,14 +269,17 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			// Something to think about: Is the reference to app always usable after 6 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
 			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
 
-			if (response.channel && isMessage) {
+			if (response.channel) {
 				args.client.reactions.add({
 					channel: response.channel,
 					name: "thumbsup",
 					timestamp: response.ts,
 		
 				}).catch(error => {
-					console.error(error);
+					// Do not log not_in_channel errors
+					if (error.data?.error !== "not_in_channel") {
+						console.warn(error);
+					}
 				});
 			}
 		} else {
