@@ -12,6 +12,7 @@ features:
     - command: /lounas
       url: https://lounasbotti-disec.fly.dev/slack/events
       description: Triggers Lounasbotti
+      usage_hint: "[<tyhjä> | huomenna | tänään]"
       should_escape: false
 oauth_config:
   scopes:

@@ -194,7 +194,9 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	// Trigger by command
 	app.command("/lounas", async args => {
 		args.ack();
-		return mainTrigger(false, args);
+
+		const isTomorrowRequest = TOMORROW_REQUEST_REGEXP.test(args.command.text);
+		return mainTrigger(isTomorrowRequest, args);
 	});
 
 	// Trigger by message
