@@ -1,9 +1,12 @@
 region: eu
 console_ui: true
+remote_management: false
 tunnels:
-  lounasbotti-dev:
-    proto: http
-    addr: 0.0.0.0:8080
-    inspect: true
-    bind_tls: true
-    hostname: lounasbotti-dev.eu.ngrok.io
+    lounasbotti-dev:
+        proto: http
+        addr: 0.0.0.0:8080
+        inspect: true
+        schemes:
+            - https
+        hostname: lounasbotti-dev.eu.ngrok.io
+version: "2"
