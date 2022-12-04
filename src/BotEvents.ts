@@ -74,7 +74,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 	
 				const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
-				if (!blocks || !blocks.length) {
+				if (!blocks?.length) {
 					throw new Error("No blocks found in message body");
 				}
 	
@@ -157,7 +157,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			const lounasMessage: LounasRepository.LounasMessageEntry = await LounasRepository.find(message.ts, args.body.channel.id);
 
 			const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
-			if (!blocks || !blocks.length) {
+			if (!blocks?.length) {
 				throw new Error("No blocks found in message body");
 			}
 
@@ -220,7 +220,6 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		}
 
 		const isMessage = args.payload.type === "message";
-		console.log(args);
 
 		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
 		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(

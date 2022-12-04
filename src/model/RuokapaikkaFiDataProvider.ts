@@ -63,7 +63,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			const json: any[] = (jsonResponse as any)["items"]
 				?.map((item: any) => {
 					const correctAdBlock = item.ads?.map((elem: any) => elem["ad"] ?? {}).find((ad: any) => this.HEADER_REGEXP.test(ad["header"]));
-					if (!correctAdBlock || !correctAdBlock["header"]) {
+					if (!correctAdBlock?.["header"]) {
 						return false;
 					}
 	

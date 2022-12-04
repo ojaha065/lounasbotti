@@ -54,9 +54,8 @@ export default class BlockParsers {
 				Blocks.Header({ text: `Lounasbotti V${data.version}` }).end(),
 				Blocks.Section({ text: Md.italic("By <https://github.com/ojaha065|Jani Haiko>") }).end(),
 				Blocks.Divider().end(),
-				Blocks.Section({ text: `Tervehdys ${user(data.userId)}, nimeni on Lounasbotti. Kutsu minua millä tahansa kanavalla, jonne minut on kutsuttu ja haen päivän lounaslistat valonnopeudella! ${Md.italic("...tai ainakin yritän...")}` }).end(),
-				Blocks.Section({ text: "Voit myös avata yksityisen chatin kanssani ja käyttää edellä mainittuja komentoja siellä." }).end(),
-				Blocks.Section({ text: `UUTTA: Kokeile myös komentoa ${Md.bold("!ruokaa huomenna")}` }).end(),
+				Blocks.Section({ text: `Tervehdys ${user(data.userId)}, nimeni on Lounasbotti. Kutsu minua millä tahansa kanavalla komennolla ${Md.codeInline("/lounas")} ja haen päivän lounaslistat! ${Md.italic("...tai ainakin yritän...")}` }).end(),
+				Blocks.Section({ text: `UUTTA: Kokeile myös komentoa ${Md.codeInline("/lounas huomenna")}` }).end(),
 				setIfTruthy(data.settings.announcements?.length, [
 					Blocks.Section({ text: `${Md.bold("Tiedotteet")}\n${data.settings.announcements?.join("\n\n")}` }).end(),
 					Blocks.Divider().end()
@@ -65,7 +64,7 @@ export default class BlockParsers {
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
 					.end(),
 				Blocks.Divider().end(),
-				Blocks.Input({ label: "Asetukset: Säännöllinen lauseke", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
+				Blocks.Input({ label: "Asetukset: Säännöllinen lauseke (Deprikoitu)", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin, mutta vain kanavilla joille Lounasbotti on kutsuttu. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
 					.dispatchAction(true)
 					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.source, minLength: 1, maxLength: 256, placeholder: "esim. '!lounas'" })
 						.actionId("lounasbotti-updateRegExp")

@@ -47,6 +47,7 @@
 		["paprik", ":bell_pepper:"],
 		["peru(?:na|no)", ":potato:"],
 		["kahvi", ":coffee:"],
-		["appelsiini", ":tangerine:"]
+		["appelsiini", ":tangerine:"],
+		["soija|veg(?:a|\\.)", ":seedling:"]
 	]
 }
