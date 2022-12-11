@@ -23,10 +23,10 @@
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],
-		["joulu", ":christmas_tree:"],
+		["joulu|rosolli|glögi", ":christmas_tree:"],
 		["keitto", ":bowl_with_spoon:"],
 		["((?<!pork)kana(?!nmun))|(broiler)", ":chicken:"],
-		["(loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))", ":fish:"],
+		["(?:(?<!pa)loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
 		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
@@ -48,6 +48,9 @@
 		["peru(?:na|no)", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"],
-		["soija|veg(?:a|\\.)", ":seedling:"]
+		["soija|veg(?:a|\\.)", ":seedling:"],
+		["mummo|isoäi", ":older_woman:"],
+		["suljettu|kiinni", ":no_entry_sign:"],
+		["kaalikääry", ":nauseated_face:"]
 	]
 }
