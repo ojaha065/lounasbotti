@@ -45,7 +45,6 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				ts: now.getTime().toString(),
 				channel: "collections_ruokapaikka"
 			}).toString();
-			console.debug(url.toString());
 	
 			const response = await Utils.fetchWithTimeout(url.toString(), {
 				method: "GET",
@@ -131,7 +130,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				if (dataBlock.lunchMenu) {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
-					if (restaurant === Restaurant.rami) {
+					if (restaurant === Restaurant.rami || restaurant === Restaurant.lansiSavo) {
 						dataBlock.body = dataBlock.body.split("<br><br>")[0]
 							.replaceAll(this.EXTRA_SPACES_REGEXP, "<br>");
 					}
