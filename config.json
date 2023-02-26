@@ -4,9 +4,10 @@
 	"dataProvider": "ruokapaikkaFi",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "lale", "ramiVisulahti", "lansiSavo"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "ramiVisulahti"],
 	"customErrorMessages": [
 		["savo", "Katso lounaslista osoitteesta https://www.vaiha.fi/savo-lounas"],
+		["vaihaAsema", "Katso lounaslista osoitteesta https://www.vaiha.fi/asema-lounas"],
 		["talli", "Katso lounaslista osoitteesta https://www.xamkravintolat.fi/tallin-lounaslista/"],
 		["rami", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaat"],
 		["august", "Katso lounaslista osoitteesta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
@@ -44,6 +45,7 @@
 		["salaat{1,2}(?:i|eja)", ":green_salad:"],
 		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
+		["papu", ":beans:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
 		["peru(?:na|no)|pottu", ":potato:"],
@@ -52,6 +54,7 @@
 		["soija|veg(?:a|\\.)", ":seedling:"],
 		["mummo|isoäi", ":older_woman:"],
 		["suljettu|kiinni", ":no_entry_sign:"],
-		["kaalikääry", ":nauseated_face:"]
+		["kaalikääry", ":nauseated_face:"],
+		["paholai", ":smiling_imp:"]
 	]
 }
