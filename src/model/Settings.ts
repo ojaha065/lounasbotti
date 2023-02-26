@@ -121,6 +121,7 @@ type InstanceSettings = {
 
 enum Restaurant {
 	savo = "savo",
+	vaihaAsema = "vaihaAsema",
 	talli = "talli",
 	rami = "rami",
 	ramiVisulahti = "ramiVisulahti",
@@ -135,6 +136,7 @@ enum Restaurant {
 
 const RestaurantNameMap: Record<Restaurant, string> = {
 	savo: "Vaiha Savo",
+	vaihaAsema: "Vaiha Asema",
 	talli: "Ravintola Talli",
 	rami: "Ramin Konditoria Sammonkatu",
 	ramiVisulahti: "Rami Visulahti",
@@ -142,7 +144,7 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	holvi: "Bistro Holvi",
 	vino: "Ravintola Vino",
 	fernando: "Ravintola Fernando",
-	pormestari: "Vaiha Oy / Pormestari",
+	pormestari: "Vaiha Pormestari",
 	lale: "Ravintola Lale",
 	lansiSavo: "Ravintola Länsi-Savo"
 

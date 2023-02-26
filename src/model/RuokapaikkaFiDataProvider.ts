@@ -80,21 +80,18 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			}
 
 			const combinedRestaurants: Restaurant[] = [...restaurants, ...(additionalRestaurants || [])];
-
-			let talliResponse: LounasResponse;
-			if (combinedRestaurants.includes(Restaurant.talli)) {
-				const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], undefined, tomorrowRequest);
-				talliResponse = talliResponseArr[0];
-			}
 	
-			return combinedRestaurants.map(restaurant => {
+			return (await Promise.all(combinedRestaurants.map(async restaurant => {
 				const isAdditional = !!additionalRestaurants?.includes(restaurant);
 				
 				// const dataBlock = json.find((_block, i) => i === 0);
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
 				if (!dataBlock) {
-					if (restaurant === Restaurant.talli && talliResponse?.items?.length) {
-						return talliResponse;
+					if (restaurant === Restaurant.talli) {
+						const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], undefined, tomorrowRequest);
+						if (talliResponseArr[0]?.items?.length) {
+							return talliResponseArr[0];
+						}
 					}
 
 					return {
@@ -164,7 +161,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					date: dataBlock.header.replace("Lounas", weekdayName).trim(),
 					iconUrl
 				};
-			}).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
+			}))).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 		} catch (error) {
 			console.error(error);
 			return restaurants.map(restaurant => {
