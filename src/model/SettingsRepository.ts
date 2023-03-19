@@ -12,31 +12,25 @@ const InstanceSettingsModel = mongoose.model<InstanceSettings>("InstanceSettings
 // ###
 
 const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
-	return new Promise((resolve, reject) => {
-		InstanceSettingsModel.findOneAndUpdate(
-			{instanceId},
-			{},
-			{
-				returnDocument: "after",
-				lean: true,
-				upsert: true
-			}
-		).maxTimeMS(5000).exec((error, json) => {
-			if (error) {
-				return reject(error);
-			}
+	const json = await InstanceSettingsModel.findOneAndUpdate(
+		{instanceId},
+		{},
+		{
+			returnDocument: "after",
+			lean: true,
+			upsert: true
+		}
+	).maxTimeMS(5000).exec();
 
-			if (!json) {
-				return reject(new Error("No document was returned!"));
-			}
+	if (!json) {
+		throw new Error("No document was returned!");
+	}
 
-			return resolve({
-				instanceId: json.instanceId,
-				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
-				limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
-			});
-		});
-	});
+	return {
+		instanceId: json.instanceId,
+		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
+		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
+	};
 };
 
 const update = async (update: InstanceSettings): Promise<InstanceSettings> => {
@@ -45,30 +39,24 @@ const update = async (update: InstanceSettings): Promise<InstanceSettings> => {
 		actualUpdate.triggerRegExp = update.triggerRegExp.source;
 	}
 
-	return new Promise((resolve, reject) => {
-		InstanceSettingsModel.findOneAndUpdate(
-			{instanceId: update.instanceId},
-			actualUpdate,
-			{
-				returnDocument: "after",
-				lean: true,
-			}
-		).maxTimeMS(5000).exec((error, json) => {
-			if (error) {
-				return reject(error);
-			}
+	const json = await InstanceSettingsModel.findOneAndUpdate(
+		{instanceId: update.instanceId},
+		actualUpdate,
+		{
+			returnDocument: "after",
+			lean: true,
+		}
+	).maxTimeMS(5000).exec();
 
-			if (!json) {
-				return reject(new Error("No document was returned!"));
-			}
+	if (!json) {
+		throw new Error("No document was returned!");
+	}
 
-			return resolve({
-				instanceId: json.instanceId,
-				triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
-				limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
-			});
-		});
-	});
+	return {
+		instanceId: json.instanceId,
+		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
+		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
+	};
 };
 
 export { findOrCreate, update };
