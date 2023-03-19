@@ -127,7 +127,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				if (dataBlock.lunchMenu) {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
-					if (restaurant === Restaurant.rami || restaurant === Restaurant.lansiSavo) {
+					if (restaurant === Restaurant.rami || restaurant === Restaurant.lansiSavo || restaurant === Restaurant.kivijalka) {
 						dataBlock.body = dataBlock.body.split("<br><br>")[0]
 							.replaceAll(this.EXTRA_SPACES_REGEXP, "<br>");
 					}

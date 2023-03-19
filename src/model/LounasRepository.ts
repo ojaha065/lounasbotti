@@ -39,19 +39,15 @@ const create = async (lounasMessage: LounasMessageEntry): Promise<LounasMessageE
 };
 
 const find = async (ts: string, channel: string): Promise<LounasMessageEntry> => {
-	return new Promise((resolve, reject) => {
-		LounasMessage.findOne({ts, channel})
-			.maxTimeMS(5000)
-			.exec((error, document) => {
-				if (error) {
-					return reject(error);
-				}
-				if (!document) {
-					return reject(new Error(`Document with ts ${ts} and channel id ${channel} not found`));
-				}
-				resolve(document);
-			});
-	});
+	const document = await LounasMessage.findOne({ts, channel})
+		.maxTimeMS(5000)
+		.exec();
+
+	if (!document) {
+		throw new Error(`Document with ts ${ts} and channel id ${channel} not found`);
+	}
+
+	return document;
 };
 
 const addOrRemoveVote = async (ts: string, entry: {userId: string, action: string}, operationType: OperationType): Promise<LounasMessageEntry> => {
@@ -68,22 +64,19 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 				votes: {userId: entry.userId, action: entry.action}
 			}
 		};
+	} else {
+		throw new Error(`Unsupported operation type ${operationType}`);
 	}
 
-	return new Promise<LounasMessageEntry>((resolve, reject) => {
-		LounasMessage.findOneAndUpdate({ts}, updateBody, {new: true})
-			.maxTimeMS(5000)
-			.exec((error, document) => {
-				if (error) {
-					return reject(error);
-				}
-				if (!document) {
-					return reject(new Error("Failed to modify document"));
-				}
+	const document = await LounasMessage.findOneAndUpdate({ts}, updateBody, {new: true})
+		.maxTimeMS(5000)
+		.exec();
 
-				resolve(document);
-			});
-	});
+	if (!document) {
+		throw new Error("Failed to modify document");
+	}
+
+	return document;
 };
 
 export { create, find, addOrRemoveVote, LounasMessageEntry, OperationType };
