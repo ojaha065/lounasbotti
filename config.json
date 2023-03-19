@@ -4,7 +4,7 @@
 	"dataProvider": "ruokapaikkaFi",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "ramiVisulahti", "kivijalka"],
 	"customErrorMessages": [
 		["savo", "Katso lounaslista osoitteesta https://www.vaiha.fi/savo-lounas"],
 		["vaihaAsema", "Katso lounaslista osoitteesta https://www.vaiha.fi/asema-lounas"],
@@ -16,7 +16,8 @@
 		["pormestari", "Katso lounaslista osoitteesta https://www.vaiha.fi/lounas-pormestari"],
 		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa. Huomaa, että Ravintola Lale on suljettu maanantaisin, jolloin tämä virhe on odotettu."],
 		["ramiVisulahti", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaat"],
-		["lansiSavo", "Katso lounaslista osoitteesta https://www.serviini.fi/lansi-savo"]
+		["lansiSavo", "Katso lounaslista osoitteesta https://www.serviini.fi/lansi-savo"],
+		["kivijalka", "Katso lounaslista osoitteesta https://ravintolakivijalka.fi/#pg-11-4"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
