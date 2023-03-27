@@ -49,8 +49,9 @@ const deepClone = <T extends object>(obj: T): T => {
  * Removes all non-inherited fields from any object
  * @param obj Object to clear
  */
-const clearObject = <T extends Object>(obj: T): void => {
+const clearObject = <T extends object>(obj: T): void => {
 	for (const key in obj) {
+		// eslint-disable-next-line no-prototype-builtins
 		if (obj.hasOwnProperty(key)) {
 			delete obj[key];
 		}
