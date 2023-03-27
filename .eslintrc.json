@@ -1,16 +1,14 @@
 {
     "env": {
-        "es2020": true,
+        "es2022": true,
         "node": true
     },
     "extends": [
         "eslint:recommended",
         "plugin:import/recommended",
-        "alloy",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:import/typescript",
-        "alloy/typescript"
+        "plugin:import/typescript"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -71,6 +69,7 @@
         "node/no-missing-import": "off",
         "import/no-unresolved": "off",
         "@typescript-eslint/consistent-type-definitions": "off",
-        "@typescript-eslint/explicit-member-accessibility": "off"
+        "@typescript-eslint/explicit-member-accessibility": "off",
+        "@typescript-eslint/no-explicit-any": "off"
     }
 }

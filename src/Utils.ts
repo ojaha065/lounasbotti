@@ -49,8 +49,9 @@ const deepClone = <T extends object>(obj: T): T => {
  * Removes all non-inherited fields from any object
  * @param obj Object to clear
  */
-const clearObject = <T extends Object>(obj: T): void => {
+const clearObject = <T extends object>(obj: T): void => {
 	for (const key in obj) {
+		// eslint-disable-next-line no-prototype-builtins
 		if (obj.hasOwnProperty(key)) {
 			delete obj[key];
 		}
@@ -76,7 +77,7 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
  */
 const fetchWithTimeout = async (url: RequestInfo, init: RequestInit = {}): Promise<Response> => {
 	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 10000);
+	const timeout = setTimeout(() => controller.abort(), 8000);
 
 	const response = await fetch(url, {...init, signal: controller.signal as any}); // FIXME: Conflict between internal TypeScript typings and typings from node-fetch
 	clearTimeout(timeout);
