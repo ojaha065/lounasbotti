@@ -55,6 +55,7 @@
 		["soija|veg(?:a|\\.)", ":seedling:"],
 		["mummo|isoäi", ":older_woman:"],
 		["suljettu|kiinni", ":no_entry_sign:"],
+		["beta-ominaisuus", ":warning:"],
 		["kaalikääry", ":nauseated_face:"],
 		["paholai", ":smiling_imp:"]
 	]

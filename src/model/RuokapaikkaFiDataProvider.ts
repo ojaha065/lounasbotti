@@ -2,6 +2,7 @@ import * as Utils from "../Utils.js";
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import { Restaurant, RestaurantNameMap, Settings } from "./Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
+import VaihdaDataProvider from "./VaihaDataProvider.js";
 
 class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly id: string = "RuokapaikkaFi";
@@ -91,6 +92,12 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], undefined, tomorrowRequest);
 						if (talliResponseArr[0]?.items?.length) {
 							return talliResponseArr[0];
+						}
+					}
+					else if (restaurant === Restaurant.savo) {
+						const responseArr = await new VaihdaDataProvider(this.settings, this.VERSION).getData([Restaurant.savo], undefined, tomorrowRequest);
+						if (responseArr[0]?.items?.length) {
+							return responseArr[0];
 						}
 					}
 
