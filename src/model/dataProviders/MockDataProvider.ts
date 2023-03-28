@@ -1,6 +1,6 @@
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider";
-import { Restaurant, Settings } from "./Settings";
-import * as Utils from "../Utils.js";
+import { Restaurant, Settings } from "../Settings";
+import * as Utils from "../../Utils.js";
 
 class MockDataProvider implements LounasDataProvider {
 	readonly id: string = "mock";

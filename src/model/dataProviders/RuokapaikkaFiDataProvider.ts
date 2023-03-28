@@ -1,6 +1,6 @@
-import * as Utils from "../Utils.js";
+import * as Utils from "../../Utils.js";
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
-import { Restaurant, RestaurantNameMap, Settings } from "./Settings.js";
+import { Restaurant, RestaurantNameMap, Settings } from "../Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
 import VaihdaDataProvider from "./VaihaDataProvider.js";
 

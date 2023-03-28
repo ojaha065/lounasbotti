@@ -3,7 +3,7 @@ import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
 
-import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
+import { LounasDataProvider, LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 import { Restaurant, Settings } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";

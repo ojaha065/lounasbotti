@@ -1,9 +1,9 @@
 import { promises as fs } from "fs";
 
-import { LounasDataProvider } from "./LounasDataProvider.js";
+import { LounasDataProvider } from "./dataProviders/LounasDataProvider.js";
 import * as Utils from "../Utils.js";
-import RuokapaikkaFiDataProvider from "./RuokapaikkaFiDataProvider.js";
-import MockDataProvider from "./MockDataProvider.js";
+import RuokapaikkaFiDataProvider from "./dataProviders/RuokapaikkaFiDataProvider.js";
+import MockDataProvider from "./dataProviders/MockDataProvider.js";
 import * as SettingsRepository from "./SettingsRepository.js";
 
 class Settings {
