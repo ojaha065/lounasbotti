@@ -1,8 +1,8 @@
 import * as cheerio from "cheerio";
 
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
-import { Restaurant, Settings } from "./Settings.js";
-import * as Utils from "../Utils.js";
+import { Restaurant, Settings } from "../Settings.js";
+import * as Utils from "../../Utils.js";
 
 class TalliDataProvider implements LounasDataProvider {
 	readonly id: string = "Talli";
@@ -71,7 +71,7 @@ class TalliDataProvider implements LounasDataProvider {
 				items: items
 					.map(s => s.trim())
 					.filter(Boolean),
-				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_logos/${Restaurant.talli}.png`, this.settings.overrideIconsUrl).toString() : undefined
+				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.talli}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
 			console.error(error);

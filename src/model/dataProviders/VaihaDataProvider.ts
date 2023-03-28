@@ -1,8 +1,8 @@
 import * as cheerio from "cheerio";
 
 import { LounasDataProvider, LounasResponse } from "./LounasDataProvider";
-import { Restaurant, Settings } from "./Settings.js";
-import * as Utils from "../Utils.js";
+import { Restaurant, Settings } from "../Settings.js";
+import * as Utils from "../../Utils.js";
 
 class VaihdaDataProvider implements LounasDataProvider {
 	readonly id: string = "Savo";
@@ -74,7 +74,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 				restaurant: Restaurant.savo,
 				date: date,
 				items: items.map(s => s.trim()).filter(Boolean),
-				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_logos/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
+				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
 			console.error(error);

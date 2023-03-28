@@ -2,7 +2,7 @@ import { Job } from "node-schedule";
 import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
 import { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
 
-import { LounasDataProvider, LounasResponse } from "./model/LounasDataProvider.js";
+import { LounasDataProvider, LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 import { RestaurantNameMap, Settings } from "./model/Settings.js";
 
 export default class BlockParsers {
