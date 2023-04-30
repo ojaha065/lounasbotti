@@ -1,5 +1,5 @@
 import bolt, { BlockAction, CheckboxesAction, PlainTextInputAction } from "@slack/bolt";
-import { Settings } from "model/Settings";
+import { Settings } from "./model/Settings.js";
 import * as SettingsRepository from "./model/SettingsRepository.js";
 
 export default function(app: bolt.App, settings: Settings) {

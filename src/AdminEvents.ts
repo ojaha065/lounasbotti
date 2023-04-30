@@ -1,5 +1,5 @@
 import bolt from "@slack/bolt";
-import { Settings } from "model/Settings";
+import { Settings } from "./model/Settings.js";
 
 const ANNOUNCE_REGEXP = /lounasbotti\sadmin\sannounce\s"((?:\w|\d){1,30})"\s"([^"]{1,2000})"/;
 
