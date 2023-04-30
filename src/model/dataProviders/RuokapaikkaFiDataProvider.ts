@@ -19,7 +19,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 		this.VERSION = VERSION;
 	}
 
-	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
+	public async getData(restaurants: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
 		try {
 			console.debug("Fetching data from ruokapaikkaFi...");
 
@@ -79,23 +79,21 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			if (!json) {
 				throw new Error("No data received from Ruokapaikka.fi");
 			}
-
-			const combinedRestaurants: Restaurant[] = [...restaurants, ...(additionalRestaurants || [])];
 	
-			return (await Promise.all(combinedRestaurants.map(async restaurant => {
-				const isAdditional = !!additionalRestaurants?.includes(restaurant);
+			return (await Promise.all(restaurants.map(async restaurant => {
+				const isAdditional = !!this.settings.additionalRestaurants?.includes(restaurant);
 				
 				// const dataBlock = json.find((_block, i) => i === 0);
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
 				if (!dataBlock) {
 					if (restaurant === Restaurant.talli) {
-						const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], undefined, tomorrowRequest);
+						const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], tomorrowRequest);
 						if (talliResponseArr[0]?.items?.length) {
 							return talliResponseArr[0];
 						}
 					}
 					else if (restaurant === Restaurant.savo) {
-						const responseArr = await new VaihdaDataProvider(this.settings, this.VERSION).getData([Restaurant.savo], undefined, tomorrowRequest);
+						const responseArr = await new VaihdaDataProvider(this.settings, this.VERSION).getData([Restaurant.savo], tomorrowRequest);
 						if (responseArr[0]?.items?.length) {
 							return responseArr[0];
 						}

@@ -12,7 +12,7 @@ interface LounasDataProvider {
     readonly settings: Settings;
     readonly restaurantMap?: Record<Restaurant, string | LounasDataProvider>
 
-    getData: (restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest?: boolean) => Promise<LounasResponse[]>;
+    getData: (restaurants: Restaurant[], tomorrowRequest?: boolean) => Promise<LounasResponse[]>;
 }
 
 interface LounasResponseBasic {

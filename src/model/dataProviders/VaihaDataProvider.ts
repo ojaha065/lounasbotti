@@ -20,16 +20,12 @@ class VaihdaDataProvider implements LounasDataProvider {
 		this.VERSION = VERSION;
 	}
 
-	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
+	public async getData(restaurants: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
 		try {
 			console.debug("Fetching data from vaiha.fi...");
 
 			if (restaurants.some(restaurant => !this.supportedRestaurants.includes(restaurant))) {
 				throw new Error(`This data provider only supports ${this.supportedRestaurants}`);
-			}
-
-			if (additionalRestaurants?.length) {
-				throw new Error("This data provider does not support additional restaurants!");
 			}
 
 			const response = await Utils.fetchWithTimeout(this.baseUrl, {

@@ -30,10 +30,8 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {
-		mongoose.set("strictQuery", true); // Handle Mongoose deprecation WARN
 		mongoose.connect(decodeBase64(process.env["SLACK_MONGO_URL"] as string), {
-			socketTimeoutMS: 10000,
-			keepAlive: true
+			socketTimeoutMS: 10000
 		}).then(() => {
 			console.debug("Connection to MongoDB opened successfully");
 			readInstanceSettings(settings);

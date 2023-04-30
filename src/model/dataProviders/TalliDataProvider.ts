@@ -16,16 +16,12 @@ class TalliDataProvider implements LounasDataProvider {
 		this.VERSION = VERSION;
 	}
 
-	public async getData(restaurants: Restaurant[], additionalRestaurants?: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
+	public async getData(restaurants: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
 		try {
 			console.debug("Fetching data from xamkravintolat.fi...");
 
 			if (!restaurants.includes(Restaurant.talli) || restaurants.length > 1) {
 				throw new Error("TalliDataProvider only supports Ravintola Talli");
-			}
-	
-			if (additionalRestaurants?.length) {
-				throw new Error("TalliDataProvider does not support additionalRestaurants");
 			}
 	
 			const response = await Utils.fetchWithTimeout(this.baseUrl, {

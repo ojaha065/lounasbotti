@@ -33,7 +33,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 	}, () => {
 		console.debug("Prefetching data...");
-		getDataAndCache(dataProvider, settings);
+		getDataAndCache(dataProvider, settings, false);
 	});
 
 	app.message("!clearCache", async ({say}) => {
@@ -78,7 +78,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 					throw new Error("No blocks found in message body");
 				}
 	
-				const cachedData = await getDataAndCache(dataProvider, settings, false, Restaurant[actionValue as Restaurant]);
+				const cachedData = await getDataAndCache(dataProvider, settings, false, false, Restaurant[actionValue as Restaurant]);
 				const lounasResponse: LounasResponse | undefined = cachedData.data.find(lounasResponse => lounasResponse.restaurant === actionValue);
 				if (!lounasResponse) {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
@@ -221,7 +221,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 		const isMessage = args.payload.type === "message";
 
-		const cachedData = await getDataAndCache(dataProvider, settings, isTomorrowRequest);
+		const cachedData = await getDataAndCache(dataProvider, settings, true, isTomorrowRequest);
 		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
 			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n`
 			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(isMessage ? ((args as MessageMiddlewareArgs).message as GenericMessageEvent).user : args.body.user_id)}`
@@ -309,40 +309,56 @@ function truncateMessage(app: bolt.App): void {
 }
 
 // eslint-disable-next-line max-params
-async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
 	try {
 		const now = new Date();
 		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
+
+		const allRestaurants: Restaurant[] = [];
+		if (singleRestaurant) {
+			allRestaurants.push(singleRestaurant);
+		} else if (defaultOnly) {
+			allRestaurants.push(...settings.defaultRestaurants);
+		} else {
+			allRestaurants.push(...settings.defaultRestaurants, ...(settings.additionalRestaurants ?? []));
+		}
+
+		const allData: LounasResponse[] = [];
 	
 		if (lounasCache[cacheIdentifier]) {
-			return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
+			const cachedData = Utils.deepClone(lounasCache[cacheIdentifier]);
+
+			// If cache contains every requested restaurant, we can short circuit here
+			if (allRestaurants.every(restaurant => cachedData.data.find(data => data.restaurant === restaurant))) {
+				console.debug("All requested restaurants found from cache!");
+				return Promise.resolve(cachedData);
+			}
+
+			allData.push(...cachedData.data);
+			console.debug(`${allData.length} restaurants found from cache!`);
 		}
 	
-		const data: LounasResponse[] = singleRestaurant
-			? (await dataProvider.getData([singleRestaurant], undefined, tomorrowRequest))
-			: (await dataProvider.getData(settings.defaultRestaurants, settings.additionalRestaurants, tomorrowRequest));
+		// Fetch restaurants that are missing from the cache
+		allData.push(...(await dataProvider.getData(allRestaurants.filter(restaurant => !allData.find(data => data.restaurant === restaurant)), tomorrowRequest)));
 
-		const hasDate = data.filter(lounas => lounas.date);
+		const hasDate = allData.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
 	
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
-			data,
+			data: allData,
 			text: header, // Slack recommends having this
-			blocks: BlockParsers.parseMainBlocks(data, header, settings, tomorrowRequest)
+			blocks: BlockParsers.parseMainBlocks(allData, header, settings, tomorrowRequest) // FIXME: Avoid unnecessary parsing in singleRestaurant mode
 		};
 
-		// Do not cache single restaurant
-		if (singleRestaurant) {
-			return Promise.resolve(parsedData);
+		// Save non-errored to cache
+		const cacheObject = Utils.deepClone(parsedData);
+		cacheObject.data = cacheObject.data.filter(data => !data.error);
+		if (cacheObject.data.length !== parsedData.data.length) {
+			console.warn(`Could not cache ${parsedData.data.length - cacheObject.data.length} restaurants as the result contained errors`);
 		}
+		lounasCache[cacheIdentifier] = cacheObject;
 
-		if (data.filter(lounasResponse => lounasResponse.error).length) {
-			console.warn("This result won't be cached as it contained errors");
-			return Promise.resolve(parsedData);
-		}
-	
-		lounasCache[cacheIdentifier] = parsedData;
-		return Promise.resolve(Utils.deepClone(lounasCache[cacheIdentifier]));
+		return Promise.resolve(parsedData);
 	} catch (error) {
 		return Promise.reject(error);
 	}
