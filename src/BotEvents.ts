@@ -19,12 +19,12 @@ const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
-let prefetchJob: Job;
+const jobs: Record<string, Job> = {};
 const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
 const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, version: string): void => {
-	prefetchJob = scheduleJob({
+	jobs.prefetch = scheduleJob({
 		second: 30,
 		minute: 30,
 		hour: 10,
@@ -35,6 +35,15 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		console.debug("Prefetching data...");
 		getDataAndCache(dataProvider, settings, false);
 	});
+
+	// Automatic cache clearing
+	jobs.cacheClearing = scheduleJob({
+		second: 15,
+		minute: 15,
+		hour: 0,
+		dayOfWeek: 0,
+		tz: "Europe/Helsinki"
+	}, () => Utils.clearObject(lounasCache));
 
 	app.message("!clearCache", async ({say}) => {
 		Utils.clearObject(lounasCache);
@@ -49,7 +58,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	app.event("app_home_opened", async args => {
 		args.client.views.publish({
 			user_id: args.event.user,
-			view: BlockParsers.parseHomeTabView({settings, version, prefetchJob, userId: args.event.user})
+			view: BlockParsers.parseHomeTabView({settings, version, jobs, userId: args.event.user})
 		});
 	});
 
@@ -354,7 +363,7 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 		const cacheObject = Utils.deepClone(parsedData);
 		cacheObject.data = cacheObject.data.filter(data => !data.error);
 		if (cacheObject.data.length !== parsedData.data.length) {
-			console.warn(`Could not cache ${parsedData.data.length - cacheObject.data.length} restaurants as the result contained errors`);
+			console.warn(`Could not cache ${parsedData.data.length - cacheObject.data.length} restaurant(s) as the result contained errors`);
 		}
 		lounasCache[cacheIdentifier] = cacheObject;
 
