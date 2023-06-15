@@ -11,9 +11,11 @@ export default class BlockParsers {
 	// eslint-disable-next-line max-params
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
-		data.filter(lounasResponse => !lounasResponse.isAdditional).forEach(lounasResponse => {
-			lounasBlocks.push(...this.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
-		});
+		data.filter(lounasResponse => !lounasResponse.isAdditional)
+			.sort((a, b) => a.restaurant.localeCompare(b.restaurant))
+			.forEach(lounasResponse => {
+				lounasBlocks.push(...this.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
+			});
 
 		return [
 			...BlockCollection(
@@ -55,16 +57,30 @@ export default class BlockParsers {
 				Blocks.Header({ text: `Lounasbotti V${data.version}` }).end(),
 				Blocks.Section({ text: Md.italic("By <https://github.com/ojaha065|Jani Haiko>") }).end(),
 				Blocks.Divider().end(),
+
 				Blocks.Section({ text: `Tervehdys ${user(data.userId)}, nimeni on Lounasbotti. Kutsu minua millä tahansa kanavalla komennolla ${Md.codeInline("/lounas")} ja haen päivän lounaslistat! ${Md.italic("...tai ainakin yritän...")}` }).end(),
-				Blocks.Section({ text: `UUTTA: Kokeile myös komentoa ${Md.codeInline("/lounas huomenna")}` }).end(),
+		
+				// Commands
+				Blocks.Section().text(
+					Md.bold("Komennot") + "\n" +
+					[
+						["/lounas [<tyhjä> | tänään | huomenna]", "Aktivoi Lounasbotti ja hae lounaslistat"],
+						["/lounasbotti restart", "Käynnistä sovellus uudelleen"],
+						["/lounasbotti ping", "Pong!"]
+					].map(command => `${Md.codeInline(command[0])} - ${command[1]}`).join("\n")
+				).end(),
+
 				setIfTruthy(data.settings.announcements?.length, [
 					Blocks.Section({ text: `${Md.bold("Tiedotteet")}\n${data.settings.announcements?.join("\n\n")}` }).end(),
 					Blocks.Divider().end()
 				]),
+
 				Blocks.Section({ text: `${Md.italic("Auta minua kehittymään paremmaksi")} ${Md.emoji("arrow_right")}` })
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
 					.end(),
+
 				Blocks.Divider().end(),
+
 				Blocks.Input({ label: "Asetukset: Säännöllinen lauseke (Deprikoitu)", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin, mutta vain kanavilla joille Lounasbotti on kutsuttu. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
 					.dispatchAction(true)
 					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.source, minLength: 1, maxLength: 256, placeholder: "esim. '!lounas'" })
@@ -76,7 +92,9 @@ export default class BlockParsers {
 						.end()
 					)
 					.end(),
+
 				Blocks.Divider().end(),
+
 				Blocks.Input({ label: "Asetukset: Äänestys", hint: "Jos tämä valinta on käytössä, jokainen käyttäjä voi äänestää vain yhtä vaihtoehtoa." })
 					.dispatchAction(true)
 					.element(Elements.Checkboxes()
@@ -87,7 +105,9 @@ export default class BlockParsers {
 						.end()
 					)
 					.end(),
+
 				Blocks.Divider().end(),
+
 				setIfTruthy(debugInformation.length, Blocks.Context().elements(`Debug information:\n${debugInformation.join("\n")}`).end())
 			)
 			.buildToObject();

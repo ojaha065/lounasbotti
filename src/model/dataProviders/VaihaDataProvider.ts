@@ -6,7 +6,7 @@ import * as Utils from "../../Utils.js";
 
 class VaihdaDataProvider implements LounasDataProvider {
 	readonly id: string = "Savo";
-	readonly baseUrl: string = "https://www.vaiha.fi/savo-lounas";
+	readonly baseUrl: string = "https://www.vaiha.fi/kaikki-uutiset/vaiha-lounas";
 
 	readonly settings: Settings;
 	readonly VERSION: string;
@@ -44,14 +44,14 @@ class VaihdaDataProvider implements LounasDataProvider {
 
 
 			const containerDiv = Utils.requireNonNullOrUndefined(
-				$(".previewevents_2010"),
+				$(".news-item-single-text"),
 				"Error parsing HTML! Could not find proper container"
 			);
 
 			const expectedTitle = `${Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).toLowerCase()} `;
 			const pForToday = containerDiv
 				.find("p")
-				.filter((_i, el) => $(el).text()?.toLowerCase().startsWith(expectedTitle))
+				.filter((_i, el) => $(el).children(":first").text()?.toLowerCase().startsWith(expectedTitle))
 				.first();
 			if (!pForToday?.length) {
 				throw new Error("Error parsing HTML! Could not find <p> element for today");
@@ -62,8 +62,8 @@ class VaihdaDataProvider implements LounasDataProvider {
 				throw new Error("Error parsing HTML! Empty items list.");
 			}
 
-			const date = items[0];
-			items[0] = "Beta-ominaisuus! Tarkasta tietojen oikeellisuus: https://www.vaiha.fi/savo-lounas";
+			const date = cheerio.load(items[0]).text();
+			items[0] = "Beta-ominaisuus! Tarkasta tietojen oikeellisuus: https://www.vaiha.fi/kaikki-uutiset/vaiha-lounas";
 
 			return [{
 				isAdditional: false,

@@ -39,7 +39,7 @@
 		["nau(?:dan|ta)", ":cow:"],
 		["rapu", ":shrimp:"],
 		["pannukak", ":pancakes:"],
-		["riisi", ":rice:"],
+		["riisi|risot", ":rice:"],
 		["chips|ranskalai(?:set|sia)|ranskanperu", ":fries:"],
 		["porkkan", ":carrot:"],
 		["sieni", ":mushroom:"],
