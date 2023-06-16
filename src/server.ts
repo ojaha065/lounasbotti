@@ -12,8 +12,9 @@ import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
 import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
+import BotCommands from "./BotCommands.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.6.12";
+const VERSION = process.env["npm_package_version"] ?? "1.7.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]
@@ -61,32 +62,11 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 	
 	const app = new App(appOptions);
 	
-	app.message("!ping", async ({say}) => {
-		say("Pong!");
-	});
-	
-	app.message("!whoami", async ({say, message}) => {
-		if (!message.subtype) {
-			say(message.user);
-		}
-	});
-
-	app.message("!channel", async ({say, message}) => {
-		if (!message.subtype) {
-			say(message.channel);
-		}
-	});
-
-	app.message("!restart lounasbotti", async ({say}) => {
-		say("Okay! Restarting, BRB");
-		console.info("Process will now exit due to restart command");
-		setTimeout(() => process.exit(), 1000);
-	});
-	
 	if (typeof settings.dataProvider === "string") {
 		throw new Error("Incorrect dataProvider");
 	}
 
+	BotCommands(app);
 	BotEvents.initEvents(app, settings, settings.dataProvider, VERSION);
 	AdminEvents(app, settings);
 	BotActions(app, settings);

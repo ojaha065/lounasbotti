@@ -14,7 +14,7 @@ kill_timeout = "5s"
     NODE_ENV = "production"
 
 [deploy]
-  strategy = "immediate"
+  strategy = "rolling"
 
 [env]
   NODE_ENV = "production"

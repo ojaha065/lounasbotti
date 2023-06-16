@@ -166,7 +166,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					date: dataBlock.header.replace("Lounas", weekdayName).trim(),
 					iconUrl
 				};
-			}))).sort((a, b) => a.restaurant.localeCompare(b.restaurant));
+			})));
 		} catch (error) {
 			console.error(error);
 			return restaurants.map(restaurant => {
