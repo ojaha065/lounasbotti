@@ -73,16 +73,21 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
 
 /**
  * Fetch with a sensible timeout
+ * Retries once if a network error is encountered
  * See {@link Fetch} for documentation
  */
-const fetchWithTimeout = async (url: RequestInfo, init: RequestInit = {}): Promise<Response> => {
+const fetchWithTimeout = (url: RequestInfo, init: RequestInit = {}, allowRetry = true): Promise<Response> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 8000);
 
-	const response = await fetch(url, {...init, signal: controller.signal as any}); // FIXME: Conflict between internal TypeScript typings and typings from node-fetch
-	clearTimeout(timeout);
+	return fetch(url, {...init, signal: controller.signal}).catch(error => {
+		console.error(error);
+		if (allowRetry) {
+			return new Promise(resolve => setTimeout(resolve, 2000)).then(() => fetchWithTimeout(url, init, false));
+		}
 
-	return response;
+		throw error;
+	}).finally(clearTimeout.bind(null, timeout));
 };
 
 /**

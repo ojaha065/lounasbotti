@@ -21,6 +21,7 @@ class Settings {
 	public announcements?: string[];
 	public adminUsers: string[] = [];
 	public emojiRules?: Map<RegExp, string>;
+	public stripRules?: RegExp[];
 	public configSource?: string;
 	public debug?: {
 		noDb?: boolean
@@ -100,6 +101,12 @@ class Settings {
 					return arr;
 				})
 			);
+		}
+
+		if (json.stripRules) {
+			this.stripRules = json.stripRules
+				.filter(Boolean)
+				.map((s: string) => RegExp(s, "i"));
 		}
 
 		if (json.configSource) {

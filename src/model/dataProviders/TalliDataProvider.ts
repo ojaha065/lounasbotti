@@ -66,7 +66,8 @@ class TalliDataProvider implements LounasDataProvider {
 				date: expectedTitle,
 				items: items
 					.map(s => s.trim())
-					.filter(Boolean),
+					.filter(Boolean)
+					.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
 				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.talli}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {

@@ -89,6 +89,13 @@
                 }
             }
         },
+        "stripRules": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "regex"
+            }
+        },
         "configSource": {
             "type": "string"
         },
