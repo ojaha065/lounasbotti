@@ -62,14 +62,13 @@ class VaihdaDataProvider implements LounasDataProvider {
 				throw new Error("Error parsing HTML! Empty items list.");
 			}
 
-			const date = cheerio.load(items[0]).text();
-			items[0] = "Beta-ominaisuus! Tarkasta tietojen oikeellisuus: https://www.vaiha.fi/kaikki-uutiset/vaiha-lounas";
+			const date = cheerio.load(items.shift() ?? "").text();
 
 			return [{
 				isAdditional: false,
 				restaurant: Restaurant.savo,
 				date: date,
-				items: items.map(s => s.trim()).filter(Boolean),
+				items: items.map(s => s.trim()).filter(Boolean).filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
 				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
