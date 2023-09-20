@@ -34,7 +34,7 @@
     "email": "hello@jhaiko.tech"
   },
   "devDependencies": {
-    "@types/node": "^20.4.2",
+    "@types/node": "^20.6.3",
     "@types/node-schedule": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
