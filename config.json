@@ -26,7 +26,7 @@
 	"stripRules": [
 		"^Take away$",
 		"^Ma-Pe 10.30-14$",
-		"^Koko lounas 12,50 € Keittolounas 10,20 € Lounas tarjolla Ma-Pe klo 10.30-14.00$",
+		"^Koko lounas 12,70 € Keittolounas 10,50 € Lounas tarjolla Ma-Pe klo 10.30-14.00$",
 		"Kahvi ja tee kuuluu lounaan hintaan",
 		"^Lounas 11-16$",
 		"Aikuiset",
@@ -60,6 +60,7 @@
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
+		["(?:parsa|kukka)kaali", ":broccoli:"],
 		["peru(?:na|no)|pottu", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"],
@@ -68,6 +69,7 @@
 		["suljettu|kiinni", ":no_entry_sign:"],
 		["beta-ominaisuus", ":warning:"],
 		["kaalikääry", ":nauseated_face:"],
-		["paholai", ":smiling_imp:"]
+		["paholai", ":smiling_imp:"],
+		["yrtt", ":herb:"]
 	]
 }
