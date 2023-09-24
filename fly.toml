@@ -8,11 +8,6 @@ primary_region = "arn"
 kill_signal = "SIGINT"
 kill_timeout = "5s"
 
-[build]
-  builder = "heroku/builder:22"
-  [build.args]
-    NODE_ENV = "production"
-
 [deploy]
   strategy = "rolling"
 
