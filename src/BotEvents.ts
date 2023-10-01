@@ -1,4 +1,4 @@
-import bolt, {GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
+import bolt, {Button, GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
@@ -106,7 +106,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 				if (!actionsBlock) {
 					throw new Error("Error parsing blocks (actionsBlock)");
 				}
-				actionsBlock.elements = actionsBlock.elements.filter(element => (element as bolt.ButtonAction).value !== actionValue);
+				actionsBlock.elements = actionsBlock.elements.filter(element => (element as bolt.Button).value !== actionValue);
 
 				// If all buttons are now removed, remove the whole actions block. Fixes invalid_blocks error
 				if (actionsBlock.elements.length === 0) {
@@ -378,7 +378,7 @@ function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks
 	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
 
 	blocks.forEach((block, index) => {
-		if (block.type === "actions" && (block as bolt.ActionsBlock).elements?.find(element => element.action_id === "upvoteButtonAction")) {
+		if (block.type === "actions" && (block as bolt.ActionsBlock).elements?.find(element => (element as Button).action_id === "upvoteButtonAction")) {
 			const actionBlock: bolt.ActionsBlock = block as bolt.ActionsBlock;
 			const voteButtonValue: string | undefined = (actionBlock.elements[0] as bolt.Button).value;
 

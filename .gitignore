@@ -103,5 +103,8 @@ dist
 # TernJS port file
 .tern-port
 
+# Sentry Auth Token
+.sentryclirc
+
 notes.txt
 ngrok.secrets.yml

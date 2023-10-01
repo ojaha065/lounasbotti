@@ -6,3 +6,4 @@ resources
 .env
 ngrok.exe
 ngrok.secrets.yml
+.sentryclirc

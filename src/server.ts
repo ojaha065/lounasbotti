@@ -1,6 +1,22 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import * as Sentry from "@sentry/node";
+import { CaptureConsole } from "@sentry/integrations";
+if (process.env.SENTRY_DSN) {
+	Sentry.init({
+		dsn: process.env.SENTRY_DSN,
+		integrations: [
+			new CaptureConsole({
+				levels: ["error"]
+			})
+		],
+		tracesSampleRate: 1.0
+	});
+} else {
+	console.warn("SENTRY_DSN not available. Sentry not enabled.");
+}
+
 import { AddressInfo } from "net";
 
 import bolt from "@slack/bolt";
@@ -14,7 +30,7 @@ import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
 import BotCommands from "./BotCommands.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.7.3";
+const VERSION = process.env["npm_package_version"] ?? "1.7.4";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]

@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -16,7 +16,8 @@
     "dev": "nodemon -e ts,json,env --exec \"npm run refresh\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\""
+    "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload ./dist"
   },
   "keywords": [
     "bot",
@@ -34,7 +35,8 @@
     "email": "hello@jhaiko.tech"
   },
   "devDependencies": {
-    "@types/node": "^20.4.2",
+    "@sentry/cli": "^2.21.1",
+    "@types/node": "^20.7.2",
     "@types/node-schedule": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
@@ -45,6 +47,8 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
+    "@sentry/integrations": "^7.72.0",
+    "@sentry/node": "^7.72.0",
     "@slack/bolt": "^3.13.0",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^16.3.1",
