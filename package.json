@@ -15,9 +15,9 @@
     "proxy": "ngrok start --config ngrok.yml --config ngrok.secrets.yml lounasbotti-dev",
     "dev": "nodemon -e ts,json,env --exec \"npm run refresh\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && npm run sentry:sourcemaps",
+    "build": "tsc",
     "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org jani-haiko --project lounasbotti-disec ./dist && sentry-cli sourcemaps upload --org jani-haiko --project lounasbotti-disec ./dist"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload ./dist"
   },
   "keywords": [
     "bot",
