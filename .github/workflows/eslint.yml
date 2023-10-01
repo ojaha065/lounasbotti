@@ -17,6 +17,6 @@ jobs:
         check-latest: true
         cache: "npm"
     - name: npm
-      run: npm install --only=dev
+      run: npm install --no-audit --no-fund --only=dev
     - name: lint
       run: npm run lint
