@@ -29,6 +29,7 @@ class Settings {
 
 	// Instance settings
 	public limitToOneVotePerUser = false;
+	public subscribedChannels?: string[] | undefined;
 
 	constructor(json: any, VERSION: string) {
 		this.instanceId = Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required");
@@ -123,7 +124,8 @@ class Settings {
 type InstanceSettings = {
 	instanceId: string,
 	triggerRegExp?: RegExp | undefined,
-	limitToOneVotePerUser?: boolean
+	limitToOneVotePerUser?: boolean,
+	subscribedChannels?: string[] | undefined;
 };
 
 enum Restaurant {
@@ -186,6 +188,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 const readInstanceSettings = (settings: Settings): void => {
 	SettingsRepository.findOrCreate(settings.instanceId).then(instanceSettings => {
 		settings.limitToOneVotePerUser = Boolean(instanceSettings.limitToOneVotePerUser);
+		settings.subscribedChannels = instanceSettings.subscribedChannels;
 
 		if (instanceSettings.triggerRegExp) {
 			console.debug(`Custom trigger enabled for instance "${settings.instanceId}" (${instanceSettings.triggerRegExp.source})`);

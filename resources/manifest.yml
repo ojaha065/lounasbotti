@@ -25,7 +25,7 @@ features:
     - command: /lounasbotti
       url: https://lounasbotti-disec.fly.dev/slack/events
       description: Manage Lounasbotti
-      usage_hint: "[ping | restart]"
+      usage_hint: "[ping | restart | [un]subscribe]"
       should_escape: false
 oauth_config:
   scopes:

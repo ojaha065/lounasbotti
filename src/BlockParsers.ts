@@ -1,4 +1,3 @@
-import { Job } from "node-schedule";
 import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
 import { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
 
@@ -43,13 +42,14 @@ export default class BlockParsers {
 		];
 	}
 
-	public static parseHomeTabView(data: { settings: Settings, version: string, userId: string, jobs: Record<string, Job> }): Readonly<SlackHomeTabDto> {
+	public static parseHomeTabView(data: { settings: Settings, version: string, userId: string}): Readonly<SlackHomeTabDto> {
 		const debugInformation: string[] = [
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${(data.settings.dataProvider as LounasDataProvider).id} (${(data.settings.dataProvider as LounasDataProvider).baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
-			data.jobs.cacheClearing ? `Cached data will be cleared at ${data.jobs.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
-			data.jobs.prefetch ? `Next data prefetching will occur at ${data.jobs.prefetch.nextInvocation().toLocaleString("en-US")}` : null
+			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.prefetch ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.prefetch.nextInvocation().toLocaleString("en-US")}` : null,
+			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`
 		].filter(Boolean) as string[];
 	
 		return HomeTab()
@@ -65,6 +65,8 @@ export default class BlockParsers {
 					Md.bold("Komennot") + "\n" +
 					[
 						["/lounas [<tyhjä> | tänään | huomenna]", "Aktivoi Lounasbotti ja hae lounaslistat"],
+						["/lounasbotti subscribe", "Aktivoi automaattinen tila kanavalle (Arkispäivisin klo. 10:30)"],
+						["/lounasbotti unsubscribe", "Poista automaattinen tila käytöstä"],
 						["/lounasbotti restart", "Käynnistä sovellus uudelleen"],
 						["/lounasbotti ping", "Pong!"]
 					].map(command => `${Md.codeInline(command[0])} - ${command[1]}`).join("\n")

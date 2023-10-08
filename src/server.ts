@@ -30,7 +30,10 @@ import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
 import BotCommands from "./BotCommands.js";
 
-const VERSION = process.env["npm_package_version"] ?? "1.7.4";
+// Global
+global.LOUNASBOTTI_JOBS = {};
+
+const VERSION = process.env["npm_package_version"] ?? "1.8.0";
 console.info(`Lounasbotti v${VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]
@@ -82,7 +85,7 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 		throw new Error("Incorrect dataProvider");
 	}
 
-	BotCommands(app);
+	BotCommands(app, settings);
 	BotEvents.initEvents(app, settings, settings.dataProvider, VERSION);
 	AdminEvents(app, settings);
 	BotActions(app, settings);
