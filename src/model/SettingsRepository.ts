@@ -1,10 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { UpdateQuery } from "mongoose";
 import { InstanceSettings } from "./Settings";
 
 const instanceSettingsSchema = new mongoose.Schema<InstanceSettings>({
 	instanceId: String,
 	triggerRegExp: String,
-	limitToOneVotePerUser: Boolean
+	limitToOneVotePerUser: Boolean,
+	subscribedChannels: [String]
 });
 
 const InstanceSettingsModel = mongoose.model<InstanceSettings>("InstanceSettings", instanceSettingsSchema);
@@ -29,12 +30,13 @@ const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
 	return {
 		instanceId: json.instanceId,
 		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
-		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
+		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
+		subscribedChannels: json.subscribedChannels
 	};
 };
 
-const update = async (update: InstanceSettings): Promise<InstanceSettings> => {
-	const actualUpdate: any = {...update};
+const update = async (update: InstanceSettings | UpdateQuery<InstanceSettings>): Promise<InstanceSettings> => {
+	const actualUpdate: UpdateQuery<InstanceSettings> = {...update};
 	if (update.triggerRegExp) {
 		actualUpdate.triggerRegExp = update.triggerRegExp.source;
 	}
@@ -55,7 +57,8 @@ const update = async (update: InstanceSettings): Promise<InstanceSettings> => {
 	return {
 		instanceId: json.instanceId,
 		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
-		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser)
+		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
+		subscribedChannels: json.subscribedChannels
 	};
 };
 

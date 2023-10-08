@@ -1,5 +1,4 @@
 import bolt, {Button, GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
-import { Job, scheduleJob, Range } from "node-schedule";
 
 import * as Utils from "./Utils.js";
 
@@ -10,6 +9,7 @@ import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
 import { BlockCollection, Blocks, Md } from "slack-block-builder";
 import { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
+import { Range, scheduleJob } from "node-schedule";
 
 type MessageMiddlewareArgs = bolt.SlackEventMiddlewareArgs<"message"> & bolt.AllMiddlewareArgs<StringIndexed>;
 type CommandMiddlewareArgs = SlackCommandMiddlewareArgs & bolt.AllMiddlewareArgs<StringIndexed>;
@@ -19,12 +19,11 @@ const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
-const jobs: Record<string, Job> = {};
 const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
 const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, version: string): void => {
-	jobs.prefetch = scheduleJob({
+	global.LOUNASBOTTI_JOBS.prefetch = scheduleJob({
 		second: 30,
 		minute: 30,
 		hour: 10,
@@ -32,12 +31,12 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 		tz: "Europe/Helsinki",
 
 	}, () => {
-		console.debug("Prefetching data...");
-		getDataAndCache(dataProvider, settings, false);
+		console.debug("Handling subscriptions...");
+		mainTrigger(false);
 	});
 
 	// Automatic cache clearing
-	jobs.cacheClearing = scheduleJob({
+	global.LOUNASBOTTI_JOBS.cacheClearing = scheduleJob({
 		second: 15,
 		minute: 15,
 		hour: 0,
@@ -58,7 +57,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	app.event("app_home_opened", async args => {
 		args.client.views.publish({
 			user_id: args.event.user,
-			view: BlockParsers.parseHomeTabView({settings, version, jobs, userId: args.event.user})
+			view: BlockParsers.parseHomeTabView({settings, version, userId: args.event.user})
 		});
 	});
 
@@ -223,25 +222,13 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	});
 
 	// The main business logic
-	async function mainTrigger(isTomorrowRequest: boolean, args: MessageMiddlewareArgs | CommandMiddlewareArgs): Promise<void> {
+	async function mainTrigger(isTomorrowRequest: boolean, args?: MessageMiddlewareArgs | CommandMiddlewareArgs): Promise<void> {
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
 		}
 
-		const isMessage = args.payload.type === "message";
-
-		const cachedData = await getDataAndCache(dataProvider, settings, true, isTomorrowRequest);
-		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
-			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n`
-			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${Md.user(isMessage ? ((args as MessageMiddlewareArgs).message as GenericMessageEvent).user : args.body.user_id)}`
-		))[0]);
-
-		const response = await args.say({
-			blocks: cachedData.blocks,
-			text: "Lounaslistat",
-			unfurl_links: false,
-			unfurl_media: false
-		});
+		const isAutomatic = !args;
+		const isMessage = args?.payload?.type === "message";
 
 		// Add hourglass reaction
 		if (isMessage) {
@@ -255,31 +242,50 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			});
 		}
 
-		if (response.ok && response.ts) {
-			if (!settings.debug?.noDb && !isTomorrowRequest) {
-				LounasRepository.create({
-					instanceId: settings.instanceId,
-					ts: response.ts,
-					channel: response.channel ?? args.payload.channel,
-					menu: cachedData.data.map(lounasResponse => {
-						return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
-					}),
-					date: new Date(),
-					votes: []
-				}).catch(error => {
-					console.error(error);
-				});
-			}
-	
-			toBeTruncated.push({
-				channel: response.channel ?? args.payload.channel,
-				ts: response.ts
-			});
-	
-			// Something to think about: Is the reference to app always usable after 6 hrs? Should be as JS uses Call-by-Sharing and App is never reassigned.
-			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
+		const cachedData = await getDataAndCache(dataProvider, settings, true, isTomorrowRequest);
 
-			if (response.channel) {
+		let requester: string;
+		if (isAutomatic) {
+			requester = Md.italic("Subscription");
+		}
+		else if (isMessage) {
+			requester = Md.user(((args as MessageMiddlewareArgs).message as GenericMessageEvent).user);
+		}
+		else {
+			requester = Md.user(args.body.user_id);
+		}
+
+		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
+			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n`
+			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${requester}`
+		))[0]);
+
+		if (isAutomatic) {
+			settings.subscribedChannels?.forEach(async channel => {
+				const response = await app.client.chat.postMessage({
+					channel,
+					blocks: cachedData.blocks,
+					text: "Lounaslistat",
+					unfurl_links: false,
+					unfurl_media: false
+				});
+
+				handleMainTriggerResponse(response, settings, channel, cachedData.data, isTomorrowRequest);
+
+				setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
+			});
+		}
+		else {
+			const response = await args.say({
+				blocks: cachedData.blocks,
+				text: "Lounaslistat",
+				unfurl_links: false,
+				unfurl_media: false
+			});
+
+			handleMainTriggerResponse(response, settings, response.channel ?? args.payload.channel, cachedData.data, isTomorrowRequest);
+
+			if (response.channel && response.ts) {
 				args.client.reactions.add({
 					channel: response.channel,
 					name: "thumbsup",
@@ -292,9 +298,8 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 					}
 				});
 			}
-		} else {
-			console.warn("Response not okay!");
-			console.debug(response);
+
+			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
 		}
 	
 		return Promise.resolve();
@@ -302,6 +307,33 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 };
 
 export { initEvents };
+
+function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
+	if (response.ok && response.ts) {
+		if (!settings.debug?.noDb && !isTomorrowRequest) {
+			LounasRepository.create({
+				instanceId: settings.instanceId,
+				ts: response.ts,
+				channel: response.channel ?? channel,
+				menu: cachedData.map(lounasResponse => {
+					return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
+				}),
+				date: new Date(),
+				votes: []
+			}).catch(error => {
+				console.error(error);
+			});
+		}
+
+		toBeTruncated.push({
+			channel: response.channel ?? channel,
+			ts: response.ts
+		});
+	} else {
+		console.warn("Response not okay!");
+		console.debug(response);
+	}
+}
 
 function truncateMessage(app: bolt.App): void {
 	const message = toBeTruncated.shift();
