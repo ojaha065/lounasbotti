@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -17,7 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload ./dist"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist"
   },
   "keywords": [
     "bot",
@@ -41,6 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "eslint": "^8.45.0",
+    "eslint-config-alloy": "^5.1.2",
     "eslint-import-resolver-typescript": "^3.3.0",
     "eslint-plugin-import": "^2.27.5",
     "ts-node": "^10.9.1",

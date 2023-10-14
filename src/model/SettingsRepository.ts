@@ -1,5 +1,6 @@
-import mongoose, { UpdateQuery } from "mongoose";
-import { InstanceSettings } from "./Settings";
+import type { UpdateQuery } from "mongoose";
+import mongoose from "mongoose";
+import type { InstanceSettings } from "./Settings";
 
 const instanceSettingsSchema = new mongoose.Schema<InstanceSettings>({
 	instanceId: String,

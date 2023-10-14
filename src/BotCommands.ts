@@ -1,6 +1,6 @@
-import bolt from "@slack/bolt";
+import type bolt from "@slack/bolt";
 import { Md } from "slack-block-builder";
-import { Settings } from "./model/Settings";
+import type { Settings } from "./model/Settings";
 import * as SettingsRepository from "./model/SettingsRepository.js";
 
 export default function(app: bolt.App, settings: Settings) {
@@ -53,7 +53,16 @@ export default function(app: bolt.App, settings: Settings) {
 					return;
 				}
 
-				// TODO: Check rights to channel
+				try {
+					await args.client.conversations.join({ channel: args.body.channel_id });
+				} catch (error) {
+					console.error(error);
+					args.respond({
+						response_type: "ephemeral",
+						text: "Error subscribing to channel. Lounasbotti could not join this channel. Please contact support."
+					});
+					return;
+				}
 
 				SettingsRepository.update({
 					instanceId: settings.instanceId,
@@ -65,7 +74,7 @@ export default function(app: bolt.App, settings: Settings) {
 					console.info(`User ${args.body.user_id} (${args.body.user_name}) subscribed to channel ${args.body.channel_id}`);
 					args.respond({
 						response_type: "in_channel",
-						text: `${Md.user(args.body.user_id)} subscribed Lounasbotti to this channel. Next automatic activation will happen at ${Md.codeInline(global.LOUNASBOTTI_JOBS.prefetch.nextInvocation().toLocaleString("en-US"))}. Use ${Md.codeInline("/lounasbotti unsubscribe")} to unsubscribe.`
+						text: `${Md.user(args.body.user_id)} subscribed Lounasbotti to this channel. Next automatic activation will happen at ${Md.codeInline(global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US"))}. Use ${Md.codeInline("/lounasbotti unsubscribe")} to unsubscribe.`
 					});
 				}).catch(error => {
 					console.error(error);
@@ -99,6 +108,8 @@ export default function(app: bolt.App, settings: Settings) {
 						response_type: "in_channel",
 						text: `${Md.user(args.body.user_id)} unsubscribed Lounasbotti from this channel. Use ${Md.codeInline("/lounasbotti subscribe")} to subscribe again.`
 					});
+
+					args.client.conversations.leave({ channel: args.body.channel_id });
 				}).catch(error => {
 					console.error(error);
 					args.respond({

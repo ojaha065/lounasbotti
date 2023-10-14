@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 
-import { LounasDataProvider } from "./dataProviders/LounasDataProvider.js";
+import type { LounasDataProvider } from "./dataProviders/LounasDataProvider.js";
 import * as Utils from "../Utils.js";
 import RuokapaikkaFiDataProvider from "./dataProviders/RuokapaikkaFiDataProvider.js";
 import MockDataProvider from "./dataProviders/MockDataProvider.js";
@@ -8,7 +8,6 @@ import * as SettingsRepository from "./SettingsRepository.js";
 
 class Settings {
 	public instanceId: string;
-	public dataProvider: LounasDataProvider | "self" = "self";
 	public triggerRegExp: RegExp;
 	public defaultRestaurants: Restaurant[];
 	public additionalRestaurants?: Restaurant[];
@@ -31,15 +30,17 @@ class Settings {
 	public limitToOneVotePerUser = false;
 	public subscribedChannels?: string[] | undefined;
 
-	constructor(json: any, VERSION: string) {
+	public _dataProvider: LounasDataProvider | "self" = "self";
+
+	constructor(json: any) {
 		this.instanceId = Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required");
 
 		switch (Utils.requireNonNullOrUndefined(json.dataProvider, "Parameter dataProvider is required")) {
 			case "ruokapaikkaFi":
-				this.dataProvider = new RuokapaikkaFiDataProvider(this, VERSION);
+				this._dataProvider = new RuokapaikkaFiDataProvider(this);
 				break;
 			case "mock":
-				this.dataProvider = new MockDataProvider(this);
+				this._dataProvider = new MockDataProvider(this);
 				break;
 			default:
 				throw new Error(`Unknown data provider ${json.dataProvider}`);
@@ -119,6 +120,14 @@ class Settings {
 			this.debug = json.debug;
 		}
 	}
+
+	public get dataProvider(): LounasDataProvider {
+		if (typeof this._dataProvider === "string") {
+			throw new Error();
+		}
+
+		return this._dataProvider;
+	}
 }
 
 type InstanceSettings = {
@@ -160,12 +169,12 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	kivijalka: "Ravintola Kivijalka"
 };
 
-const readAndParseSettings = async (VERSION: string, config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
+const readAndParseSettings = async (config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
 	let json: any;
 	
 	if (configURLs?.length) {
 		for (const url of configURLs) {
-			json = await tryToReadSettingsFromURL(url, VERSION);
+			json = await tryToReadSettingsFromURL(url);
 			if (json) {break;}
 		}
 
@@ -182,7 +191,7 @@ const readAndParseSettings = async (VERSION: string, config?: string | undefined
 
 	console.info(`Using configuration from ${json.configSource}`);
 
-	return new Settings(json, VERSION);
+	return new Settings(json);
 };
 
 const readInstanceSettings = (settings: Settings): void => {
@@ -201,12 +210,12 @@ const readInstanceSettings = (settings: Settings): void => {
 
 export { Settings, InstanceSettings, Restaurant, RestaurantNameMap, readAndParseSettings, readInstanceSettings };
 
-async function tryToReadSettingsFromURL(url: URL, VERSION: string): Promise<any> {
+async function tryToReadSettingsFromURL(url: URL): Promise<any> {
 	try {
 		const response = await Utils.fetchWithTimeout(url.toString(), {
 			method: "GET",
 			headers: {
-				"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${VERSION};)`,
+				"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION};)`,
 				Accept: "application/json"
 			}
 		});

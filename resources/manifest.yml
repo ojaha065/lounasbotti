@@ -31,11 +31,13 @@ oauth_config:
   scopes:
     bot:
       - channels:history
+      - channels:join
       - chat:write
+      - chat:write.public
       - commands
       - im:history
       - reactions:write
-      - chat:write.public
+      - channels:manage
 settings:
   event_subscriptions:
     request_url: https://lounasbotti-disec.fly.dev/slack/events

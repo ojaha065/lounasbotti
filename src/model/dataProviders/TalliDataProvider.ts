@@ -1,7 +1,8 @@
 import * as cheerio from "cheerio";
 
-import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
-import { Restaurant, Settings } from "../Settings.js";
+import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
+import type { Settings } from "../Settings.js";
+import { Restaurant } from "../Settings.js";
 import * as Utils from "../../Utils.js";
 
 class TalliDataProvider implements LounasDataProvider {
@@ -9,11 +10,9 @@ class TalliDataProvider implements LounasDataProvider {
 	readonly baseUrl: string = "https://www.xamkravintolat.fi/tallin-lounaslista/";
 
 	readonly settings: Settings;
-	readonly VERSION: string;
 
-	public constructor(settings: Settings, VERSION: string) {
+	public constructor(settings: Settings) {
 		this.settings = settings;
-		this.VERSION = VERSION;
 	}
 
 	public async getData(restaurants: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
@@ -27,7 +26,7 @@ class TalliDataProvider implements LounasDataProvider {
 			const response = await Utils.fetchWithTimeout(this.baseUrl, {
 				method: "GET",
 				headers: {
-					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION}; +${this.settings.gitUrl})`
+					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION}; +${this.settings.gitUrl})`
 				}
 			});
 	
