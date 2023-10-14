@@ -1,5 +1,6 @@
 import { deserialize, serialize } from "v8";
-import fetch, { RequestInfo, RequestInit, Response } from "node-fetch";
+import type { RequestInfo, RequestInit, Response } from "node-fetch";
+import fetch from "node-fetch";
 
 const BR_EXP = /<br\s*\/?>/i;
 
@@ -83,7 +84,7 @@ const fetchWithTimeout = (url: RequestInfo, init: RequestInit = {}, allowRetry =
 	return fetch(url, {...init, signal: controller.signal}).catch(error => {
 		console.error(error);
 		if (allowRetry) {
-			return new Promise(resolve => setTimeout(resolve, 2000)).then(() => fetchWithTimeout(url, init, false));
+			return new Promise(resolve => { setTimeout(resolve, 2000); }).then(() => fetchWithTimeout(url, init, false));
 		}
 
 		throw error;

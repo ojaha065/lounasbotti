@@ -1,4 +1,4 @@
-import { Restaurant, Settings } from "../Settings.js";
+import type { Restaurant, Settings } from "../Settings.js";
 
 interface LounasDataProvider {
     readonly id: string;

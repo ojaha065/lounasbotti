@@ -1,5 +1,6 @@
-import mongoose, { UpdateQuery } from "mongoose";
-import { Restaurant } from "./Settings";
+import type { UpdateQuery } from "mongoose";
+import mongoose from "mongoose";
+import type { Restaurant } from "./Settings";
 
 type LounasMessageEntry = {
 	instanceId: string,

@@ -1,8 +1,9 @@
 import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
-import { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
+import type { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
 
-import { LounasDataProvider, LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
-import { RestaurantNameMap, Settings } from "./model/Settings.js";
+import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
+import type { Settings } from "./model/Settings.js";
+import { RestaurantNameMap } from "./model/Settings.js";
 
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
@@ -42,19 +43,19 @@ export default class BlockParsers {
 		];
 	}
 
-	public static parseHomeTabView(data: { settings: Settings, version: string, userId: string}): Readonly<SlackHomeTabDto> {
+	public static parseHomeTabView(data: { settings: Settings, userId: string}): Readonly<SlackHomeTabDto> {
 		const debugInformation: string[] = [
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
-			`Data provider: ${(data.settings.dataProvider as LounasDataProvider).id} (${(data.settings.dataProvider as LounasDataProvider).baseUrl})`,
+			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
 			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
-			global.LOUNASBOTTI_JOBS.prefetch ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.prefetch.nextInvocation().toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.subscriptions ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US")}` : null,
 			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`
 		].filter(Boolean) as string[];
 	
 		return HomeTab()
 			.blocks(
-				Blocks.Header({ text: `Lounasbotti V${data.version}` }).end(),
+				Blocks.Header({ text: `Lounasbotti ${global.LOUNASBOTTI_VERSION}` }).end(),
 				Blocks.Section({ text: Md.italic("By <https://github.com/ojaha065|Jani Haiko>") }).end(),
 				Blocks.Divider().end(),
 

@@ -1,11 +1,16 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+// Global
+global.LOUNASBOTTI_JOBS = {};
+global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.8.1";
+
 import * as Sentry from "@sentry/node";
 import { CaptureConsole } from "@sentry/integrations";
 if (process.env.SENTRY_DSN) {
 	Sentry.init({
 		dsn: process.env.SENTRY_DSN,
+		release: global.LOUNASBOTTI_VERSION,
 		integrations: [
 			new CaptureConsole({
 				levels: ["error"]
@@ -17,7 +22,7 @@ if (process.env.SENTRY_DSN) {
 	console.warn("SENTRY_DSN not available. Sentry not enabled.");
 }
 
-import { AddressInfo } from "net";
+import type { AddressInfo } from "net";
 
 import bolt from "@slack/bolt";
 
@@ -30,11 +35,7 @@ import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
 import BotCommands from "./BotCommands.js";
 
-// Global
-global.LOUNASBOTTI_JOBS = {};
-
-const VERSION = process.env["npm_package_version"] ?? "1.8.0";
-console.info(`Lounasbotti v${VERSION} server starting...`);
+console.info(`Lounasbotti v${global.LOUNASBOTTI_VERSION} server starting...`);
 
 if (!process.env["SLACK_SECRET"]
 	|| !process.env["SLACK_TOKEN"]
@@ -46,7 +47,7 @@ if (!process.env["SLACK_SECRET"]
 const socketMode: boolean = process.env["SLACK_SOCKET"] as unknown as boolean || false;
 
 const configURLs: URL[] | undefined = process.env["SLACK_CONFIG_URL"]?.split(";").map(s => new URL(s));
-readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then(settings => {
+readAndParseSettings(process.env["SLACK_CONFIG_NAME"], configURLs).then(settings => {
 	const { App } = bolt;
 
 	if (!settings.debug?.noDb) {
@@ -80,13 +81,9 @@ readAndParseSettings(VERSION, process.env["SLACK_CONFIG_NAME"], configURLs).then
 	];
 	
 	const app = new App(appOptions);
-	
-	if (typeof settings.dataProvider === "string") {
-		throw new Error("Incorrect dataProvider");
-	}
 
 	BotCommands(app, settings);
-	BotEvents.initEvents(app, settings, settings.dataProvider, VERSION);
+	BotEvents.initEvents(app, settings);
 	AdminEvents(app, settings);
 	BotActions(app, settings);
 	

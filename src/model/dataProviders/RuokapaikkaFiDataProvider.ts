@@ -1,6 +1,7 @@
 import * as Utils from "../../Utils.js";
-import { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
-import { Restaurant, RestaurantNameMap, Settings } from "../Settings.js";
+import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
+import type { Settings } from "../Settings.js";
+import { Restaurant, RestaurantNameMap } from "../Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
 import VaihdaDataProvider from "./VaihaDataProvider.js";
 
@@ -9,14 +10,12 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly baseUrl: string = "https://www.ruokapaikka.fi/resources/lunch/pois";
 
 	readonly settings: Settings;
-	readonly VERSION: string;
 
 	readonly HEADER_REGEXP = /Lounas\s\d{1,2}\.\d{1,2}\./;
 	readonly EXTRA_SPACES_REGEXP = /\s{5,}/g;
 
-	public constructor(settings: Settings, VERSION: string) {
+	public constructor(settings: Settings) {
 		this.settings = settings;
-		this.VERSION = VERSION;
 	}
 
 	public async getData(restaurants: Restaurant[], tomorrowRequest = false): Promise<LounasResponse[]> {
@@ -50,7 +49,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			const response = await Utils.fetchWithTimeout(url.toString(), {
 				method: "GET",
 				headers: {
-					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${this.VERSION}; +${this.settings.gitUrl})`
+					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION}; +${this.settings.gitUrl})`
 				}
 			});
 	
@@ -87,13 +86,13 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
 				if (!dataBlock) {
 					if (restaurant === Restaurant.talli) {
-						const talliResponseArr = await new TalliDataProvider(this.settings, this.VERSION).getData([Restaurant.talli], tomorrowRequest);
+						const talliResponseArr = await new TalliDataProvider(this.settings).getData([Restaurant.talli], tomorrowRequest);
 						if (talliResponseArr[0]?.items?.length) {
 							return talliResponseArr[0];
 						}
 					}
 					else if (restaurant === Restaurant.savo) {
-						const responseArr = await new VaihdaDataProvider(this.settings, this.VERSION).getData([Restaurant.savo], tomorrowRequest);
+						const responseArr = await new VaihdaDataProvider(this.settings).getData([Restaurant.savo], tomorrowRequest);
 						if (responseArr[0]?.items?.length) {
 							return responseArr[0];
 						}

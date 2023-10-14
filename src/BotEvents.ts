@@ -1,14 +1,16 @@
-import bolt, {Button, GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
+import type {Button, GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
+import type bolt from "@slack/bolt";
 
 import * as Utils from "./Utils.js";
 
-import { LounasDataProvider, LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
-import { Restaurant, Settings } from "./model/Settings.js";
+import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
+import type { Settings } from "./model/Settings.js";
+import { Restaurant } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
 import { BlockCollection, Blocks, Md } from "slack-block-builder";
-import { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
+import type { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
 import { Range, scheduleJob } from "node-schedule";
 
 type MessageMiddlewareArgs = bolt.SlackEventMiddlewareArgs<"message"> & bolt.AllMiddlewareArgs<StringIndexed>;
@@ -22,8 +24,8 @@ const toBeTruncated: { channel: string, ts: string }[] = [];
 const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
-const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataProvider, version: string): void => {
-	global.LOUNASBOTTI_JOBS.prefetch = scheduleJob({
+const initEvents = (app: bolt.App, settings: Settings): void => {
+	global.LOUNASBOTTI_JOBS.subscriptions = scheduleJob({
 		second: 30,
 		minute: 30,
 		hour: 10,
@@ -57,7 +59,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 	app.event("app_home_opened", async args => {
 		args.client.views.publish({
 			user_id: args.event.user,
-			view: BlockParsers.parseHomeTabView({settings, version, userId: args.event.user})
+			view: BlockParsers.parseHomeTabView({settings, userId: args.event.user})
 		});
 	});
 
@@ -86,7 +88,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 					throw new Error("No blocks found in message body");
 				}
 	
-				const cachedData = await getDataAndCache(dataProvider, settings, false, false, Restaurant[actionValue as Restaurant]);
+				const cachedData = await getDataAndCache(settings, false, false, Restaurant[actionValue as Restaurant]);
 				const lounasResponse: LounasResponse | undefined = cachedData.data.find(lounasResponse => lounasResponse.restaurant === actionValue);
 				if (!lounasResponse) {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
@@ -242,7 +244,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 			});
 		}
 
-		const cachedData = await getDataAndCache(dataProvider, settings, true, isTomorrowRequest);
+		const cachedData = await getDataAndCache(settings, true, isTomorrowRequest);
 
 		let requester: string;
 		if (isAutomatic) {
@@ -308,6 +310,7 @@ const initEvents = (app: bolt.App, settings: Settings, dataProvider: LounasDataP
 
 export { initEvents };
 
+// eslint-disable-next-line max-params
 function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
 	if (response.ok && response.ts) {
 		if (!settings.debug?.noDb && !isTomorrowRequest) {
@@ -350,7 +353,7 @@ function truncateMessage(app: bolt.App): void {
 }
 
 // eslint-disable-next-line max-params
-async function getDataAndCache(dataProvider: LounasDataProvider, settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
 	try {
 		const now = new Date();
 		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
@@ -380,7 +383,7 @@ async function getDataAndCache(dataProvider: LounasDataProvider, settings: Setti
 		}
 	
 		// Fetch restaurants that are missing from the cache
-		allData.push(...(await dataProvider.getData(allRestaurants.filter(restaurant => !allData.find(data => data.restaurant === restaurant)), tomorrowRequest)));
+		allData.push(...(await settings.dataProvider.getData(allRestaurants.filter(restaurant => !allData.find(data => data.restaurant === restaurant)), tomorrowRequest)));
 
 		const hasDate = allData.filter(lounas => lounas.date);
 		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
