@@ -48,7 +48,7 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "@sentry/integrations": "^7.74.0",
+    "@sentry/integrations": "^7.80.0",
     "@sentry/node": "^7.80.0",
     "@slack/bolt": "^3.13.0",
     "cheerio": "^1.0.0-rc.10",
