@@ -3,7 +3,7 @@ dotenv.config();
 
 // Global
 global.LOUNASBOTTI_JOBS = {};
-global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.8.1";
+global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.8.2";
 
 import * as Sentry from "@sentry/node";
 import { CaptureConsole } from "@sentry/integrations";

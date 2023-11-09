@@ -54,7 +54,7 @@
 		["sieni", ":mushroom:"],
 		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
-		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää", ":yum:"],
+		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["nuudel", ":ramen:"],
@@ -70,6 +70,7 @@
 		["beta-ominaisuus", ":warning:"],
 		["kaalikääry", ":nauseated_face:"],
 		["paholai", ":smiling_imp:"],
-		["yrtt", ":herb:"]
+		["yrtt", ":herb:"],
+		["BBQ", ":hotsprings:"]
 	]
 }
