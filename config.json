@@ -30,7 +30,8 @@
 		"Kahvi ja tee kuuluu lounaan hintaan",
 		"^Lounas 11-16$",
 		"Aikuiset",
-		"Lapset"
+		"Lapset",
+		"^[^A-Za-zÖÄÅöäå]*$"
 	],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
@@ -38,7 +39,7 @@
 		["joulu|rosolli|glögi", ":christmas_tree:"],
 		["keitto", ":bowl_with_spoon:"],
 		["((?<!pork)kana(?!nmun))|(broiler)", ":chicken:"],
-		["(?:(?<!pa)loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))", ":fish:"],
+		["(?:(?<!pa)loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))|silak", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
 		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
@@ -54,7 +55,7 @@
 		["sieni", ":mushroom:"],
 		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
-		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala", ":yum:"],
+		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["nuudel", ":ramen:"],
@@ -71,6 +72,8 @@
 		["kaalikääry", ":nauseated_face:"],
 		["paholai", ":smiling_imp:"],
 		["yrtt", ":herb:"],
-		["BBQ", ":hotsprings:"]
+		["BBQ", ":hotsprings:"],
+		["lei(?:pä|vän)", ":bread:"],
+		["voita", ":butter:"]
 	]
 }

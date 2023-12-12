@@ -370,7 +370,7 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		const allData: LounasResponse[] = [];
 	
 		if (lounasCache[cacheIdentifier]) {
-			const cachedData = Utils.deepClone(lounasCache[cacheIdentifier]);
+			const cachedData = structuredClone(lounasCache[cacheIdentifier]);
 
 			// If cache contains every requested restaurant, we can short circuit here
 			if (allRestaurants.every(restaurant => cachedData.data.find(data => data.restaurant === restaurant))) {
@@ -395,7 +395,7 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		};
 
 		// Save non-errored to cache
-		const cacheObject = Utils.deepClone(parsedData);
+		const cacheObject = structuredClone(parsedData);
 		cacheObject.data = cacheObject.data.filter(data => !data.error);
 		if (cacheObject.data.length !== parsedData.data.length) {
 			console.warn(`Could not cache ${parsedData.data.length - cacheObject.data.length} restaurant(s) as the result contained errors`);

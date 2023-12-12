@@ -1,7 +1,3 @@
-import { deserialize, serialize } from "v8";
-import type { RequestInfo, RequestInit, Response } from "node-fetch";
-import fetch from "node-fetch";
-
 const BR_EXP = /<br\s*\/?>/i;
 
 /**
@@ -37,16 +33,6 @@ const capitalizeString = (string: string): string => {
 };
 
 /**
- * Deep clones any object using V8 structuredClone
- * @param obj Object to clone
- * @returns Cloned object
- * @experimental
- */
-const deepClone = <T extends object>(obj: T): T => {
-	return deserialize(serialize(obj));
-};
-
-/**
  * Removes all non-inherited fields from any object
  * @param obj Object to clear
  */
@@ -77,11 +63,11 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
  * Retries once if a network error is encountered
  * See {@link Fetch} for documentation
  */
-const fetchWithTimeout = (url: RequestInfo, init: RequestInit = {}, allowRetry = true): Promise<Response> => {
+const fetchWithTimeout = (url: string | URL, init: RequestInit = {}, allowRetry = true): Promise<Response> => {
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 8000);
 
-	return fetch(url, {...init, signal: controller.signal}).catch(error => {
+	return fetch(url, {...init, signal: controller.signal}).catch((error: any) => {
 		console.error(error);
 		if (allowRetry) {
 			return new Promise(resolve => { setTimeout(resolve, 2000); }).then(() => fetchWithTimeout(url, init, false));
@@ -100,4 +86,4 @@ const decodeBase64 = (input: string) => {
 	return Buffer.from(input, "base64").toString("ascii");
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, deepClone, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64 };
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64 };
