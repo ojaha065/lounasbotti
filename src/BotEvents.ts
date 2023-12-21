@@ -12,15 +12,19 @@ import BlockParsers from "./BlockParsers.js";
 import { BlockCollection, Blocks, Md } from "slack-block-builder";
 import type { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
 import { Range, scheduleJob } from "node-schedule";
+import Holidays from "date-holidays";
 
 type MessageMiddlewareArgs = bolt.SlackEventMiddlewareArgs<"message"> & bolt.AllMiddlewareArgs<StringIndexed>;
 type CommandMiddlewareArgs = SlackCommandMiddlewareArgs & bolt.AllMiddlewareArgs<StringIndexed>;
+
+const hd = new Holidays("FI", {
+	types: ["public", "bank", "optional"]
+});
 
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const toBeTruncated: { channel: string, ts: string }[] = [];
-
 const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
@@ -34,7 +38,9 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 	}, () => {
 		console.debug("Handling subscriptions...");
-		mainTrigger(false);
+		if (!hd.isHoliday(new Date())) {
+			mainTrigger(false);
+		}
 	});
 
 	// Automatic cache clearing
