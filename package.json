@@ -50,7 +50,7 @@
   "dependencies": {
     "@sentry/integrations": "^7.86.0",
     "@sentry/node": "^7.86.0",
-    "@slack/bolt": "^3.16.0",
+    "@slack/bolt": "^3.17.0",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.3.1",
     "mongoose": "^8.0.3",
