@@ -149,6 +149,6 @@ export default class BlockParsers {
 			}
 		}
 	
-		return ":grey_question:";
+		return ":knife_fork_plate:";
 	}
 }
