@@ -56,6 +56,6 @@
     "dotenv": "^16.3.1",
     "mongoose": "^8.0.3",
     "node-schedule": "^2.1.1",
-    "slack-block-builder": "^2.7.2"
+    "slack-block-builder": "^2.8.0"
   }
 }
