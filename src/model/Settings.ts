@@ -149,8 +149,7 @@ enum Restaurant {
 	fernando = "fernando",
 	pormestari = "pormestari",
 	lale = "lale",
-	lansiSavo = "lansiSavo",
-	kivijalka = "kivijalka"
+	lansiSavo = "lansiSavo"
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
@@ -165,8 +164,7 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	fernando: "Ravintola Fernando",
 	pormestari: "Vaiha Pormestari",
 	lale: "Ravintola Lale",
-	lansiSavo: "Ravintola Länsi-Savo",
-	kivijalka: "Ravintola Kivijalka"
+	lansiSavo: "Ravintola Länsi-Savo"
 };
 
 const readAndParseSettings = async (config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
