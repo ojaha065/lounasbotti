@@ -53,7 +53,7 @@
     "@slack/bolt": "^3.17.0",
     "cheerio": "^1.0.0-rc.12",
     "date-holidays": "^3.23.3",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.1",
     "mongoose": "^8.1.1",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
