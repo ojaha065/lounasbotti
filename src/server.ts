@@ -3,16 +3,16 @@ dotenv.config();
 
 // Global
 global.LOUNASBOTTI_JOBS = {};
-global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.9.2";
+global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.9.3";
 
 import * as Sentry from "@sentry/node";
-import { CaptureConsole } from "@sentry/integrations";
+import { captureConsoleIntegration } from "@sentry/integrations";
 if (process.env.SENTRY_DSN) {
 	Sentry.init({
 		dsn: process.env.SENTRY_DSN,
 		release: global.LOUNASBOTTI_VERSION,
 		integrations: [
-			new CaptureConsole({
+			captureConsoleIntegration({
 				levels: ["error"]
 			})
 		],
