@@ -4,7 +4,7 @@
 	"dataProvider": "ruokapaikkaFi",
 	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [
 		["savo", "Katso lounaslista osoitteesta https://www.vaiha.fi/savo-lounas"],
 		["vaihaAsema", "Katso lounaslista osoitteesta https://www.vaiha.fi/asema-lounas"],
@@ -16,12 +16,13 @@
 		["pormestari", "Katso lounaslista osoitteesta https://www.vaiha.fi/lounas-pormestari"],
 		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa"],
 		["ramiVisulahti", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaat"],
-		["lansiSavo", "Katso lounaslista osoitteesta https://www.serviini.fi/lansi-savo"]
+		["lansiSavo", "Katso lounaslista osoitteesta https://www.serviini.fi/lansi-savo"],
+		["kotiherkku", "Katso lounaslista osoitteesta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"iconsEnabled": true,
-	"adminUsers": [],
+	"adminUsers": ["U04D7JMMY15"],
 	"stripRules": [
 		"^Take away$",
 		"^Ma-Pe 10.30-14$",
@@ -30,7 +31,8 @@
 		"^Lounas 11-16$",
 		"Aikuiset",
 		"Lapset",
-		"^[^A-Za-zÖÄÅöäå]*$"
+		"^[^A-Za-zÖÄÅöäå]*$",
+		"^(?:Lounas tarjoillaan|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas) \\d{2},\\d{2})"
 	],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
@@ -60,7 +62,7 @@
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
-		["(?:parsa|kukka)kaali", ":broccoli:"],
+		["(?:parsa|kukka|ruusu)kaali", ":broccoli:"],
 		["peru(?:na|no)|pottu", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"],
