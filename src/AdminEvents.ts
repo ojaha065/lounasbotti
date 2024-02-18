@@ -1,7 +1,7 @@
 import type bolt from "@slack/bolt";
 import type { Settings } from "./model/Settings.js";
 
-const ANNOUNCE_REGEXP = /lounasbotti\sadmin\sannounce\s"((?:\w|\d){1,30})"\s"([^"]{1,2000})"/;
+const ANNOUNCE_REGEXP = /lounasbotti\sadmin\sannounce\s"((?:\w|\d){1,30})"\s"(.{1,2000})"/;
 
 export default function(app: bolt.App, settings: Settings) {
 	app.message(ANNOUNCE_REGEXP, async args => {

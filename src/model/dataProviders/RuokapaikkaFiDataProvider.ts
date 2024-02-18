@@ -135,13 +135,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						dataBlock.body = dataBlock.body.split("<br><br>")[0]
 							.replaceAll(this.EXTRA_SPACES_REGEXP, "<br>");
 					}
-
-					const split = Utils.splitByBrTag(dataBlock.body);
-					const spliceEndIndex = split.findIndex(s => s === "Lounas tarjolla");
-					if (spliceEndIndex >= 0) {
-						split.splice(spliceEndIndex);
-					}
-					items = split;
+					items = Utils.splitByBrTag(dataBlock.body);
 				} else {
 					return {
 						isAdditional,
