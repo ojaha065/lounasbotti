@@ -25,14 +25,14 @@
 	"adminUsers": ["U04D7JMMY15"],
 	"stripRules": [
 		"^Take away$",
-		"^Ma-Pe 10.30-14$",
+		"[A-Za-z]{2}-[A-Za-z]{2}(?:\\s|klo\\.?){1,5}\\d{2}\\.\\d{2}-\\d{2}(?:\\.\\d{2})?",
 		"^Koko lounas \\d{2},\\d{2} € Keittolounas \\d{2},\\d{2} € Lounas tarjolla Ma-Pe klo \\d{2}\\.\\d{2}-\\d{2}\\.\\d{2}$",
 		"Kahvi ja tee kuuluu lounaan hintaan",
 		"^Lounas 11-16$",
 		"Aikuiset",
 		"Lapset",
 		"^[^A-Za-zÖÄÅöäå]*$",
-		"^(?:Lounas tarjoillaan|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas) \\d{2},\\d{2})"
+		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})"
 	],
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
@@ -56,7 +56,7 @@
 		["sieni", ":mushroom:"],
 		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
-		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti", ":yum:"],
+		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["nuudel", ":ramen:"],
@@ -66,7 +66,8 @@
 		["peru(?:na|no)|pottu", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"],
-		["soija|veg(?:a|\\.)", ":seedling:"],
+		["anana", ":pineapple:"],
+		["soija|veg(?:a|\\.)|punajuur", ":seedling:"],
 		["mummo|isoäi", ":older_woman:"],
 		["suljettu|kiinni", ":no_entry_sign:"],
 		["beta-ominaisuus", ":warning:"],
