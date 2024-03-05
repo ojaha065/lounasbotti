@@ -133,7 +133,7 @@ export default class BlockParsers {
 			.end()
 		);
 
-		if (voting && lounasResponse.items) {
+		if (voting && lounasResponse.items?.some(item => item.trim() && !item.startsWith(":no_entry_sign:"))) {
 			arr.push(Blocks.Actions().elements(Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })));
 		}
 
