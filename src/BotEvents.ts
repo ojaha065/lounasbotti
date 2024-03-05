@@ -122,10 +122,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 				let lounasMessage: LounasRepository.LounasMessageEntry | undefined;
 				try {
-					if (settings.debug?.noDb) {
-						throw new Error("Database connection is disabled by debug config");
-					}
-	
 					lounasMessage = await LounasRepository.find(message.ts, args.body.channel.id);
 				} catch (error) {
 					console.error(error);
@@ -165,10 +161,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			}
 
 			console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
-
-			if (settings.debug?.noDb) {
-				throw new Error("Database connection is disabled by debug config");
-			}
 
 			const lounasMessage: LounasRepository.LounasMessageEntry = await LounasRepository.find(message.ts, args.body.channel.id);
 
@@ -319,7 +311,7 @@ export { initEvents };
 // eslint-disable-next-line max-params
 function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
 	if (response.ok && response.ts) {
-		if (!settings.debug?.noDb && !isTomorrowRequest) {
+		if (!isTomorrowRequest) {
 			LounasRepository.create({
 				instanceId: settings.instanceId,
 				ts: response.ts,

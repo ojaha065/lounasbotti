@@ -22,9 +22,7 @@ class Settings {
 	public emojiRules?: Map<RegExp, string>;
 	public stripRules?: RegExp[];
 	public configSource?: string;
-	public debug?: {
-		noDb?: boolean
-	};
+	public debug?: {};
 
 	// Instance settings
 	public limitToOneVotePerUser = false;

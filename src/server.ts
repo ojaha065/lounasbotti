@@ -3,7 +3,7 @@ dotenv.config();
 
 // Global
 global.LOUNASBOTTI_JOBS = {};
-global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.9.4";
+global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "1.9.5";
 
 import * as Sentry from "@sentry/node";
 import { captureConsoleIntegration } from "@sentry/integrations";
@@ -50,14 +50,12 @@ const configURLs: URL[] | undefined = process.env["SLACK_CONFIG_URL"]?.split(";"
 readAndParseSettings(process.env["SLACK_CONFIG_NAME"], configURLs).then(settings => {
 	const { App } = bolt;
 
-	if (!settings.debug?.noDb) {
-		mongoose.connect(decodeBase64(process.env["SLACK_MONGO_URL"] as string), {
-			socketTimeoutMS: 10000
-		}).then(() => {
-			console.debug("Connection to MongoDB opened successfully");
-			readInstanceSettings(settings);
-		});
-	}
+	mongoose.connect(decodeBase64(process.env["SLACK_MONGO_URL"] as string), {
+		socketTimeoutMS: 10000
+	}).then(() => {
+		console.debug("Connection to MongoDB opened successfully");
+		readInstanceSettings(settings);
+	});
 	
 	const appOptions: bolt.AppOptions = {
 		signingSecret: process.env["SLACK_SECRET"] || "",
