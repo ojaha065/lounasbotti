@@ -7,12 +7,6 @@ export default function(app: bolt.App, settings: Settings) {
 	app.action("lounasbotti-updateRegExp", async ({ack, body}) => {
 		ack();
 
-		if (settings.debug?.noDb) {
-			console.warn("Database connection is disabled by debug config");
-			settings.triggerRegExp = new RegExp(((body as BlockAction).actions[0] as PlainTextInputAction).value, "i");
-			return;
-		}
-
 		new Promise((resolve: (value: RegExp) => void) => {
 			resolve(new RegExp(((body as BlockAction).actions[0] as PlainTextInputAction).value, "i")); // TODO: Validate?
 		}).then(regExp => {
@@ -36,12 +30,6 @@ export default function(app: bolt.App, settings: Settings) {
 	app.action("lounasbotti-limitVotesToOne", async ({ack, body}) => {
 		ack();
 		const isChecked = !!((body as BlockAction).actions[0] as CheckboxesAction).selected_options.length;
-
-		if (settings.debug?.noDb) {
-			console.warn("Database connection is disabled by debug config");
-			settings.limitToOneVotePerUser = isChecked;
-			return;
-		}
 
 		return SettingsRepository.update({
 			instanceId: settings.instanceId,

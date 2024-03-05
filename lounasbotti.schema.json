@@ -100,12 +100,7 @@
             "type": "string"
         },
         "debug": {
-            "type": "object",
-            "properties": {
-                "noDb": {
-                    "type": "boolean"
-                }
-            }
+            "type": "object"
         }
     }
 }
