@@ -68,6 +68,7 @@ export default class BlockParsers {
 						["/lounas [<tyhjä> | tänään | huomenna]", "Aktivoi Lounasbotti ja hae lounaslistat"],
 						["/lounasbotti subscribe", "Aktivoi automaattinen tila kanavalle (Arkispäivisin klo. 10:30)"],
 						["/lounasbotti unsubscribe", "Poista automaattinen tila käytöstä"],
+						["/lounasbotti cache", "Tyhjennä sovelluksen välimuisti"],
 						["/lounasbotti restart", "Käynnistä sovellus uudelleen"],
 						["/lounasbotti ping", "Pong!"]
 					].map(command => `${Md.codeInline(command[0])} - ${command[1]}`).join("\n")
@@ -80,20 +81,6 @@ export default class BlockParsers {
 
 				Blocks.Section({ text: `${Md.italic("Auta minua kehittymään paremmaksi")} ${Md.emoji("arrow_right")}` })
 					.accessory(Elements.Button({ actionId: "githubButtonLinkAction", text: `${Md.emoji("link")} GitHub`, url: data.settings.gitUrl }))
-					.end(),
-
-				Blocks.Divider().end(),
-
-				Blocks.Input({ label: "Asetukset: Säännöllinen lauseke (Deprikoitu)", hint: "Tätä säännöllistä lauseketta vastaavat viestit käynnistävät Lounasbotin, mutta vain kanavilla joille Lounasbotti on kutsuttu. Syötettyä arvoa ei validoida, joten muokkaa tätä vain, jos tiedät mitä teet. Huomaa myös, että 'Ignore Casing' (i) ja 'Global' (g) liput ovat käytössä." })
-					.dispatchAction(true)
-					.element(Elements.TextInput({ initialValue: data.settings.triggerRegExp.source, minLength: 1, maxLength: 256, placeholder: "esim. '!lounas'" })
-						.actionId("lounasbotti-updateRegExp")
-						.dispatchActionOnCharacterEntered(false)
-						.dispatchActionOnEnterPressed(true)
-						.focusOnLoad(false)
-						.multiline(false)
-						.end()
-					)
 					.end(),
 
 				Blocks.Divider().end(),

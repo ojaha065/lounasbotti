@@ -1,4 +1,4 @@
-import type {Button, GenericMessageEvent, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
+import type {Button, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import type bolt from "@slack/bolt";
 
 import * as Utils from "./Utils.js";
@@ -13,8 +13,8 @@ import { BlockCollection, Blocks, Md } from "slack-block-builder";
 import type { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
 import { Range, scheduleJob } from "node-schedule";
 import Holidays from "date-holidays";
+import { lounasCache } from "./server.js";
 
-type MessageMiddlewareArgs = bolt.SlackEventMiddlewareArgs<"message"> & bolt.AllMiddlewareArgs<StringIndexed>;
 type CommandMiddlewareArgs = SlackCommandMiddlewareArgs & bolt.AllMiddlewareArgs<StringIndexed>;
 
 const hd = new Holidays("FI", {
@@ -25,7 +25,6 @@ const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const toBeTruncated: { channel: string, ts: string }[] = [];
-const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 // eslint-disable-next-line max-params
 const initEvents = (app: bolt.App, settings: Settings): void => {
@@ -51,11 +50,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 		dayOfWeek: 0,
 		tz: "Europe/Helsinki"
 	}, () => Utils.clearObject(lounasCache));
-
-	app.message("!clearCache", async ({say}) => {
-		Utils.clearObject(lounasCache);
-		say("OK! Cache cleared");
-	});
 
 	app.action("githubButtonLinkAction", async ({ack}) => {
 		console.debug("GitHub link opened!");
@@ -207,49 +201,19 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 		return mainTrigger(isTomorrowRequest, args);
 	});
 
-	// Trigger by message
-	app.message(async args => {
-		if (args.message.subtype || !args.message.text) {
-			return Promise.resolve();
-		}
-
-		if (!settings.triggerRegExp.test(args.message.text)) {
-			return Promise.resolve();
-		}
-
-		const isTomorrowRequest = TOMORROW_REQUEST_REGEXP.test(args.message.text);
-		return mainTrigger(isTomorrowRequest, args);
-	});
-
 	// The main business logic
-	async function mainTrigger(isTomorrowRequest: boolean, args?: MessageMiddlewareArgs | CommandMiddlewareArgs): Promise<void> {
+	async function mainTrigger(isTomorrowRequest: boolean, args?: CommandMiddlewareArgs): Promise<void> {
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
 		}
 
 		const isAutomatic = !args;
-		const isMessage = args?.payload?.type === "message";
-
-		// Add hourglass reaction
-		if (isMessage) {
-			args.client.reactions.add({
-				channel: (args as MessageMiddlewareArgs).message.channel,
-				name: "hourglass",
-				timestamp: (args as MessageMiddlewareArgs).message.ts,
-
-			}).catch(error => {
-				console.error(error);
-			});
-		}
 
 		const cachedData = await getDataAndCache(settings, true, isTomorrowRequest);
 
 		let requester: string;
 		if (isAutomatic) {
 			requester = Md.italic("Subscription");
-		}
-		else if (isMessage) {
-			requester = Md.user(((args as MessageMiddlewareArgs).message as GenericMessageEvent).user);
 		}
 		else {
 			requester = Md.user(args.body.user_id);

@@ -4,7 +4,7 @@
     "title": "Lounasbotti configuration",
     "description": "Configuration JSON for Lounasbotti",
     "type": "object",
-    "required": ["instanceId", "dataProvider", "triggerRegExp", "defaultRestaurants", "gitUrl", "displayVoters", "iconsEnabled", "adminUsers"],
+    "required": ["instanceId", "dataProvider", "defaultRestaurants", "gitUrl", "displayVoters", "iconsEnabled", "adminUsers"],
     "properties": {
         "instanceId": {
             "type": "string"
@@ -12,10 +12,6 @@
         "dataProvider": {
             "type": "string",
             "pattern": "^ruokapaikkaFi|mock$"
-        },
-        "triggerRegExp": {
-            "type": "string",
-            "format": "regex"
         },
         "defaultRestaurants": {
             "type": "array",

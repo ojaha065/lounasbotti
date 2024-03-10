@@ -23,6 +23,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 import type { AddressInfo } from "net";
+import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 
 import bolt from "@slack/bolt";
 
@@ -31,11 +32,12 @@ import mongoose from "mongoose";
 import { readAndParseSettings, readInstanceSettings } from "./model/Settings.js";
 import * as BotEvents from "./BotEvents.js";
 import BotActions from "./BotActions.js";
-import AdminEvents from "./AdminEvents.js";
 import { decodeBase64 } from "./Utils.js";
 import BotCommands from "./BotCommands.js";
 
 console.info(`Lounasbotti v${global.LOUNASBOTTI_VERSION} server starting...`);
+
+const lounasCache: Record<string, { data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> = {};
 
 if (!process.env["SLACK_SECRET"]
 	|| !process.env["SLACK_TOKEN"]
@@ -82,7 +84,6 @@ readAndParseSettings(process.env["SLACK_CONFIG_NAME"], configURLs).then(settings
 
 	BotCommands(app, settings);
 	BotEvents.initEvents(app, settings);
-	AdminEvents(app, settings);
 	BotActions(app, settings);
 	
 	const botPort = 3000;
@@ -96,3 +97,5 @@ readAndParseSettings(process.env["SLACK_CONFIG_NAME"], configURLs).then(settings
 		console.info(`Lounasbotti server with instanceId "${settings.instanceId}" started on ${address.address}:${address.port} (Mode: ${socketMode ? "SocketMode" : "HTTP"})`);
 	});
 });
+
+export {lounasCache};

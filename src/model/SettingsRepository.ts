@@ -4,7 +4,6 @@ import type { InstanceSettings } from "./Settings";
 
 const instanceSettingsSchema = new mongoose.Schema<InstanceSettings>({
 	instanceId: String,
-	triggerRegExp: String,
 	limitToOneVotePerUser: Boolean,
 	subscribedChannels: [String]
 });
@@ -30,7 +29,6 @@ const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
 
 	return {
 		instanceId: json.instanceId,
-		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
 		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
 		subscribedChannels: json.subscribedChannels
 	};
@@ -38,9 +36,6 @@ const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
 
 const update = async (update: InstanceSettings | UpdateQuery<InstanceSettings>): Promise<InstanceSettings> => {
 	const actualUpdate: UpdateQuery<InstanceSettings> = {...update};
-	if (update.triggerRegExp) {
-		actualUpdate.triggerRegExp = update.triggerRegExp.source;
-	}
 
 	const json = await InstanceSettingsModel.findOneAndUpdate(
 		{instanceId: update.instanceId},
@@ -57,7 +52,6 @@ const update = async (update: InstanceSettings | UpdateQuery<InstanceSettings>):
 
 	return {
 		instanceId: json.instanceId,
-		triggerRegExp: json.triggerRegExp ? new RegExp(json.triggerRegExp, "i") : undefined,
 		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
 		subscribedChannels: json.subscribedChannels
 	};
