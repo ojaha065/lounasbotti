@@ -2,7 +2,6 @@
 	"$schema": "https://jhaiko.tech/lounasbotti.schema.json",
 	"instanceId": "changeThis",
 	"dataProvider": "ruokapaikkaFi",
-	"triggerRegExp": "!(lounas|ruokaa|nälkä)",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [

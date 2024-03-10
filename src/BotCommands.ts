@@ -2,6 +2,10 @@ import type bolt from "@slack/bolt";
 import { Md } from "slack-block-builder";
 import type { Settings } from "./model/Settings";
 import * as SettingsRepository from "./model/SettingsRepository.js";
+import * as Utils from "./Utils.js";
+import { lounasCache } from "./server.js";
+
+const ANNOUNCE_REGEXP = /announce "((?:\w|\d){1,30})"\s"(.{1,2000})"/;
 
 export default function(app: bolt.App, settings: Settings) {
 	app.command("/whoami", async args => {
@@ -118,6 +122,48 @@ export default function(app: bolt.App, settings: Settings) {
 					});
 				});
 
+				return;
+			}
+
+			if (args.command.text.trim().toLowerCase() === "cache") {
+				Utils.clearObject(lounasCache);
+				args.respond({
+					response_type: "ephemeral",
+					text: "OK! Cache cleared"
+				});
+				return;
+			}
+
+			if (args.command.text.trim().startsWith("announce")) {
+				if (!settings.adminUsers.includes(args.command.user_id)) {
+					console.debug(`User ${args.command.user_id} is not allowed to use admin features`);
+					args.respond({
+						response_type: "ephemeral",
+						text: "You are not allowed to use this feature. This incident will be reported."
+					});
+					return;
+				}
+
+				const match = ANNOUNCE_REGEXP.exec(args.command.text.trim()) ?? [];
+				const channelId = match[1];
+				const message = match[2];
+
+				if (!channelId || !message) {
+					console.debug("No channelId or message provided!");
+					args.respond({
+						response_type: "ephemeral",
+						text: "Invalid syntax: No channel id or message provided!"
+					});
+					return;
+				}
+
+				console.debug(`Announcing on channel ${channelId}`);
+				args.client.chat.postMessage({
+					channel: channelId,
+					text: message.replaceAll("__n__", "\n"),
+					unfurl_links: false,
+					mrkdwn: true
+				}).catch(console.error);
 				return;
 			}
 		}

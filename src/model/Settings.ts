@@ -8,7 +8,6 @@ import * as SettingsRepository from "./SettingsRepository.js";
 
 class Settings {
 	public instanceId: string;
-	public triggerRegExp: RegExp;
 	public defaultRestaurants: Restaurant[];
 	public additionalRestaurants?: Restaurant[];
 	public restaurantDisplayNames?: Map<Restaurant, string>;
@@ -43,8 +42,6 @@ class Settings {
 			default:
 				throw new Error(`Unknown data provider ${json.dataProvider}`);
 		}
-
-		this.triggerRegExp = RegExp(Utils.requireNonNullOrUndefined(json.triggerRegExp, "Parameter triggerRegExp is required"), "i");
 
 		const defaultRestaurantsValue = Utils.requireNonNullOrUndefined(json.defaultRestaurants, "Parameter defaultRestaurants is required");
 		if (!Array.isArray(defaultRestaurantsValue)) {
@@ -130,7 +127,6 @@ class Settings {
 
 type InstanceSettings = {
 	instanceId: string,
-	triggerRegExp?: RegExp | undefined,
 	limitToOneVotePerUser?: boolean,
 	subscribedChannels?: string[] | undefined;
 };
@@ -196,11 +192,6 @@ const readInstanceSettings = (settings: Settings): void => {
 	SettingsRepository.findOrCreate(settings.instanceId).then(instanceSettings => {
 		settings.limitToOneVotePerUser = Boolean(instanceSettings.limitToOneVotePerUser);
 		settings.subscribedChannels = instanceSettings.subscribedChannels;
-
-		if (instanceSettings.triggerRegExp) {
-			console.debug(`Custom trigger enabled for instance "${settings.instanceId}" (${instanceSettings.triggerRegExp.source})`);
-			settings.triggerRegExp = instanceSettings.triggerRegExp;
-		}
 	}).catch(error => {
 		console.error(error);
 	});
