@@ -5,6 +5,8 @@ import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js
 import type { Settings } from "./model/Settings.js";
 import { RestaurantNameMap } from "./model/Settings.js";
 
+import * as WeatherAPI from "./WeatherAPI.js";
+
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
 
@@ -48,6 +50,7 @@ export default class BlockParsers {
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
+			data.settings.openMeteoURL ? `[WeatherEmoji] ${WeatherAPI.printAllEmoji()}` : null,
 			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
 			global.LOUNASBOTTI_JOBS.subscriptions ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US")}` : null,
 			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`

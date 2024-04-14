@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -40,7 +40,7 @@
     "@types/node-schedule": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "eslint-config-alloy": "^5.1.2",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
@@ -54,7 +54,7 @@
     "cheerio": "^1.0.0-rc.12",
     "date-holidays": "^3.23.8",
     "dotenv": "^16.4.2",
-    "mongoose": "^8.2.0",
+    "mongoose": "^8.3.1",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
   }

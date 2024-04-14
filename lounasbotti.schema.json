@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://jhaiko.tech/lounasbotti.schema.json",
+    "$id": "lounasbotti.schema.json",
     "title": "Lounasbotti configuration",
     "description": "Configuration JSON for Lounasbotti",
     "type": "object",
@@ -91,6 +91,10 @@
                 "type": "string",
                 "format": "regex"
             }
+        },
+        "openMeteoURL": {
+            "type": "string",
+            "format": "uri"
         },
         "configSource": {
             "type": "string"
