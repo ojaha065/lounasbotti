@@ -2,6 +2,7 @@ import type {Button, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bol
 import type bolt from "@slack/bolt";
 
 import * as Utils from "./Utils.js";
+import * as WeatherAPI from "./WeatherAPI.js";
 
 import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 import type { Settings } from "./model/Settings.js";
@@ -347,8 +348,13 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		// Fetch restaurants that are missing from the cache
 		allData.push(...(await settings.dataProvider.getData(allRestaurants.filter(restaurant => !allData.find(data => data.restaurant === restaurant)), tomorrowRequest)));
 
+		let weatherEmoji: string | null = null;
+		if (!tomorrowRequest && settings.openMeteoURL) {
+			weatherEmoji = await WeatherAPI.getWeatherEmoji(settings.openMeteoURL);
+		}
+
 		const hasDate = allData.filter(lounas => lounas.date);
-		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`;
+		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}${weatherEmoji ? ` ${weatherEmoji}` : ""}`;
 	
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data: allData,

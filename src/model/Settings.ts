@@ -20,6 +20,7 @@ class Settings {
 	public adminUsers: string[] = [];
 	public emojiRules?: Map<RegExp, string>;
 	public stripRules?: RegExp[];
+	public openMeteoURL?: URL;
 	public configSource?: string;
 	public debug?: {};
 
@@ -104,6 +105,10 @@ class Settings {
 			this.stripRules = json.stripRules
 				.filter(Boolean)
 				.map((s: string) => RegExp(s, "i"));
+		}
+
+		if (json.openMeteoURL) {
+			this.openMeteoURL = new URL(json.openMeteoURL);
 		}
 
 		if (json.configSource) {
