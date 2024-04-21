@@ -348,18 +348,19 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		// Fetch restaurants that are missing from the cache
 		allData.push(...(await settings.dataProvider.getData(allRestaurants.filter(restaurant => !allData.find(data => data.restaurant === restaurant)), tomorrowRequest)));
 
-		let weatherEmoji: string | null = null;
-		if (!tomorrowRequest && settings.openMeteoURL) {
-			weatherEmoji = await WeatherAPI.getWeatherEmoji(settings.openMeteoURL);
+		let weather: string | null = null;
+		if (settings.openMeteoURL) {
+			weather = await WeatherAPI.getWeatherString(settings.openMeteoURL, tomorrowRequest ? 1 : 0);
 		}
 
 		const hasDate = allData.filter(lounas => lounas.date);
-		const header = `Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}${weatherEmoji ? ` ${weatherEmoji}` : ""}`;
+		const header = Md.bold(`Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`);
+		const headerWithWeather = `${header}${weather ? `\n${weather}` : ""}`;
 	
 		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
 			data: allData,
 			text: header, // Slack recommends having this
-			blocks: BlockParsers.parseMainBlocks(allData, header, settings, tomorrowRequest) // FIXME: Avoid unnecessary parsing in singleRestaurant mode
+			blocks: BlockParsers.parseMainBlocks(allData, headerWithWeather, settings, tomorrowRequest) // FIXME: Avoid unnecessary parsing in singleRestaurant mode
 		};
 
 		// Save non-errored to cache

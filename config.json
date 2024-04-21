@@ -33,7 +33,7 @@
 		"^[^A-Za-zÖÄÅöäå]*$",
 		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})"
 	],
-	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?latitude=61.68076463214672&longitude=27.257584129412145&hourly=weather_code&timezone=Europe%2FHelsinki&forecast_days=1",
+	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?latitude=61.68076463214672&longitude=27.257584129412145&hourly=temperature_2m,weather_code&timezone=Europe%2FHelsinki&forecast_days=2",
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],
