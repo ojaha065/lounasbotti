@@ -21,7 +21,7 @@ export default class BlockParsers {
 
 		return [
 			...BlockCollection(
-				Blocks.Header().text(header).end(),
+				Blocks.Section().text(header).end(),
 				setIfTruthy(settings.announcements?.length,
 					Blocks.Section({ text: (settings.announcements ?? [""])[0] }).end()
 				)

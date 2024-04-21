@@ -3,7 +3,7 @@ import * as Utils from "./Utils.js";
 
 // https://open-meteo.com/en/docs/
 
-const getWeatherEmoji = async (url: URL): Promise<string | null> => {
+const getWeatherString = async (url: URL, daysForward = 0): Promise<string | null> => {
 	try {
 		const response = await Utils.fetchWithTimeout(
 			url,
@@ -14,8 +14,9 @@ const getWeatherEmoji = async (url: URL): Promise<string | null> => {
 				}
 			}
 		);
-		const json = await response.json();
-		return weatherCodeToEmoji(((json as any).hourly?.weather_code ?? [])[12]);
+		const json = (await response.json()) as any;
+		const arrIndex = 12 + (24 * daysForward);
+		return `${weatherCodeToEmoji((json.hourly?.weather_code ?? [])[arrIndex])} ${(json.hourly?.temperature_2m ?? [])[arrIndex]} ${json.hourly_units?.temperature_2m ?? ""}`;
 	} catch (error) {
 		console.error(error);
 		return null;
@@ -76,4 +77,4 @@ const weatherCodeToEmoji = (weatherCode: number | undefined): string | null => {
 	}
 };
 
-export {getWeatherEmoji, printAllEmoji};
+export {getWeatherString, printAllEmoji};
