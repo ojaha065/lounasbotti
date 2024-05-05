@@ -4,6 +4,7 @@ import type { Settings } from "../Settings.js";
 import { Restaurant, RestaurantNameMap } from "../Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
 import VaihdaDataProvider from "./VaihaDataProvider.js";
+import { decode } from "html-entities";
 
 class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly id: string = "RuokapaikkaFi";
@@ -152,6 +153,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					items: items
 						.map(s => s.trim())
 						.filter(Boolean)
+						.map(item => decode(item))
 						.filter(s => !new RegExp(`^${weekdayName}\\s*(?:\\.|[0-9])*$`, "i").test(s))
 						.map(s => s.replaceAll(new RegExp(`${weekdayName}:?`, "gi"), ""))
 						.map(s => s.trim())

@@ -16,7 +16,11 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 		);
 		const json = (await response.json()) as any;
 		const arrIndex = 12 + (24 * daysForward);
-		return `${weatherCodeToEmoji((json.hourly?.weather_code ?? [])[arrIndex])} ${(json.hourly?.temperature_2m ?? [])[arrIndex]} ${json.hourly_units?.temperature_2m ?? ""}`;
+
+		const emoji = weatherCodeToEmoji((json.hourly?.weather_code ?? [])[arrIndex]);
+		const temperature = (json.hourly?.temperature_2m ?? [])[arrIndex] ?? null;
+		const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
+		return `${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}`;
 	} catch (error) {
 		console.error(error);
 		return null;

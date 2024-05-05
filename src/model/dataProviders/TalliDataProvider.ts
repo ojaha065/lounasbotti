@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import {decode} from "html-entities";
 
 import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import type { Settings } from "../Settings.js";
@@ -66,6 +67,7 @@ class TalliDataProvider implements LounasDataProvider {
 				items: items
 					.map(s => s.trim())
 					.filter(Boolean)
+					.map(item => decode(item))
 					.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
 				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.talli}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
