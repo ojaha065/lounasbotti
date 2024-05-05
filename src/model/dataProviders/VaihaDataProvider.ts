@@ -4,6 +4,7 @@ import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider";
 import type { Settings } from "../Settings.js";
 import { Restaurant } from "../Settings.js";
 import * as Utils from "../../Utils.js";
+import { decode } from "html-entities";
 
 class VaihdaDataProvider implements LounasDataProvider {
 	readonly id: string = "Savo";
@@ -67,7 +68,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 				isAdditional: false,
 				restaurant: Restaurant.savo,
 				date: date,
-				items: items.map(s => s.trim()).filter(Boolean).filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
+				items: items.map(s => s.trim()).filter(Boolean).map(item => decode(item)).filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
 				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
