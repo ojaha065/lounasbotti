@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Utils from "../../Utils.js";
 import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import type { Settings } from "../Settings.js";
@@ -106,7 +107,6 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 					};
 				}
 
-				// eslint-disable-next-line no-undef-init
 				let iconUrl: string | undefined = undefined;
 				if (this.settings.overrideIconsUrl) {
 					iconUrl = new URL(`/lounas_icons/${restaurant}.png`, this.settings.overrideIconsUrl).toString();

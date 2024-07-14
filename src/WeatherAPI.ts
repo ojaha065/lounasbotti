@@ -14,6 +14,8 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 				}
 			}
 		);
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const json = (await response.json()) as any;
 		const arrIndex = 12 + (24 * daysForward);
 
@@ -33,7 +35,6 @@ const printAllEmoji = (): string => {
 		.join("");
 };
 
-// eslint-disable-next-line complexity
 const weatherCodeToEmoji = (weatherCode: number | undefined): string | null => {
 	switch(weatherCode) {
 		case 0: // Clear sky

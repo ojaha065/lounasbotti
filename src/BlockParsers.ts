@@ -10,7 +10,6 @@ import * as WeatherAPI from "./WeatherAPI.js";
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
 
-	// eslint-disable-next-line max-params
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
 		data.filter(lounasResponse => !lounasResponse.isAdditional)

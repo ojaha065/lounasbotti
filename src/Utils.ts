@@ -67,10 +67,11 @@ const fetchWithTimeout = (url: string | URL, init: RequestInit = {}, allowRetry 
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 8000);
 
-	return fetch(url, {...init, signal: controller.signal}).catch((error: any) => {
+	return fetch(url, {...init, signal: controller.signal}).catch(async (error: unknown) => {
 		console.error(error);
 		if (allowRetry) {
-			return new Promise(resolve => { setTimeout(resolve, 2000); }).then(() => fetchWithTimeout(url, init, false));
+			await new Promise(resolve => { setTimeout(resolve, 2000); });
+			return await fetchWithTimeout(url, init, false);
 		}
 
 		throw error;

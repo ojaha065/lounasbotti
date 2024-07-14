@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { promises as fs } from "fs";
 
 import type { LounasDataProvider } from "./dataProviders/LounasDataProvider.js";
@@ -22,7 +24,7 @@ class Settings {
 	public stripRules?: RegExp[];
 	public openMeteoURL?: URL;
 	public configSource?: string;
-	public debug?: {};
+	public debug?: object;
 
 	// Instance settings
 	public limitToOneVotePerUser = false;
@@ -93,8 +95,8 @@ class Settings {
 		if (json.emojiRules) {
 			this.emojiRules = new Map(json.emojiRules
 				.filter(Array.isArray)
-				.filter((arr: any[]) => arr.length === 2)
-				.map((arr: any[]) => {
+				.filter((arr: string[] | RegExp[]) => arr.length === 2)
+				.map((arr: string[] | RegExp[]) => {
 					arr[0] = RegExp(arr[0], "i");
 					return arr;
 				})

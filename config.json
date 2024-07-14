@@ -5,18 +5,18 @@
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [
-		["savo", "Katso lounaslista osoitteesta https://www.vaiha.fi/savo-lounas"],
-		["vaihaAsema", "Katso lounaslista osoitteesta https://www.vaiha.fi/asema-lounas"],
-		["talli", "Katso lounaslista osoitteesta https://www.xamkravintolat.fi/tallin-lounaslista/"],
-		["rami", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaat"],
-		["august", "Katso lounaslista osoitteesta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
-		["holvi", "Katso lounaslista osoitteesta https://www.bistroholvi.fi/#lounas"],
-		["vino", "Katso lounaslista osoitteesta https://www.ravintolavino.fi/lounas"],
-		["pormestari", "Katso lounaslista osoitteesta https://www.vaiha.fi/lounas-pormestari"],
+		["savo", "Tarkasta https://www.vaiha.fi/savo-lounas"],
+		["vaihaAsema", "Tarkasta https://www.vaiha.fi/asema-lounas"],
+		["talli", "Tarkasta https://www.xamkravintolat.fi/tallin-lounaslista/"],
+		["rami", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
+		["august", "Tarkasta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
+		["holvi", "Tarkasta https://www.bistroholvi.fi/#lounas"],
+		["vino", "Tarkasta https://www.ravintolavino.fi/lounas"],
+		["pormestari", "Tarkasta https://www.vaiha.fi/lounas-pormestari"],
 		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa"],
-		["ramiVisulahti", "Katso lounaslista osoitteesta https://www.raminkonditoria.fi/lounaat"],
-		["lansiSavo", "Katso lounaslista osoitteesta https://www.serviini.fi/lansi-savo"],
-		["kotiherkku", "Katso lounaslista osoitteesta https://www.serviini.fi/kotiherkku-ruokapuoti"]
+		["ramiVisulahti", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
+		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
+		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
@@ -39,10 +39,10 @@
 		["tortilla|burrito", ":burrito:"],
 		["joulu|rosolli|glögi", ":christmas_tree:"],
 		["keitto", ":bowl_with_spoon:"],
-		["((?<!pork)kana(?!nmun))|(broiler)", ":chicken:"],
+		["((?<!pork)kana(?!nmun))|(broiler)|chicken", ":chicken:"],
 		["(?:(?<!pa)loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))|silak", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
-		["(?:po(?:rsa|ss))|(?:si(?:an|ka))", ":pig2:"],
+		["(?:po(?:rsa|ss))|(?:si(?:an|ka))|kink", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
 		["(?:spagetti)|(?:bolognese)", ":spaghetti:"],
 		["härk?ä", ":ox:"],
@@ -76,6 +76,7 @@
 		["yrtt", ":herb:"],
 		["BBQ", ":hotsprings:"],
 		["lei(?:pä|vän)", ":bread:"],
-		["voita", ":butter:"]
+		["voita", ":butter:"],
+		["juusto|cheddar", ":cheese_wedge:"]
 	]
 }
