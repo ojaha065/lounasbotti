@@ -55,7 +55,7 @@
     "date-holidays": "^3.23.8",
     "dotenv": "^16.4.2",
     "html-entities": "^2.5.2",
-    "mongoose": "^8.3.1",
+    "mongoose": "^8.5.0",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
   }
