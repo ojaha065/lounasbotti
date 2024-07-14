@@ -27,7 +27,6 @@ const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
 const toBeTruncated: { channel: string, ts: string }[] = [];
 
-// eslint-disable-next-line max-params
 const initEvents = (app: bolt.App, settings: Settings): void => {
 	global.LOUNASBOTTI_JOBS.subscriptions = scheduleJob({
 		second: 30,
@@ -73,7 +72,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 					throw new Error("Message not found from action body");
 				}
 	
-				const actionValue: string = (args.action as bolt.ButtonAction).value;
+				const actionValue: string | undefined = (args.action as bolt.ButtonAction).value;
 				if (!actionValue) {
 					throw new Error("No actionValue!");
 				}
@@ -146,7 +145,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				throw new Error("Message not found from action body");
 			}
 	
-			const actionValue: string = (args.action as bolt.ButtonAction).value;
+			const actionValue: string | undefined = (args.action as bolt.ButtonAction).value;
 			if (!actionValue) {
 				throw new Error("No actionValue!");
 			}
@@ -273,7 +272,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 export { initEvents };
 
-// eslint-disable-next-line max-params
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
 	if (response.ok && response.ts) {
 		if (!isTomorrowRequest) {
@@ -315,7 +314,6 @@ function truncateMessage(app: bolt.App): void {
 	});
 }
 
-// eslint-disable-next-line max-params
 async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
 	try {
 		const now = new Date();
@@ -377,7 +375,6 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 	}
 }
 
-// eslint-disable-next-line max-params
 function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
 	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
 

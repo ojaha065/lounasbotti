@@ -13,6 +13,7 @@ export default function(app: bolt.App, settings: Settings) {
 			limitToOneVotePerUser: isChecked
 		}).then(instanceSettings => {
 			settings.limitToOneVotePerUser = Boolean(instanceSettings.limitToOneVotePerUser);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			console.info(`User ${body.user.id} (${(body.user as any)["name"]}) changed limitToOneVotePerUser to "${settings.limitToOneVotePerUser}"`);
 		}).catch(error => {
 			console.error(error);

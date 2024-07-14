@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.10.3",
+  "version": "1.10.4",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -17,7 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist"
+    "sentry": "sentry-cli releases new %npm_package_version% && sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist"
   },
   "keywords": [
     "bot",
@@ -32,30 +32,31 @@
   },
   "bugs": {
     "url": "https://github.com/ojaha065/lounasbotti/issues",
-    "email": "hello@jhaiko.tech"
+    "email": "lounasbotti@jhaiko.tech"
+  },
+  "overrides": {
+    "eslint": "^9.7.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.7.0",
     "@sentry/cli": "^2.28.0",
     "@types/node": "^20.11.17",
     "@types/node-schedule": "^2.1.6",
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
-    "@typescript-eslint/parser": "^7.0.1",
-    "eslint": "^8.57.0",
-    "eslint-config-alloy": "^5.1.2",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint": "^9.7.0",
+    "globals": "^15.8.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.16.0"
   },
   "dependencies": {
     "@sentry/integrations": "^7.100.1",
-    "@sentry/node": "^7.100.1",
-    "@slack/bolt": "^3.18.0",
+    "@sentry/node": "^8.17.0",
+    "@slack/bolt": "^3.19.0",
     "cheerio": "^1.0.0-rc.12",
     "date-holidays": "^3.23.8",
     "dotenv": "^16.4.2",
     "html-entities": "^2.5.2",
-    "mongoose": "^8.3.1",
+    "mongoose": "^8.5.0",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
   }

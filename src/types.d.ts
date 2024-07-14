@@ -1,4 +1,3 @@
-/* eslint-disable no-inner-declarations */
 /* eslint-disable no-var */
 import type { Job } from "node-schedule";
 
