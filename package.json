@@ -46,7 +46,7 @@
     "globals": "^15.8.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^7.16.0"
+    "typescript-eslint": "^7.17.0"
   },
   "dependencies": {
     "@sentry/integrations": "^7.100.1",
