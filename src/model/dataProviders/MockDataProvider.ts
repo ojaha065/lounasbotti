@@ -1,5 +1,5 @@
-import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider";
-import type { Restaurant, Settings } from "../Settings";
+import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
+import type { Restaurant, Settings } from "../Settings.js";
 import * as Utils from "../../Utils.js";
 
 class MockDataProvider implements LounasDataProvider {

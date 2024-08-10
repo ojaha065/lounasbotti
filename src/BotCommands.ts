@@ -1,6 +1,6 @@
 import type bolt from "@slack/bolt";
 import { Md } from "slack-block-builder";
-import type { Settings } from "./model/Settings";
+import type { Settings } from "./model/Settings.js";
 import * as SettingsRepository from "./model/SettingsRepository.js";
 import * as Utils from "./Utils.js";
 import { lounasCache } from "./server.js";

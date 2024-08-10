@@ -4,10 +4,19 @@
     "title": "Lounasbotti configuration",
     "description": "Configuration JSON for Lounasbotti",
     "type": "object",
-    "required": ["instanceId", "dataProvider", "defaultRestaurants", "gitUrl", "displayVoters", "iconsEnabled", "adminUsers"],
+    "required": ["instanceId", "latLon", "dataProvider", "defaultRestaurants", "gitUrl", "displayVoters", "iconsEnabled", "adminUsers"],
     "properties": {
         "instanceId": {
             "type": "string"
+        },
+        "latLon": {
+            "type": "object",
+            "required": ["lat", "lon"],
+            "properties": {
+                "lat": {"type": "number"},
+                "lon": {"type": "number"}
+            },
+            "additionalProperties": false
         },
         "dataProvider": {
             "type": "string",

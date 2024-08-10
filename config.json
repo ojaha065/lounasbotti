@@ -1,6 +1,10 @@
 {
 	"$schema": "./lounasbotti.schema.json",
 	"instanceId": "changeThis",
+	"latLon": {
+		"lat": 61.681,
+		"lon": 27.258
+	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],

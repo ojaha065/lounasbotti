@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@eslint/js": "^9.8.0",
     "@sentry/cli": "^2.28.0",
-    "@types/node": "^20.11.17",
+    "@types/node": "^22.2.0",
     "@types/node-schedule": "^2.1.6",
     "eslint": "^9.7.0",
     "globals": "^15.9.0",
