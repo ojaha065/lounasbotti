@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 
-import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider";
+import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import type { Settings } from "../Settings.js";
 import { Restaurant } from "../Settings.js";
 import * as Utils from "../../Utils.js";

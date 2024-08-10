@@ -33,9 +33,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	
 			const url = new URL(this.baseUrl);
 			url.search = new URLSearchParams({
-				// Disec Oy
-				lat: "61.681",
-				lon: "27.258",
+				lat: this.settings.latLon.lat.toString(),
+				lon: this.settings.latLon.lon.toString(),
 				maxdist: "10000", // 10 km
 
 				page: "0",

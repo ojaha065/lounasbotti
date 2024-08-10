@@ -10,6 +10,7 @@ import * as SettingsRepository from "./SettingsRepository.js";
 
 class Settings {
 	public instanceId: string;
+	public latLon: {lat: number, lon: number};
 	public defaultRestaurants: Restaurant[];
 	public additionalRestaurants?: Restaurant[];
 	public restaurantDisplayNames?: Map<Restaurant, string>;
@@ -34,6 +35,7 @@ class Settings {
 
 	constructor(json: any) {
 		this.instanceId = Utils.requireNonNullOrUndefined(json.instanceId, "Parameter instanceId is required");
+		this.latLon = Utils.requireNonNullOrUndefined(json.latLon, "Parameter latLon is required");
 
 		switch (Utils.requireNonNullOrUndefined(json.dataProvider, "Parameter dataProvider is required")) {
 			case "ruokapaikkaFi":
