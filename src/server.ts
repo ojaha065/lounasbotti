@@ -12,6 +12,7 @@ if (process.env.SENTRY_DSN) {
 		dsn: process.env.SENTRY_DSN,
 		release: global.LOUNASBOTTI_VERSION,
 		integrations: [
+			Sentry.rewriteFramesIntegration({ prefix: "/dist" }),
 			Sentry.captureConsoleIntegration({ levels: ["error"] })
 		],
 		tracesSampleRate: 1.0
