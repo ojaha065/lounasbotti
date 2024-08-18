@@ -25,8 +25,6 @@ const hd = new Holidays("FI", {
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
-const toBeTruncated: { channel: string, ts: string }[] = [];
-
 const initEvents = (app: bolt.App, settings: Settings): void => {
 	global.LOUNASBOTTI_JOBS.subscriptions = scheduleJob({
 		second: 30,
@@ -47,7 +45,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 		second: 15,
 		minute: 15,
 		hour: 0,
-		dayOfWeek: 0,
 		tz: "Europe/Helsinki"
 	}, () => Utils.clearObject(lounasCache));
 
@@ -224,9 +221,10 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${requester}`
 		))[0]);
 
+		let response;
 		if (isAutomatic) {
 			settings.subscribedChannels?.forEach(async channel => {
-				const response = await app.client.chat.postMessage({
+				response = await app.client.chat.postMessage({
 					channel,
 					blocks: cachedData.blocks,
 					text: "Lounaslistat",
@@ -235,12 +233,10 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				});
 
 				handleMainTriggerResponse(response, settings, channel, cachedData.data, isTomorrowRequest);
-
-				setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
 			});
 		}
 		else {
-			const response = await args.say({
+			response = await args.say({
 				blocks: cachedData.blocks,
 				text: "Lounaslistat",
 				unfurl_links: false,
@@ -262,15 +258,17 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 					}
 				});
 			}
+		}
 
-			setTimeout(truncateMessage.bind(null, app), AUTO_TRUNCATE_TIMEOUT);
+		if (response && response.ts && response.channel) {
+			setTimeout(truncateMessage.bind(null, app, {channel: response.channel, ts: response.ts}), AUTO_TRUNCATE_TIMEOUT);
 		}
 	
 		return Promise.resolve();
 	}
 };
 
-export { initEvents };
+export { initEvents, truncateMessage };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
@@ -290,7 +288,7 @@ function handleMainTriggerResponse(response: any, settings: Settings, channel: s
 			});
 		}
 
-		toBeTruncated.push({
+		global.LOUNASBOTTI_TO_BE_TRUNCATED.push({
 			channel: response.channel ?? channel,
 			ts: response.ts
 		});
@@ -300,18 +298,17 @@ function handleMainTriggerResponse(response: any, settings: Settings, channel: s
 	}
 }
 
-function truncateMessage(app: bolt.App): void {
-	const message = toBeTruncated.shift();
-	if (!message) {
-		return console.warn("Nothing to truncate!");
+async function truncateMessage(app: bolt.App, message: { channel: string, ts: string }): Promise<void> {
+	const index = global.LOUNASBOTTI_TO_BE_TRUNCATED.findIndex(elem => elem.channel === message.channel && elem.ts === message.ts);
+	if (index > -1) {
+		await app.client.chat.update({
+			channel: message.channel,
+			ts: message.ts,
+			blocks: [], // Remove all blocks
+			text: Md.italic("Viesti poistettiin")
+		});
+		global.LOUNASBOTTI_TO_BE_TRUNCATED.splice(index, 1);
 	}
-
-	app.client.chat.update({
-		channel: message.channel,
-		ts: message.ts,
-		blocks: [], // Remove all blocks
-		text: Md.italic("Viesti poistettiin")
-	});
 }
 
 async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {

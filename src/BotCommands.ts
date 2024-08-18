@@ -4,8 +4,10 @@ import type { Settings } from "./model/Settings.js";
 import * as SettingsRepository from "./model/SettingsRepository.js";
 import * as Utils from "./Utils.js";
 import { lounasCache } from "./server.js";
+import { truncateMessage } from "./BotEvents.js";
 
 const ANNOUNCE_REGEXP = /announce "((?:\w|\d){1,30})"\s"(.{1,2000})"/;
+const ADMIN_COMMANDS = ["truncateall", "announce"];
 
 export default function(app: bolt.App, settings: Settings) {
 	app.command("/whoami", async args => {
@@ -29,8 +31,20 @@ export default function(app: bolt.App, settings: Settings) {
 
 		if (args.command.text) {
 			console.info(`Received command ${args.command.text} from ${args.command.user_name}`);
+			const commandText = args.command.text.trim().toLowerCase();
 
-			if (args.command.text.trim().toLowerCase() === "restart") {
+			if (ADMIN_COMMANDS.some(ac => commandText.startsWith(ac))) {
+				if (!settings.adminUsers.includes(args.command.user_id)) {
+					console.debug(`User ${args.command.user_id} is not allowed to use admin features`);
+					args.respond({
+						response_type: "ephemeral",
+						text: "You are not allowed to use this feature. This incident will be reported."
+					});
+					return;
+				}
+			}
+
+			if (commandText === "restart") {
 				args.respond({
 					response_type: "ephemeral",
 					text: "Okay! Restarting, BRB"
@@ -40,7 +54,7 @@ export default function(app: bolt.App, settings: Settings) {
 				return;
 			}
 			
-			if (args.command.text.trim().toLowerCase() === "ping") {
+			if (commandText === "ping") {
 				args.respond({
 					response_type: "ephemeral",
 					text: "Pong!"
@@ -48,7 +62,7 @@ export default function(app: bolt.App, settings: Settings) {
 				return;
 			}
 
-			if (args.command.text.trim().toLowerCase() === "subscribe") {
+			if (commandText === "subscribe") {
 				if (settings.subscribedChannels?.includes(args.body.channel_id)) {
 					args.respond({
 						response_type: "ephemeral",
@@ -91,7 +105,7 @@ export default function(app: bolt.App, settings: Settings) {
 				return;
 			}
 
-			if (args.command.text.trim().toLowerCase() === "unsubscribe") {
+			if (commandText === "unsubscribe") {
 				if (!settings.subscribedChannels?.includes(args.body.channel_id)) {
 					args.respond({
 						response_type: "ephemeral",
@@ -125,7 +139,7 @@ export default function(app: bolt.App, settings: Settings) {
 				return;
 			}
 
-			if (args.command.text.trim().toLowerCase() === "cache") {
+			if (commandText === "cache") {
 				Utils.clearObject(lounasCache);
 				args.respond({
 					response_type: "ephemeral",
@@ -134,17 +148,24 @@ export default function(app: bolt.App, settings: Settings) {
 				return;
 			}
 
-			if (args.command.text.trim().startsWith("announce")) {
-				if (!settings.adminUsers.includes(args.command.user_id)) {
-					console.debug(`User ${args.command.user_id} is not allowed to use admin features`);
+			if (commandText === "truncateall") {
+				try {
+					while (global.LOUNASBOTTI_TO_BE_TRUNCATED.length) {
+						await truncateMessage(app, global.LOUNASBOTTI_TO_BE_TRUNCATED[0]);
+					}
+				} catch (error) {
+					console.error(error);
 					args.respond({
 						response_type: "ephemeral",
-						text: "You are not allowed to use this feature. This incident will be reported."
+						text: "Error processing your request. Check logs for more information."
 					});
-					return;
 				}
 
-				const match = ANNOUNCE_REGEXP.exec(args.command.text.trim()) ?? [];
+				return;
+			}
+
+			if (commandText.startsWith("announce")) {
+				const match = ANNOUNCE_REGEXP.exec(args.command.text) ?? [];
 				const channelId = match[1];
 				const message = match[2];
 

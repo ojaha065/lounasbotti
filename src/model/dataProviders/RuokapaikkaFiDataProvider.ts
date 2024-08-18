@@ -15,6 +15,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 
 	readonly HEADER_REGEXP = /Lounas\s\d{1,2}\.\d{1,2}\./;
 	readonly EXTRA_SPACES_REGEXP = /\s{5,}/g;
+	readonly MONETARY_REGEXP = /\d{1,2}(?:[,.]\d{2})?\s*€/g;
 
 	public constructor(settings: Settings) {
 		this.settings = settings;
@@ -157,7 +158,9 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						.map(s => s.replaceAll(new RegExp(`${weekdayName}:?`, "gi"), ""))
 						.map(s => s.trim())
 						.filter(Boolean)
-						.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
+						.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item))))
+						.map(s => s.replaceAll(this.MONETARY_REGEXP, ""))
+						.filter(Boolean),
 					date: dataBlock.header.replace("Lounas", weekdayName).trim(),
 					iconUrl
 				};
