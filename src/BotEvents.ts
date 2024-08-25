@@ -1,5 +1,6 @@
 import type {Button, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import type bolt from "@slack/bolt";
+import type {ChatPostMessageResponse} from "@slack/web-api/dist/response/ChatPostMessageResponse.ts"
 
 import * as Utils from "./Utils.js";
 import * as WeatherAPI from "./WeatherAPI.js";
@@ -47,6 +48,22 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 		hour: 0,
 		tz: "Europe/Helsinki"
 	}, () => Utils.clearObject(lounasCache));
+
+	// Truncate everything at midnight
+	global.LOUNASBOTTI_JOBS.truncateAll = scheduleJob({
+		second: 15,
+		minute: 0,
+		hour: 0,
+		tz: "Europe/Helsinki"
+	}, async () => {
+		try {
+			while (global.LOUNASBOTTI_TO_BE_TRUNCATED.length) {
+				await truncateMessage(app, global.LOUNASBOTTI_TO_BE_TRUNCATED[0]);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
 
 	app.action("githubButtonLinkAction", async ({ack}) => {
 		console.debug("GitHub link opened!");
@@ -221,10 +238,9 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${requester}`
 		))[0]);
 
-		let response;
 		if (isAutomatic) {
 			settings.subscribedChannels?.forEach(async channel => {
-				response = await app.client.chat.postMessage({
+				const response = await app.client.chat.postMessage({
 					channel,
 					blocks: cachedData.blocks,
 					text: "Lounaslistat",
@@ -232,18 +248,18 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 					unfurl_media: false
 				});
 
-				handleMainTriggerResponse(response, settings, channel, cachedData.data, isTomorrowRequest);
+				handleMainTriggerResponse(response, app, settings, channel, cachedData.data, isTomorrowRequest);
 			});
 		}
 		else {
-			response = await args.say({
+			const response = await args.say({
 				blocks: cachedData.blocks,
 				text: "Lounaslistat",
 				unfurl_links: false,
 				unfurl_media: false
 			});
 
-			handleMainTriggerResponse(response, settings, response.channel ?? args.payload.channel, cachedData.data, isTomorrowRequest);
+			handleMainTriggerResponse(response, app, settings, response.channel ?? args.payload.channel, cachedData.data, isTomorrowRequest);
 
 			if (response.channel && response.ts) {
 				args.client.reactions.add({
@@ -259,10 +275,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				});
 			}
 		}
-
-		if (response && response.ts && response.channel) {
-			setTimeout(truncateMessage.bind(null, app, {channel: response.channel, ts: response.ts}), AUTO_TRUNCATE_TIMEOUT);
-		}
 	
 		return Promise.resolve();
 	}
@@ -270,8 +282,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 export { initEvents, truncateMessage };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function handleMainTriggerResponse(response: any, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
+function handleMainTriggerResponse(response: ChatPostMessageResponse, app: bolt.App, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
 	if (response.ok && response.ts) {
 		if (!isTomorrowRequest) {
 			LounasRepository.create({
@@ -288,10 +299,9 @@ function handleMainTriggerResponse(response: any, settings: Settings, channel: s
 			});
 		}
 
-		global.LOUNASBOTTI_TO_BE_TRUNCATED.push({
-			channel: response.channel ?? channel,
-			ts: response.ts
-		});
+		const tObject = {channel: response.channel ?? channel, ts: response.ts};
+		global.LOUNASBOTTI_TO_BE_TRUNCATED.push(tObject);
+		setTimeout(truncateMessage.bind(null, app, tObject), AUTO_TRUNCATE_TIMEOUT);
 	} else {
 		console.warn("Response not okay!");
 		console.debug(response);

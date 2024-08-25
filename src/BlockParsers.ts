@@ -52,6 +52,7 @@ export default class BlockParsers {
 			data.settings.openMeteoURL ? `[WeatherEmoji] ${WeatherAPI.printAllEmoji()}` : null,
 			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
 			global.LOUNASBOTTI_JOBS.subscriptions ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.truncateAll && global.LOUNASBOTTI_TO_BE_TRUNCATED.length ? `${global.LOUNASBOTTI_TO_BE_TRUNCATED.length} message(s) be will be forcefully truncated at ${global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation().toLocaleString("en-US")}` : null,
 			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`
 		].filter(Boolean) as string[];
 	
