@@ -13,7 +13,6 @@ export default class BlockParsers {
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
 		data.filter(lounasResponse => !lounasResponse.isAdditional)
-			.sort((a, b) => a.restaurant.localeCompare(b.restaurant))
 			.forEach(lounasResponse => {
 				lounasBlocks.push(...this.parseLounasBlock(lounasResponse, settings, !tomorrowRequest));
 			});

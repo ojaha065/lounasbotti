@@ -23,6 +23,8 @@ const hd = new Holidays("FI", {
 	types: ["public", "bank", "optional"]
 });
 
+const truncateTimeouts: {channel: string, ts: string, timeout: NodeJS.Timeout}[] = [];
+
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
@@ -96,6 +98,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				}
 	
 				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
+				args.ack();
 	
 				const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
 				if (!blocks?.length) {
@@ -145,8 +148,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				});
 			} catch (error) {
 				console.error(error);
-			} finally {
-				args.ack();
 			}
 		});
 	}
@@ -240,6 +241,15 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 		if (isAutomatic) {
 			settings.subscribedChannels?.forEach(async channel => {
+				// If there's already an active message in this channel, just extend its timeout
+				const to = truncateTimeouts.find(to => to.channel === channel);
+				if (to) {
+					console.debug(`Subscriptions: Channel ${channel} already has an active message. Extending its timeout...`);
+					clearTimeout(to.timeout);
+					to.timeout = setTimeout(truncateMessage.bind(null, app, { channel: to.channel, ts: to.ts }), AUTO_TRUNCATE_TIMEOUT)
+					return;
+				}
+
 				const response = await app.client.chat.postMessage({
 					channel,
 					blocks: cachedData.blocks,
@@ -301,7 +311,7 @@ function handleMainTriggerResponse(response: ChatPostMessageResponse, app: bolt.
 
 		const tObject = {channel: response.channel ?? channel, ts: response.ts};
 		global.LOUNASBOTTI_TO_BE_TRUNCATED.push(tObject);
-		setTimeout(truncateMessage.bind(null, app, tObject), AUTO_TRUNCATE_TIMEOUT);
+		truncateTimeouts.push({...tObject, timeout: setTimeout(truncateMessage.bind(null, app, tObject), AUTO_TRUNCATE_TIMEOUT)});
 	} else {
 		console.warn("Response not okay!");
 		console.debug(response);
@@ -309,16 +319,34 @@ function handleMainTriggerResponse(response: ChatPostMessageResponse, app: bolt.
 }
 
 async function truncateMessage(app: bolt.App, message: { channel: string, ts: string }): Promise<void> {
-	const index = global.LOUNASBOTTI_TO_BE_TRUNCATED.findIndex(elem => elem.channel === message.channel && elem.ts === message.ts);
+	// Clear timeout, if still active
+	const to = truncateTimeouts.find(to => to.ts === message.ts);
+	if (to) {
+		clearTimeout(to.timeout);
+		truncateTimeouts.splice(truncateTimeouts.indexOf(to), 1);
+	}
+
+	const index = global.LOUNASBOTTI_TO_BE_TRUNCATED.findIndex(elem => elem.ts === message.ts);
 	if (index > -1) {
-		await app.client.chat.update({
-			channel: message.channel,
-			ts: message.ts,
-			blocks: [], // Remove all blocks
-			text: Md.italic("Viesti poistettiin")
-		});
+		try {
+			await app.client.chat.update({
+				channel: message.channel,
+				ts: message.ts,
+				blocks: [], // Remove all blocks
+				text: Md.italic("Viesti poistettiin")
+			});
+		} catch (error) {
+			if (error instanceof Error && error.message.includes("message_not_found")) {
+				console.debug("Truncate: Message not found, maybe if was manually deleted?");
+			} else {
+				throw error instanceof Error
+					? error
+					: new Error("Error updating message: No error instance?");
+			}
+		}
 		global.LOUNASBOTTI_TO_BE_TRUNCATED.splice(index, 1);
 	}
+
 }
 
 async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
@@ -357,6 +385,8 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		if (settings.openMeteoURL) {
 			weather = await WeatherAPI.getWeatherString(settings.openMeteoURL, tomorrowRequest ? 1 : 0);
 		}
+
+		allData.sort((a, b) => a.restaurant.localeCompare(b.restaurant));
 
 		const hasDate = allData.filter(lounas => lounas.date);
 		const header = Md.bold(`Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`);
