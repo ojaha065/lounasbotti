@@ -30,17 +30,22 @@ features:
 oauth_config:
   scopes:
     bot:
-      - channels:join
-      - channels:manage
       - chat:write
       - chat:write.public
       - commands
+      - metadata.message:read
       - reactions:write
+      - channels:join
+      - channels:manage
 settings:
   event_subscriptions:
     request_url: https://lounasbotti-disec.fly.dev/slack/events
     bot_events:
       - app_home_opened
+      - message_metadata_deleted
+    metadata_subscriptions:
+      - app_id: A02EYG04A83
+        event_type: lounasbotti_message
   interactivity:
     is_enabled: true
     request_url: https://lounasbotti-disec.fly.dev/slack/events

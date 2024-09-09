@@ -79,6 +79,16 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 		});
 	});
 
+	// No need to try truncating if the message is already deleted
+	app.event("message_metadata_deleted", async args => {
+		const tt = truncateTimeouts.find(tt => tt.ts === args.payload.message_ts);
+		if (tt) {
+			console.debug(`Message ${args.payload.message_ts} removed? Clearing timeout...`);
+			clearTimeout(tt.timeout);
+			truncateTimeouts.splice(truncateTimeouts.indexOf(tt), 1);
+		}
+	});
+
 	// Fetch additional
 	if (settings.additionalRestaurants?.length) {
 		app.action({type: "block_actions", action_id: RegExp(`fetchAdditionalRestaurant-(?:${settings.additionalRestaurants.join("|")})`)}, async args => {
@@ -255,7 +265,8 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 					blocks: cachedData.blocks,
 					text: "Lounaslistat",
 					unfurl_links: false,
-					unfurl_media: false
+					unfurl_media: false,
+					metadata: { event_type: "lounasbotti_message", event_payload: {} }
 				});
 
 				handleMainTriggerResponse(response, app, settings, channel, cachedData.data, isTomorrowRequest);
@@ -266,7 +277,8 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				blocks: cachedData.blocks,
 				text: "Lounaslistat",
 				unfurl_links: false,
-				unfurl_media: false
+				unfurl_media: false,
+				metadata: { event_type: "lounasbotti_message", event_payload: {} }
 			});
 
 			handleMainTriggerResponse(response, app, settings, response.channel ?? args.payload.channel, cachedData.data, isTomorrowRequest);
