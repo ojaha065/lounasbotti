@@ -58,11 +58,12 @@
 		["chips|ranskalai(?:set|sia)|ranskanperu", ":fries:"],
 		["porkkan", ":carrot:"],
 		["sieni", ":mushroom:"],
-		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
 		["jälkiru(?:u|o)|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
+		["jyvi(?:ä|en)", ":ear_of_rice:"],
+		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
@@ -81,6 +82,7 @@
 		["BBQ", ":hotsprings:"],
 		["lei(?:pä|vän)", ":bread:"],
 		["voita", ":butter:"],
-		["juusto|cheddar", ":cheese_wedge:"]
+		["juusto|cheddar", ":cheese_wedge:"],
+		["juhla", ":partying_face:"]
 	]
 }

@@ -68,7 +68,12 @@ class VaihdaDataProvider implements LounasDataProvider {
 				isAdditional: false,
 				restaurant: Restaurant.savo,
 				date: date,
-				items: items.map(s => s.trim()).filter(Boolean).map(item => decode(item)).filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
+				items: Utils.takeUntil(
+						items.map(s => s.trim()).filter(Boolean),
+						item => item.startsWith("<strong>")
+					)
+					.map(item => decode(item))
+					.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
 				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
