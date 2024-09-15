@@ -87,4 +87,23 @@ const decodeBase64 = (input: string) => {
 	return Buffer.from(input, "base64").toString("ascii");
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64 };
+/**
+ * Returns a new array containing elements from the start of the input array
+ * up to, but not including, the first element that satisfies the provided predicate function.
+ * If no element satisfies the predicate, it returns a copy of the entire array.
+ * 
+ * @param {T[]} arr - The array to process.
+ * @param {(item: T) => boolean} predicate - A function that tests each element. 
+ * When it returns true, the slicing will stop, excluding that element.
+ * 
+ * @returns {T[]} A new array with elements taken until the predicate returns true.
+ */
+const takeUntil = <T>(arr: T[], predicate: (item: T) => boolean): T[] => {
+	const index = arr.findIndex(item => predicate.call(null, item));
+	if (index < 0) {
+		return [...arr];
+	}
+	return arr.slice(0, index);
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil };
