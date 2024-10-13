@@ -106,5 +106,5 @@ dist
 # Sentry Auth Token
 .sentryclirc
 
-notes.txt
+ngrok.exe
 ngrok.secrets.yml
