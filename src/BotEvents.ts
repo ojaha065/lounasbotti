@@ -68,8 +68,8 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 	});
 
 	app.action("githubButtonLinkAction", async ({ack}) => {
-		console.debug("GitHub link opened!");
 		ack();
+		console.debug("GitHub link opened!");
 	});
 
 	app.event("app_home_opened", async args => {
@@ -93,6 +93,8 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 	if (settings.additionalRestaurants?.length) {
 		app.action({type: "block_actions", action_id: RegExp(`fetchAdditionalRestaurant-(?:${settings.additionalRestaurants.join("|")})`)}, async args => {
 			try {
+				args.ack();
+
 				const message = args.body.message;
 				if (!message) {
 					throw new Error("Message not found from action body");
@@ -108,7 +110,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				}
 	
 				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
-				args.ack();
 	
 				const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
 				if (!blocks?.length) {
@@ -165,6 +166,8 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 	// Voting
 	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
 		try {
+			args.ack();
+
 			const message = args.body.message;
 			if (!message) {
 				throw new Error("Message not found from action body");
@@ -213,8 +216,6 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 			});
 		} catch (error) {
 			console.error(error);
-		} finally {
-			args.ack();
 		}
 	});
 

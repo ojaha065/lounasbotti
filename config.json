@@ -44,7 +44,7 @@
 		["joulu|rosolli|glögi", ":christmas_tree:"],
 		["keitto", ":bowl_with_spoon:"],
 		["((?<!pork)kana(?!nmun))|(broiler)|chicken", ":chicken:"],
-		["(?:(?<!pa)loh(i|ta){1})|((?<!rans)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))|silak", ":fish:"],
+		["(?:(?<!pa)loh(i|ta){1})|((?<!rans|kreik)kala(?!jitelma))|(mui(kut|kkuja){1})|sei(ti|tä)|(?:kampela)|(?:turska)|(?:hauk(i|ea))|silak|ahven", ":fish:"],
 		["(?:liha(?:pul|pyöry))|falafel", ":falafel:"],
 		["(?:po(?:rsa|ss))|(?:si(?:an|ka))|kink", ":pig2:"],
 		["(?:pekoni)|(?:bacon)", ":bacon:"],
