@@ -1,6 +1,4 @@
-import type {Button, SectionBlock, SlackCommandMiddlewareArgs } from "@slack/bolt";
-import type bolt from "@slack/bolt";
-import type {ChatPostMessageResponse} from "@slack/web-api/dist/response/ChatPostMessageResponse.ts"
+import type {AllMiddlewareArgs, App, ButtonAction, SlackCommandMiddlewareArgs, StringIndexed } from "@slack/bolt";
 
 import * as Utils from "./Utils.js";
 import * as WeatherAPI from "./WeatherAPI.js";
@@ -12,12 +10,11 @@ import { Restaurant } from "./model/Settings.js";
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
 import { BlockCollection, Blocks, Md } from "slack-block-builder";
-import type { StringIndexed } from "@slack/bolt/dist/types/helpers.js";
 import { Range, scheduleJob } from "node-schedule";
 import Holidays from "date-holidays";
 import { lounasCache } from "./server.js";
-
-type CommandMiddlewareArgs = SlackCommandMiddlewareArgs & bolt.AllMiddlewareArgs<StringIndexed>;
+import type { ActionsBlock, Block, Button, KnownBlock, SectionBlock } from "@slack/types";
+import { ChatPostMessageResponse } from "@slack/web-api";
 
 const hd = new Holidays("FI", {
 	types: ["public", "bank", "optional"]
@@ -28,7 +25,7 @@ const truncateTimeouts: {channel: string, ts: string, timeout: NodeJS.Timeout}[]
 const AUTO_TRUNCATE_TIMEOUT = 1000 * 60 * 60 * 6; // 6 hrs
 const TOMORROW_REQUEST_REGEXP = /huomenna|tomorrow/i;
 
-const initEvents = (app: bolt.App, settings: Settings): void => {
+const initEvents = (app: App, settings: Settings): void => {
 	global.LOUNASBOTTI_JOBS.subscriptions = scheduleJob({
 		second: 30,
 		minute: 30,
@@ -100,7 +97,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 					throw new Error("Message not found from action body");
 				}
 	
-				const actionValue: string | undefined = (args.action as bolt.ButtonAction).value;
+				const actionValue: string | undefined = (args.action as ButtonAction).value;
 				if (!actionValue) {
 					throw new Error("No actionValue!");
 				}
@@ -111,7 +108,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 	
 				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 	
-				const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
+				const blocks: (Block | KnownBlock)[] = message["blocks"];
 				if (!blocks?.length) {
 					throw new Error("No blocks found in message body");
 				}
@@ -131,11 +128,11 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				blocks.splice(dividerIndex, 0, ...BlockParsers.parseLounasBlock(lounasResponse, settings));
 
 				// Remove the button
-				const actionsBlock = blocks.find(block => block.block_id === "additionalRestaurantsActions") as bolt.ActionsBlock;
+				const actionsBlock = blocks.find(block => block.block_id === "additionalRestaurantsActions") as ActionsBlock;
 				if (!actionsBlock) {
 					throw new Error("Error parsing blocks (actionsBlock)");
 				}
-				actionsBlock.elements = actionsBlock.elements.filter(element => (element as bolt.Button).value !== actionValue);
+				actionsBlock.elements = actionsBlock.elements.filter(element => (element as Button).value !== actionValue);
 
 				// If all buttons are now removed, remove the whole actions block. Fixes invalid_blocks error
 				if (actionsBlock.elements.length === 0) {
@@ -173,7 +170,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 				throw new Error("Message not found from action body");
 			}
 	
-			const actionValue: string | undefined = (args.action as bolt.ButtonAction).value;
+			const actionValue: string | undefined = (args.action as ButtonAction).value;
 			if (!actionValue) {
 				throw new Error("No actionValue!");
 			}
@@ -186,7 +183,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 			const lounasMessage: LounasRepository.LounasMessageEntry = await LounasRepository.find(message.ts, args.body.channel.id);
 
-			const blocks: (bolt.Block | bolt.KnownBlock)[] = message["blocks"];
+			const blocks: (Block | KnownBlock)[] = message["blocks"];
 			if (!blocks?.length) {
 				throw new Error("No blocks found in message body");
 			}
@@ -228,7 +225,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 	});
 
 	// The main business logic
-	async function mainTrigger(isTomorrowRequest: boolean, args?: CommandMiddlewareArgs): Promise<void> {
+	async function mainTrigger(isTomorrowRequest: boolean, args?: SlackCommandMiddlewareArgs & AllMiddlewareArgs<StringIndexed>): Promise<void> {
 		if (isTomorrowRequest) {
 			console.debug("Tomorrow request!");
 		}
@@ -305,7 +302,7 @@ const initEvents = (app: bolt.App, settings: Settings): void => {
 
 export { initEvents, truncateMessage };
 
-function handleMainTriggerResponse(response: ChatPostMessageResponse, app: bolt.App, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
+function handleMainTriggerResponse(response: ChatPostMessageResponse, app: App, settings: Settings, channel: string, cachedData: LounasResponse[], isTomorrowRequest: boolean) {
 	if (response.ok && response.ts) {
 		if (!isTomorrowRequest) {
 			LounasRepository.create({
@@ -331,7 +328,7 @@ function handleMainTriggerResponse(response: ChatPostMessageResponse, app: bolt.
 	}
 }
 
-async function truncateMessage(app: bolt.App, message: { channel: string, ts: string }): Promise<void> {
+async function truncateMessage(app: App, message: { channel: string, ts: string }): Promise<void> {
 	// Clear timeout, if still active
 	const to = truncateTimeouts.find(to => to.ts === message.ts);
 	if (to) {
@@ -362,7 +359,7 @@ async function truncateMessage(app: bolt.App, message: { channel: string, ts: st
 
 }
 
-async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (bolt.Block | bolt.KnownBlock)[] }> {
+async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (Block | KnownBlock)[] }> {
 	try {
 		const now = new Date();
 		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
@@ -405,7 +402,7 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 		const header = Md.bold(`Lounaslistat${hasDate.length ? ` (${hasDate[0].date})` : ""}`);
 		const headerWithWeather = `${header}${weather ? `\n${weather}` : ""}`;
 	
-		const parsedData: { data: LounasResponse[], text: string, blocks: (bolt.Block | bolt.KnownBlock)[] } = {
+		const parsedData: { data: LounasResponse[], text: string, blocks: (Block | KnownBlock)[] } = {
 			data: allData,
 			text: header, // Slack recommends having this
 			blocks: BlockParsers.parseMainBlocks(allData, headerWithWeather, settings, tomorrowRequest) // FIXME: Avoid unnecessary parsing in singleRestaurant mode
@@ -425,17 +422,17 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 	}
 }
 
-function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks: (bolt.Block | bolt.KnownBlock)[], displayVoters: boolean) {
+function updateVoting(lounasMessage: LounasRepository.LounasMessageEntry, blocks: (Block | KnownBlock)[], displayVoters: boolean) {
 	const allVotes: string[] = lounasMessage.votes.map(vote => vote.action);
 
 	blocks.forEach((block, index) => {
-		if (block.type === "actions" && (block as bolt.ActionsBlock).elements?.find(element => (element as Button).action_id === "upvoteButtonAction")) {
-			const actionBlock: bolt.ActionsBlock = block as bolt.ActionsBlock;
-			const voteButtonValue: string | undefined = (actionBlock.elements[0] as bolt.Button).value;
+		if (block.type === "actions" && (block as ActionsBlock).elements?.find(element => (element as Button).action_id === "upvoteButtonAction")) {
+			const actionBlock: ActionsBlock = block as ActionsBlock;
+			const voteButtonValue: string | undefined = (actionBlock.elements[0] as Button).value;
 
 			const upvotes: number = allVotes.filter(vote => vote === voteButtonValue).length;
 
-			(actionBlock.elements[0] as bolt.Button).text.text = `:thumbsup: ${upvotes || ""}`;
+			(actionBlock.elements[0] as Button).text.text = `:thumbsup: ${upvotes || ""}`;
 
 			if (displayVoters) {
 				const sectionIndex = index - 1;
