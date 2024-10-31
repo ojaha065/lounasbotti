@@ -8,7 +8,7 @@ import { decode } from "html-entities";
 
 class VaihdaDataProvider implements LounasDataProvider {
 	readonly id: string = "Savo";
-	readonly baseUrl: string = "https://www.vaiha.fi/kaikki-uutiset/vaiha-lounas";
+	readonly baseUrl = null;
 
 	readonly settings: Settings;
 
@@ -28,7 +28,12 @@ class VaihdaDataProvider implements LounasDataProvider {
 				throw new Error(`This data provider only supports ${this.supportedRestaurants}`);
 			}
 
-			const response = await Utils.fetchWithTimeout(this.baseUrl, {
+			const fetchUrl = this.settings.extraParams?.VAIHA_URL;
+			if (!fetchUrl) {
+				throw new Error("VAIHA_URL is missing");
+			}
+
+			const response = await Utils.fetchWithTimeout(fetchUrl, {
 				method: "GET",
 				headers: {
 					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION}; +${this.settings.gitUrl})`
@@ -36,7 +41,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Response ${response.status} from ${this.baseUrl}`);
+				throw new Error(`Response ${response.status} from ${fetchUrl}`);
 			}
 
 			const responseHTML = await response.text();
@@ -44,7 +49,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 
 
 			const containerDiv = Utils.requireNonNullOrUndefined(
-				$(".news-item-single-text"),
+				$(".events-page__content"),
 				"Error parsing HTML! Could not find proper container"
 			);
 

@@ -26,6 +26,7 @@ class Settings {
 	public openMeteoURL?: URL;
 	public configSource?: string;
 	public debug?: object;
+	public extraParams?: Record<string, string>;
 
 	// Instance settings
 	public limitToOneVotePerUser = false;
@@ -122,6 +123,10 @@ class Settings {
 		if (json.debug) {
 			console.warn("Current configuration has debug options");
 			this.debug = json.debug;
+		}
+
+		if (json.extraParams) {
+			this.extraParams = json.extraParams;
 		}
 	}
 
