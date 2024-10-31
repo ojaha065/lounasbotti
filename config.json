@@ -9,19 +9,22 @@
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
 	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [
-		["savo", "Tarkasta https://www.vaiha.fi/savo-lounas"],
-		["vaihaAsema", "Tarkasta https://www.vaiha.fi/asema-lounas"],
+		["savo", "Tarkasta osoitteesta https://www.vaiha.fi"],
+		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["talli", "Tarkasta https://www.xamkravintolat.fi/tallin-lounaslista/"],
 		["rami", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["august", "Tarkasta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
 		["holvi", "Tarkasta https://www.bistroholvi.fi/#lounas"],
 		["vino", "Tarkasta https://www.ravintolavino.fi/lounas"],
-		["pormestari", "Tarkasta https://www.vaiha.fi/lounas-pormestari"],
+		["pormestari", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa"],
 		["ramiVisulahti", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
+	"extraParams": {
+		"VAIHA_URL": "https://www.vaiha.fi/kaikki-tapahtumat/pormestarin-ja-vaiha-savon-viikon-lounaat-vk44"
+	},
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
 	"iconsEnabled": true,
@@ -67,6 +70,7 @@
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
+		["bataat", ":sweet_potato:"],
 		["(?:parsa|kukka|ruusu)kaali", ":broccoli:"],
 		["peru(?:na|no)|pottu", ":potato:"],
 		["kahvi", ":coffee:"],

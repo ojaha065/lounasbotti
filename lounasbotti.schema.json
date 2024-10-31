@@ -110,6 +110,9 @@
         },
         "debug": {
             "type": "object"
+        },
+        "extraParams": {
+            "type": "object"
         }
     }
 }

@@ -7,7 +7,7 @@ interface LounasDataProvider {
      * Should include the protocol and trailing slash
      * e.g. "https://www.lorem.com/"
      */
-    readonly baseUrl: string;
+    readonly baseUrl: string | null;
 
     readonly settings: Settings;
     readonly restaurantMap?: Record<Restaurant, string | LounasDataProvider>
