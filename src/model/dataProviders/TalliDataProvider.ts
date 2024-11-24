@@ -25,10 +25,7 @@ class TalliDataProvider implements LounasDataProvider {
 			}
 	
 			const response = await Utils.fetchWithTimeout(this.baseUrl, {
-				method: "GET",
-				headers: {
-					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION}; +${this.settings.gitUrl})`
-				}
+				method: "GET"
 			});
 	
 			if (!response.ok) {

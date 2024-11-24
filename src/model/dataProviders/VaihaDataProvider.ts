@@ -28,16 +28,19 @@ class VaihdaDataProvider implements LounasDataProvider {
 				throw new Error(`This data provider only supports ${this.supportedRestaurants}`);
 			}
 
-			const fetchUrl = this.settings.extraParams?.VAIHA_URL;
+			const now = new Date();
+			if (tomorrowRequest) { now.setDate(now.getDate() + 1); }
+
+			const fetchUrl = this.settings.extraParams?.VAIHA_PATTERN
+				?.replaceAll("${weekNumber}", Utils.getWeekNumber(now).toString());
+
 			if (!fetchUrl) {
-				throw new Error("VAIHA_URL is missing");
+				throw new Error("VAIHA_PATTERN is missing");
 			}
+			console.debug(`VAIHA URL: ${fetchUrl}`);
 
 			const response = await Utils.fetchWithTimeout(fetchUrl, {
-				method: "GET",
-				headers: {
-					"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION}; +${this.settings.gitUrl})`
-				}
+				method: "GET"
 			});
 
 			if (!response.ok) {
