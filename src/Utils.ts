@@ -67,7 +67,14 @@ const fetchWithTimeout = (url: string | URL, init: RequestInit = {}, allowRetry 
 	const controller = new AbortController();
 	const timeout = setTimeout(() => controller.abort(), 8000);
 
-	return fetch(url, {...init, signal: controller.signal}).catch(async (error: unknown) => {
+	return fetch(url, {
+		headers: {
+			"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION})`,
+			...init.headers
+		},
+		signal: controller.signal,
+		...init,
+	}).catch(async (error: unknown) => {
 		console.error(error);
 		if (allowRetry) {
 			await new Promise(resolve => { setTimeout(resolve, 2000); });
@@ -106,4 +113,17 @@ const takeUntil = <T>(arr: T[], predicate: (item: T) => boolean): T[] => {
 	return arr.slice(0, index);
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil };
+/**
+ * Get the current week number from a date
+ * @param {Date} date Date object. Defaults to current date
+ * @returns {number} Week number
+ */
+const getWeekNumber = (date: Date = new Date()): number => {
+    const _date = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    _date.setUTCDate(_date.getUTCDate() + 4 - (_date.getUTCDay() || 7));
+
+    const yearStart = new Date(Date.UTC(_date.getUTCFullYear(), 0, 1));
+    return Math.ceil((((_date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber };

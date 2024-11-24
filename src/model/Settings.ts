@@ -218,7 +218,6 @@ async function tryToReadSettingsFromURL(url: URL): Promise<any> {
 		const response = await Utils.fetchWithTimeout(url.toString(), {
 			method: "GET",
 			headers: {
-				"User-Agent": `Mozilla/5.0 (compatible; Lounasbotti/${global.LOUNASBOTTI_VERSION};)`,
 				Accept: "application/json"
 			}
 		});
