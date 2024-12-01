@@ -8,6 +8,8 @@ import RuokapaikkaFiDataProvider from "./dataProviders/RuokapaikkaFiDataProvider
 import MockDataProvider from "./dataProviders/MockDataProvider.js";
 import * as SettingsRepository from "./SettingsRepository.js";
 
+type Remarks = [{ regExp: RegExp, message: string }];
+
 class Settings {
 	public instanceId: string;
 	public latLon: {lat: number, lon: number};
@@ -31,6 +33,7 @@ class Settings {
 	// Instance settings
 	public limitToOneVotePerUser = false;
 	public subscribedChannels?: string[] | undefined;
+	public remarks?: Remarks | undefined
 
 	public _dataProvider: LounasDataProvider | "self" = "self";
 
@@ -142,7 +145,8 @@ class Settings {
 type InstanceSettings = {
 	instanceId: string,
 	limitToOneVotePerUser?: boolean,
-	subscribedChannels?: string[] | undefined;
+	subscribedChannels?: string[] | undefined,
+	remarks?: [{ regExp: RegExp, message: string }] | undefined
 };
 
 enum Restaurant {
@@ -206,6 +210,7 @@ const readInstanceSettings = (settings: Settings): void => {
 	SettingsRepository.findOrCreate(settings.instanceId).then(instanceSettings => {
 		settings.limitToOneVotePerUser = Boolean(instanceSettings.limitToOneVotePerUser);
 		settings.subscribedChannels = instanceSettings.subscribedChannels;
+		settings.remarks = instanceSettings.remarks;
 	}).catch(error => {
 		console.error(error);
 	});

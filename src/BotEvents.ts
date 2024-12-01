@@ -192,8 +192,28 @@ const initEvents = (app: App, settings: Settings): void => {
 				vote.userId === args.body.user.id
 					&& (settings.limitToOneVotePerUser || vote.action === actionValue)
 			);
+
 			if (duplicateVote) {
 				console.debug("Duplicate vote! Removing vote...");
+			} else if (settings.remarks?.length) {
+				try {
+					const restaurant = actionValue.replace("upvote-", "") as Restaurant;
+					const allItems = lounasMessage.menu.find(menu => menu.restaurant === restaurant)?.items;
+					if (allItems) {
+						for (const remark of settings.remarks) {
+							if (allItems.some(item => item && remark.regExp.test(item))) {
+								args.respond({
+									response_type: "ephemeral",
+									replace_original: false,
+									text: remark.message
+								});
+								break;
+							}
+						}
+					}
+				} catch (error) {
+					console.error(error);
+				}
 			}
 
 			try {
