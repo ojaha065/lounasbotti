@@ -3,9 +3,15 @@ import mongoose from "mongoose";
 import type { InstanceSettings } from "./Settings.js";
 
 const instanceSettingsSchema = new mongoose.Schema<InstanceSettings>({
-	instanceId: String,
+	instanceId: {
+		type: String,
+		required: true,
+		immutable: true,
+		unique: true
+	},
 	limitToOneVotePerUser: Boolean,
-	subscribedChannels: [String]
+	subscribedChannels: [String],
+	remarks: Object
 });
 
 const InstanceSettingsModel = mongoose.model<InstanceSettings>("InstanceSettings", instanceSettingsSchema);
@@ -30,7 +36,8 @@ const findOrCreate = async (instanceId: string): Promise<InstanceSettings> => {
 	return {
 		instanceId: json.instanceId,
 		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
-		subscribedChannels: json.subscribedChannels
+		subscribedChannels: json.subscribedChannels,
+		remarks: json.remarks
 	};
 };
 
@@ -53,7 +60,8 @@ const update = async (update: InstanceSettings | UpdateQuery<InstanceSettings>):
 	return {
 		instanceId: json.instanceId,
 		limitToOneVotePerUser: Boolean(json.limitToOneVotePerUser),
-		subscribedChannels: json.subscribedChannels
+		subscribedChannels: json.subscribedChannels,
+		remarks: json.remarks
 	};
 };
 

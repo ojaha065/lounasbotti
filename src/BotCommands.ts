@@ -7,7 +7,8 @@ import { lounasCache } from "./server.js";
 import { truncateMessage } from "./BotEvents.js";
 
 const ANNOUNCE_REGEXP = /announce "((?:\w|\d){1,30})"\s"(.{1,2000})"/;
-const ADMIN_COMMANDS = ["truncateall", "announce"];
+const REMARK_REGEXP = /remark\s+(add|remove)\s+(.{1,1024})<>(.{1,2048})/;
+const ADMIN_COMMANDS = ["truncateall", "announce", "remark"];
 
 export default function(app: bolt.App, settings: Settings) {
 	app.command("/whoami", async args => {
@@ -185,6 +186,58 @@ export default function(app: bolt.App, settings: Settings) {
 					unfurl_links: false,
 					mrkdwn: true
 				}).catch(console.error);
+				return;
+			}
+
+			if (commandText.startsWith("remark")) {
+				const match = REMARK_REGEXP.exec(args.command.text);
+				if (!match) {
+					args.respond({
+						response_type: "ephemeral",
+						text: "Error adding remark: Invalid syntax"
+					});
+					return;
+				}
+
+				const operation = match[1];
+				const message = match[3];
+				
+				let regExp;
+				try {
+					regExp = new RegExp(match[2], "ims");
+				} catch {
+					console.debug(`Invalid regular expression: ${match[2]}`);
+					args.respond({
+						response_type: "ephemeral",
+						text: "Error adding remark: Invalid regular expression"
+					});
+					return;
+				}
+
+				const mongoOperation = operation === "add"
+					? {$addToSet: { remarks: { regExp: regExp, message: message} }}
+					: {$pull: { remarks: { regExp: regExp} }}
+
+				SettingsRepository.update({
+					instanceId: settings.instanceId,
+					...mongoOperation
+				}).then(instanceSettings => {
+					settings.remarks = instanceSettings.remarks;
+					console.info(`User ${args.body.user_id} (${args.body.user_name}) added a new remark`);
+					args.respond({
+						response_type: "ephemeral",
+						text: operation === "add"
+							? `Remark added successfully! Use ${Md.codeInline(`/lounasbotti remark remove ${regExp.source}<>confirm`)} to remove.`
+							: 'Remark removed successfully!'
+					});
+				}).catch(error => {
+					console.error(error);
+					args.respond({
+						response_type: "ephemeral",
+						text: "Error adding remark. Please contact support."
+					});
+				});
+
 				return;
 			}
 		}
