@@ -9,6 +9,7 @@ import * as WeatherAPI from "./WeatherAPI.js";
 
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
+	private static restaurantClosedRegExp = /suljettu|kiinni/;
 
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
@@ -122,7 +123,7 @@ export default class BlockParsers {
 			.end()
 		);
 
-		if (voting && lounasResponse.items?.some(item => item.trim() && !item.startsWith(":no_entry_sign:"))) {
+		if (voting && lounasResponse.items?.every(item => !this.restaurantClosedRegExp.test(item))) {
 			arr.push(Blocks.Actions().elements(Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })));
 		}
 
