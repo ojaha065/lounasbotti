@@ -24,7 +24,7 @@
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
 	"extraParams": {
-		"VAIHA_PATTERN": "https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-vk${weekNumber}"
+		"VAIHA_PATTERN": "https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-VK${weekNumber}"
 	},
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
