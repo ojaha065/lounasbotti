@@ -59,7 +59,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 			const expectedTitle = `${Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).toLowerCase()} `;
 			const pForToday = containerDiv
 				.find("p")
-				.filter((_i, el) => $(el).children(":first").text()?.toLowerCase().startsWith(expectedTitle))
+				.filter((_i, el) => $(el).children(":first").text()?.toLowerCase().includes(expectedTitle))
 				.first();
 			if (!pForToday?.length) {
 				throw new Error("Error parsing HTML! Could not find <p> element for today");

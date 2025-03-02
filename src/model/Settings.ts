@@ -152,6 +152,7 @@ type InstanceSettings = {
 enum Restaurant {
 	savo = "savo",
 	vaihaAsema = "vaihaAsema",
+	rauha = "rauha",
 	talli = "talli",
 	rami = "rami",
 	ramiVisulahti = "ramiVisulahti",
@@ -168,6 +169,7 @@ enum Restaurant {
 const RestaurantNameMap: Record<Restaurant, string> = {
 	savo: "Vaiha Savo",
 	vaihaAsema: "Vaiha Asema",
+	rauha: "Kahvila-ravintola Rauha",
 	talli: "Ravintola Talli",
 	rami: "Ramin Konditoria Sammonkatu",
 	ramiVisulahti: "Rami Visulahti",

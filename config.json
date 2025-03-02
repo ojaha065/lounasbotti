@@ -7,11 +7,12 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "rauha", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [
 		["savo", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
-		["talli", "Tarkasta https://www.xamkravintolat.fi/tallin-lounaslista/"],
+		["rauha", "Tarkasta osoitteesta https://muisti.org/rauha/"],
+		["talli", "Tarkasta https://www.xamk.fi/kampukset/mikkeli/tilat-ja-ravintolat/ravintola-talli/tallin-lounasmenu/"],
 		["rami", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["august", "Tarkasta https://www.ravintolaaugust.fi/ (sivun alalaita)"],
 		["holvi", "Tarkasta https://www.bistroholvi.fi/#lounas"],
@@ -23,7 +24,7 @@
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
 	"extraParams": {
-		"VAIHA_PATTERN": "https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-vk${weekNumber}"
+		"VAIHA_PATTERN": "https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-VK${weekNumber}"
 	},
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
