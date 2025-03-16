@@ -8,7 +8,7 @@ import * as Utils from "../../Utils.js";
 
 class TalliDataProvider implements LounasDataProvider {
 	readonly id: string = "Talli";
-	readonly baseUrl: string = "https://www.xamkravintolat.fi/tallin-lounaslista/";
+	readonly baseUrl: string = "https://www.xamk.fi/kampukset/mikkeli/tilat-ja-ravintolat/ravintola-talli/tallin-lounasmenu/";
 
 	readonly settings: Settings;
 
@@ -31,28 +31,21 @@ class TalliDataProvider implements LounasDataProvider {
 			if (!response.ok) {
 				throw new Error(`Response ${response.status} from ${this.baseUrl}`);
 			}
-	
+
 			const responseHTML = await response.text();
 			const $ = cheerio.load(responseHTML);
-			const containerDiv = $("section.cols-1 > div.container:first-child");
-			if (!containerDiv.length) {
-				throw new Error("Error parsing HTML! Could not find proper container");
-			}
-	
-			const expectedTitle = `${Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase()} `;
+			const lounasmenu = $("#lounasmenu").parent();
 
-			const titleP = containerDiv
+			const expectedTitle = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase();
+			const p = lounasmenu
 				.find("p")
 				.filter((_i, el) => $(el).text()?.toLowerCase().startsWith(expectedTitle))
 				.first();
-			if (!titleP?.length) {
+			if (!p?.length) {
 				throw new Error(`Error parsing HTML! Expected title: ${expectedTitle}`);
 			}
 
-			let items = Utils.splitByBrTag(titleP.html() ?? "");
-			if (items.length <= 2) {
-				items = Utils.splitByBrTag(titleP.next().html() ?? "");
-			}
+			const items = Utils.splitByBrTag(p.html() ?? "");
 			if (!items?.length) {
 				throw new Error("Error parsing HTML!");
 			}
@@ -61,7 +54,7 @@ class TalliDataProvider implements LounasDataProvider {
 				isAdditional: false,
 				restaurant: Restaurant.talli,
 				date: expectedTitle,
-				items: items
+				items: items.slice(1)
 					.map(s => s.trim())
 					.filter(Boolean)
 					.map(item => decode(item))

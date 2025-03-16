@@ -57,13 +57,13 @@
 		["riista", ":deer:"],
 		["nau(?:dan|ta)", ":cow:"],
 		["rapu", ":shrimp:"],
-		["pannukak", ":pancakes:"],
+		["pannukak|pannari", ":pancakes:"],
 		["riisi|risot", ":rice:"],
 		["chips|ranskalai(?:set|sia)|ranskanperu", ":fries:"],
 		["porkkan", ":carrot:"],
 		["sieni", ":mushroom:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
-		["jälkiru(?:u|o)|jälkkäri|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul|pannari", ":yum:"],
+		["jälkiru(?:u|o)|jälkkäri|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["jyvi(?:ä|en)", ":ear_of_rice:"],
@@ -73,7 +73,7 @@
 		["paprik", ":bell_pepper:"],
 		["bataat", ":sweet_potato:"],
 		["(?:parsa|kukka|ruusu)kaali", ":broccoli:"],
-		["peru(?:na|no)|pottu", ":potato:"],
+		["peru(?:na|no)|pottu|potut", ":potato:"],
 		["kahvi", ":coffee:"],
 		["appelsiini", ":tangerine:"],
 		["anana", ":pineapple:"],
@@ -89,6 +89,7 @@
 		["lei(?:pä|vän)", ":bread:"],
 		["voita", ":butter:"],
 		["juusto|cheddar", ":cheese_wedge:"],
+		["mausteista|tuli(?:sta|nen|sen)", ":fire:"],
 		["juhla", ":partying_face:"]
 	]
 }

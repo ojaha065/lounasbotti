@@ -3,7 +3,7 @@ import * as Utils from "../../Utils.js";
 import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import type { Settings } from "../Settings.js";
 import { Restaurant, RestaurantNameMap } from "../Settings.js";
-//import TalliDataProvider from "./TalliDataProvider.js";
+import TalliDataProvider from "./TalliDataProvider.js";
 import VaihdaDataProvider from "./VaihaDataProvider.js";
 import { decode } from "html-entities";
 
@@ -85,12 +85,10 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
 				if (!dataBlock) {
 					if (restaurant === Restaurant.talli) {
-						// Disabled as of 2025-03-02 until TalliDataProvider is updated to support the new site on
-						// https://www.xamk.fi/kampukset/mikkeli/tilat-ja-ravintolat/ravintola-talli/tallin-lounasmenu/
-						//const talliResponseArr = await new TalliDataProvider(this.settings).getData([Restaurant.talli], tomorrowRequest);
-						//if (talliResponseArr[0]?.items?.length) {
-							//return talliResponseArr[0];
-						//}
+						const talliResponseArr = await new TalliDataProvider(this.settings).getData([Restaurant.talli], tomorrowRequest);
+						if (talliResponseArr[0]?.items?.length) {
+							return talliResponseArr[0];
+						}
 					}
 					else if (restaurant === Restaurant.savo) {
 						const responseArr = await new VaihdaDataProvider(this.settings).getData([Restaurant.savo], tomorrowRequest);
@@ -159,6 +157,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						.filter(Boolean)
 						.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item))))
 						.map(s => s.replaceAll(this.MONETARY_REGEXP, ""))
+						.map(s => s.trim())
 						.filter(Boolean),
 					date: dataBlock.header.replace("Lounas", weekdayName).trim(),
 					iconUrl
