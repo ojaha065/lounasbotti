@@ -1,0 +1,8 @@
+{
+    "depcheck": {
+        "ignoreMatches": [
+            "@sentry/integrations",
+            "ts-node"
+        ]
+    }
+}

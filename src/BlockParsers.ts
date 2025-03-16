@@ -1,11 +1,11 @@
-import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, user } from "slack-block-builder";
-import type { SlackBlockDto, SlackHomeTabDto } from "slack-block-builder/dist/internal";
+import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, SlackBlockDto, user } from "slack-block-builder";
 
 import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 import type { Settings } from "./model/Settings.js";
 import { RestaurantNameMap } from "./model/Settings.js";
 
 import * as WeatherAPI from "./WeatherAPI.js";
+import { View } from "@slack/types";
 
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
@@ -44,7 +44,7 @@ export default class BlockParsers {
 		];
 	}
 
-	public static parseHomeTabView(data: { settings: Settings, userId: string}): Readonly<SlackHomeTabDto> {
+	public static parseHomeTabView(data: { settings: Settings, userId: string}): Readonly<View> {
 		const debugInformation: string[] = [
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
