@@ -35,7 +35,7 @@
     "email": "lounasbotti@jhaiko.tech"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
+    "@eslint/js": "^9.24.0",
     "@sentry/cli": "^2.28.0",
     "@types/node": "^22.2.0",
     "@types/node-schedule": "^2.1.6",
