@@ -28,7 +28,7 @@ class Settings {
 	public openMeteoURL?: URL;
 	public configSource?: string;
 	public debug?: object;
-	public extraParams?: Record<string, string>;
+	public extraParams?: Record<string, string[]>;
 
 	// Instance settings
 	public limitToOneVotePerUser = false;
@@ -156,6 +156,7 @@ enum Restaurant {
 	talli = "talli",
 	rami = "rami",
 	ramiVisulahti = "ramiVisulahti",
+	ramiRokkala = "ramiRokkala",
 	august = "august",
 	holvi = "holvi",
 	vino = "vino",
@@ -173,6 +174,7 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	talli: "Ravintola Talli",
 	rami: "Ramin Konditoria Sammonkatu",
 	ramiVisulahti: "Rami Visulahti",
+	ramiRokkala: "Rami Konditoria Rokkala",
 	august: "Ravintola August",
 	holvi: "Bistro Holvi",
 	vino: "Ravintola Vino",

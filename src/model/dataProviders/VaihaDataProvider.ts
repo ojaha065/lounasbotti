@@ -31,20 +31,36 @@ class VaihdaDataProvider implements LounasDataProvider {
 			const now = new Date();
 			if (tomorrowRequest) { now.setDate(now.getDate() + 1); }
 
-			const fetchUrl = this.settings.extraParams?.VAIHA_PATTERN
-				?.replaceAll("${weekNumber}", Utils.getWeekNumber(now).toString());
+			const weekNumber = Utils.getWeekNumber(now).toString();
+			const fetchURLs = this.settings.extraParams?.VAIHA_URL_PATTERNS
+				?.filter(Boolean)
+				.map(s => s.replaceAll("${weekNumber}", weekNumber));
 
-			if (!fetchUrl) {
-				throw new Error("VAIHA_PATTERN is missing");
+			if (!fetchURLs?.length) {
+				throw new Error("VAIHA_URL_PATTERNS is missing");
 			}
-			console.debug(`VAIHA URL: ${fetchUrl}`);
 
-			const response = await Utils.fetchWithTimeout(fetchUrl, {
-				method: "GET"
-			});
+			let response = null;
+			for (const fetchUrl of fetchURLs) {
+				console.debug(`Trying VAIHA url: ${fetchUrl}`);
 
-			if (!response.ok) {
-				throw new Error(`Response ${response.status} from ${fetchUrl}`);
+				try {
+					response = await Utils.fetchWithTimeout(fetchUrl, {
+						method: "GET"
+					});
+				} catch (error) {
+					console.debug(`...${(error as Error).message}`);
+					continue;
+				}
+
+				if (response.ok) {
+					break;
+				}
+				console.debug(`...${response.status}`);
+			}
+
+			if (response === null || !response.ok) {
+				throw new Error("None of the URLs responded with non-error status. Aborting...");
 			}
 
 			const responseHTML = await response.text();
