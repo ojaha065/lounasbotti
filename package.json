@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.10.17",
+  "version": "1.10.18",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -17,7 +17,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
-    "sentry": "npm run build && sentry-cli releases new %npm_package_version% && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist"
+    "sentry": "npm run build && sentry-cli releases new %npm_package_version% && sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist",
+    "sentry-docker": "sentry-cli releases --org jani-haiko --project lounasbotti-disec new %npm_package_version% && sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps --org jani-haiko --project lounasbotti-disec upload --release=%npm_package_version% ./dist"
   },
   "keywords": [
     "bot",

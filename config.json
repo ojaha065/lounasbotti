@@ -7,7 +7,7 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "rauha", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "rauha", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti", "ramiRokkala"],
 	"customErrorMessages": [
 		["savo", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
@@ -20,11 +20,16 @@
 		["pormestari", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["lale", "Tätä lounaslistaa ei juuri nyt ole saatavissa verkossa"],
 		["ramiVisulahti", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
+		["ramiRokkala", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"]
 	],
 	"extraParams": {
-		"VAIHA_PATTERN": "https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-VK${weekNumber}"
+		"VAIHA_URL_PATTERNS": [
+			"https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-VK${weekNumber}",
+			"https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-vk${weekNumber}",
+			"https://www.vaiha.fi/kaikki-tapahtumat/katso-viikon-lounaat-Vk${weekNumber}"
+		]
 	},
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
@@ -63,11 +68,11 @@
 		["porkkan", ":carrot:"],
 		["sieni", ":mushroom:"],
 		["(?:salaat{1,2}(?:i|eja))|coleslaw", ":green_salad:"],
-		["jälkiru(?:u|o)|jälkkäri|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul", ":yum:"],
+		["jälkiru(?:u|o)|jälkkäri|leipurin\\s*mak|vispipuur|vanuk|kiisseli|vaah(?:toa|don)|mous{1,2}e|rahkaa?|pannacot|trif{1,2}le|smoothie|rita(?:rit|reita)|kakku|leivos|tuulihattu|let(?:ut|tuja)|raparperi|pitko|jäätelö|piirakka|hyvää|mokkapala|vaniljakasti|laskiaispul", ":yum:"],
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["jyvi(?:ä|en)", ":ear_of_rice:"],
-		["(?:kasvi(?:s|k))|(?:juure)|tomaat", ":tomato:"],
+		["(?:kasvi(?:s|k))|(?:juure)|tomaat|vihanne", ":tomato:"],
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
 		["paprik", ":bell_pepper:"],
