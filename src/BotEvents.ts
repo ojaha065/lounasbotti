@@ -9,7 +9,7 @@ import { Restaurant } from "./model/Settings.js";
 
 import * as LounasRepository from "./model/LounasRepository.js";
 import BlockParsers from "./BlockParsers.js";
-import { BlockCollection, Blocks, Md } from "slack-block-builder";
+import { Md } from "slack-block-builder";
 import { Range, scheduleJob } from "node-schedule";
 import Holidays from "date-holidays";
 import { lounasCache } from "./server.js";
@@ -119,7 +119,7 @@ const initEvents = (app: App, settings: Settings): void => {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
 				}
 
-				const dividerIndex: number = blocks.findIndex(block => block.block_id === "additionalRestaurantsDivider");
+				const dividerIndex: number = blocks.findIndex(block => block.block_id === "refreshDivider" || block.block_id === "additionalRestaurantsDivider");
 				if (dividerIndex < 1) {
 					throw new Error("Error parsing blocks (divider)");
 				}
@@ -159,6 +159,32 @@ const initEvents = (app: App, settings: Settings): void => {
 			}
 		});
 	}
+
+	// Refresh
+	app.action({type: "block_actions", action_id: "refreshMessage"}, async args => {
+		args.ack();
+
+		const message = args.body.message;
+		if (!message) {
+			throw new Error("Message not found from action body");
+		}
+
+		if (!args.body.channel) {
+			throw new Error("Event is not from channel!");
+		}
+
+		console.debug(`Action "refreshMessage" received from "${args.body.user.name}"`);
+
+		const lounasMessage: LounasRepository.LounasMessageEntry = await LounasRepository.find(message.ts, args.body.channel.id);
+		const cachedData = await getDataAndCache(settings, true, false, null, false);
+		updateVoting(lounasMessage, cachedData.blocks, settings.displayVoters);
+		
+		args.respond({
+			response_type: "in_channel",
+			replace_original: true,
+			blocks: cachedData.blocks
+		});
+	});
 
 	// Voting
 	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
@@ -253,19 +279,6 @@ const initEvents = (app: App, settings: Settings): void => {
 		const isAutomatic = !args;
 
 		const cachedData = await getDataAndCache(settings, true, isTomorrowRequest);
-
-		let requester: string;
-		if (isAutomatic) {
-			requester = Md.italic("Subscription");
-		}
-		else {
-			requester = Md.user(args.body.user_id);
-		}
-
-		cachedData.blocks.push(BlockCollection(Blocks.Context().elements(
-			`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua\n`
-			+ `${Md.emoji("robot_face")} Pyynnön lähetti ${requester}`
-		))[0]);
 
 		if (isAutomatic) {
 			settings.subscribedChannels?.forEach(async channel => {
@@ -379,7 +392,7 @@ async function truncateMessage(app: App, message: { channel: string, ts: string 
 
 }
 
-async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null): Promise<{ data: LounasResponse[], blocks: (Block | KnownBlock)[] }> {
+async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null, allowCache: boolean = true): Promise<{ data: LounasResponse[], blocks: (Block | KnownBlock)[] }> {
 	try {
 		const now = new Date();
 		const cacheIdentifier = `${now.getUTCDate()}${now.getUTCMonth()}${now.getUTCFullYear()}${tomorrowRequest}`;
@@ -395,7 +408,7 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 
 		const allData: LounasResponse[] = [];
 	
-		if (lounasCache[cacheIdentifier]) {
+		if (allowCache && lounasCache[cacheIdentifier]) {
 			const cachedData = structuredClone(lounasCache[cacheIdentifier]);
 
 			// If cache contains every requested restaurant, we can short circuit here

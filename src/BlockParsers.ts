@@ -25,7 +25,18 @@ export default class BlockParsers {
 					Blocks.Section({ text: (settings.announcements ?? [""])[0] }).end()
 				)
 			),
+
 			...lounasBlocks,
+
+			...BlockCollection(setIfTruthy(!tomorrowRequest, [
+				Blocks.Divider({ blockId: "refreshDivider" }).end(),
+				Blocks.Actions().elements(Elements.Button({
+					accessibilityLabel: "Hae lounaslistat uudelleen",
+					actionId: "refreshMessage",
+					text: `${Md.emoji("arrows_counterclockwise")} Hae uudelleen`
+				})).end(),
+			])),
+
 			...BlockCollection(
 				Blocks.Divider({ blockId: "additionalRestaurantsDivider" }).end(),
 				setIfTruthy(settings.additionalRestaurants?.length && !tomorrowRequest, [
@@ -40,7 +51,9 @@ export default class BlockParsers {
 						.end(),
 					Blocks.Divider().end(),
 				])
-			)
+			),
+
+			...BlockCollection(Blocks.Context().elements(`${Md.emoji("alarm_clock")} Tämä viesti poistetaan automaattisesti 6 tunnin kuluttua`))
 		];
 	}
 
