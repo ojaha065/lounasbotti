@@ -33,7 +33,7 @@ export default class BlockParsers {
 				Blocks.Actions().elements(Elements.Button({
 					accessibilityLabel: "Hae lounaslistat uudelleen",
 					actionId: "refreshMessage",
-					text: `${Md.emoji("arrows_counterclockwise")} Hae uudelleen`
+					text: `${Md.emoji("arrows_counterclockwise")} Päivitä tiedot`
 				})).end(),
 			])),
 
