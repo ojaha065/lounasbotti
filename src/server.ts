@@ -4,7 +4,6 @@ dotenv.config();
 // Global
 global.LOUNASBOTTI_JOBS = {};
 global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "";
-global.LOUNASBOTTI_TO_BE_TRUNCATED = [];
 
 import * as Sentry from "@sentry/node";
 if (process.env.SENTRY_DSN) {

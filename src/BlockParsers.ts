@@ -1,11 +1,13 @@
 import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, SlackBlockDto, user } from "slack-block-builder";
 
 import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
-import type { Settings } from "./model/Settings.js";
+import { Settings } from "./model/Settings.js";
 import { RestaurantNameMap } from "./model/Settings.js";
 
 import * as WeatherAPI from "./WeatherAPI.js";
 import { View } from "@slack/types";
+
+import * as LounasRepository from "./model/LounasRepository.js";
 
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
@@ -57,7 +59,14 @@ export default class BlockParsers {
 		];
 	}
 
-	public static parseHomeTabView(data: { settings: Settings, userId: string}): Readonly<View> {
+	public static async parseHomeTabView(data: { settings: Settings, userId: string}): Promise<Readonly<View>> {
+		let toBeTruncatedCount = undefined;
+		try {
+			toBeTruncatedCount = (await LounasRepository.findToBeTruncated(data.settings.instanceId, 2000)).length;
+		} catch (error) {
+			console.error(error);
+		}
+
 		const debugInformation: string[] = [
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
@@ -65,7 +74,7 @@ export default class BlockParsers {
 			data.settings.openMeteoURL ? `[WeatherEmoji] ${WeatherAPI.printAllEmoji()}` : null,
 			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
 			global.LOUNASBOTTI_JOBS.subscriptions ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US")}` : null,
-			global.LOUNASBOTTI_JOBS.truncateAll && global.LOUNASBOTTI_TO_BE_TRUNCATED.length ? `${global.LOUNASBOTTI_TO_BE_TRUNCATED.length} message(s) be will be forcefully truncated at ${global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation().toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.truncateAll && toBeTruncatedCount ? `${toBeTruncatedCount} message(s) be will be forcefully truncated at ${global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation().toLocaleString("en-US")}` : null,
 			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`
 		].filter(Boolean) as string[];
 	
@@ -84,6 +93,7 @@ export default class BlockParsers {
 						["/lounas [<tyhjä> | tänään | huomenna]", "Aktivoi Lounasbotti ja hae lounaslistat"],
 						["/lounasbotti subscribe", "Aktivoi automaattinen tila kanavalle (Arkispäivisin klo. 10:30)"],
 						["/lounasbotti unsubscribe", "Poista automaattinen tila käytöstä"],
+						["/lounasbotti truncateall", "Poista kaikki botin lähettämät viestit"],
 						["/lounasbotti cache", "Tyhjennä sovelluksen välimuisti"],
 						["/lounasbotti restart", "Käynnistä sovellus uudelleen"],
 						["/lounasbotti ping", "Pong!"]
