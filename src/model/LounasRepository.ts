@@ -8,7 +8,8 @@ type LounasMessageEntry = {
     channel: string,
     menu: {restaurant: Restaurant, items: string[] | null}[],
     date: Date,
-    votes: {userId: string, action: string}[]
+    votes: {userId: string, action: string}[],
+	toBeTruncated?: boolean
 };
 
 const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
@@ -23,7 +24,8 @@ const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
 	votes: [new mongoose.Schema({
 		userId: String,
 		action: String
-	})]
+	})],
+	toBeTruncated: Boolean
 });
 
 const LounasMessage = mongoose.model<LounasMessageEntry>("LounasMessage", lounasSchema);
@@ -49,6 +51,22 @@ const find = async (ts: string, channel: string): Promise<LounasMessageEntry> =>
 	}
 
 	return document;
+};
+
+const findToBeTruncated = async (instanceId: string, maxTimeMS: number = 5000): Promise<{channel: string, ts: string}[]> => {
+	return await LounasMessage.find({instanceId, toBeTruncated: true})
+		.select(["channel", "ts"])
+		.maxTimeMS(maxTimeMS)
+		.exec();
+};
+
+const markTruncated = (ts: string): void => {
+	try {
+		LounasMessage.updateOne({ts}, {$unset: {toBeTruncated: true}}).exec();
+	} catch (error) {
+		console.error("Error marking LounasMessageEntry truncated");
+		console.error(error);
+	}
 };
 
 const addOrRemoveVote = async (ts: string, entry: {userId: string, action: string}, operationType: OperationType): Promise<LounasMessageEntry> => {
@@ -80,4 +98,4 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 	return document;
 };
 
-export { create, find, addOrRemoveVote, LounasMessageEntry, OperationType };
+export { create, find, findToBeTruncated, markTruncated, addOrRemoveVote, LounasMessageEntry, OperationType };

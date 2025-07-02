@@ -56,8 +56,9 @@ const initEvents = (app: App, settings: Settings): void => {
 		tz: "Europe/Helsinki"
 	}, async () => {
 		try {
-			while (global.LOUNASBOTTI_TO_BE_TRUNCATED.length) {
-				await truncateMessage(app, global.LOUNASBOTTI_TO_BE_TRUNCATED[0]);
+			const toBeTruncated = await LounasRepository.findToBeTruncated(settings.instanceId);
+			for (const tbt of toBeTruncated) {
+				await truncateMessage(app, tbt);
 			}
 		} catch (error) {
 			console.error(error);
@@ -72,7 +73,7 @@ const initEvents = (app: App, settings: Settings): void => {
 	app.event("app_home_opened", async args => {
 		args.client.views.publish({
 			user_id: args.event.user,
-			view: BlockParsers.parseHomeTabView({settings, userId: args.event.user})
+			view: await BlockParsers.parseHomeTabView({settings, userId: args.event.user})
 		});
 	});
 
@@ -346,14 +347,14 @@ function handleMainTriggerResponse(response: ChatPostMessageResponse, app: App, 
 					return {restaurant: lounasResponse.restaurant, items: lounasResponse.items || null};
 				}),
 				date: new Date(),
-				votes: []
+				votes: [],
+				toBeTruncated: true
 			}).catch(error => {
 				console.error(error);
 			});
 		}
 
 		const tObject = {channel: response.channel ?? channel, ts: response.ts};
-		global.LOUNASBOTTI_TO_BE_TRUNCATED.push(tObject);
 		truncateTimeouts.push({...tObject, timeout: setTimeout(truncateMessage.bind(null, app, tObject), AUTO_TRUNCATE_TIMEOUT)});
 	} else {
 		console.warn("Response not okay!");
@@ -369,27 +370,25 @@ async function truncateMessage(app: App, message: { channel: string, ts: string 
 		truncateTimeouts.splice(truncateTimeouts.indexOf(to), 1);
 	}
 
-	const index = global.LOUNASBOTTI_TO_BE_TRUNCATED.findIndex(elem => elem.ts === message.ts);
-	if (index > -1) {
-		try {
-			await app.client.chat.update({
-				channel: message.channel,
-				ts: message.ts,
-				blocks: [], // Remove all blocks
-				text: Md.italic("Viesti poistettiin")
-			});
-		} catch (error) {
-			if (error instanceof Error && error.message.includes("message_not_found")) {
-				console.debug("Truncate: Message not found, maybe if was manually deleted?");
-			} else {
-				throw error instanceof Error
-					? error
-					: new Error("Error updating message: No error instance?");
-			}
+	try {
+		await app.client.chat.update({
+			channel: message.channel,
+			ts: message.ts,
+			blocks: [], // Remove all blocks
+			text: Md.italic("Viesti poistettiin")
+		});
+	} catch (error) {
+		if (error instanceof Error && error.message.includes("message_not_found")) {
+			console.debug("Truncate: Message not found, maybe if was manually deleted?");
+		} else {
+			throw error instanceof Error
+				? error
+				: new Error("Error updating message: No error instance?");
 		}
-		global.LOUNASBOTTI_TO_BE_TRUNCATED.splice(index, 1);
 	}
 
+	// Mark truncated even in case of error to avoid trying again and again
+	LounasRepository.markTruncated(message.ts);
 }
 
 async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorrowRequest = false, singleRestaurant: Restaurant | null = null, allowCache: boolean = true): Promise<{ data: LounasResponse[], blocks: (Block | KnownBlock)[] }> {

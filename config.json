@@ -85,7 +85,7 @@
 		["sitru", ":lemon:"],
 		["soija|veg(?:a|\\.)|punajuur", ":seedling:"],
 		["mummo|isoäi", ":older_woman:"],
-		["suljettu|kiinni", ":no_entry_sign:"],
+		["suljettu|kiinni|kesätau(?:k|o)", ":no_entry_sign:"],
 		["beta-ominaisuus", ":warning:"],
 		["kaalikääry", ":nauseated_face:"],
 		["paholai", ":smiling_imp:"],

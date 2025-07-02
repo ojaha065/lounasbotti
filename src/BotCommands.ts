@@ -2,6 +2,7 @@ import type bolt from "@slack/bolt";
 import { Md } from "slack-block-builder";
 import type { Settings } from "./model/Settings.js";
 import * as SettingsRepository from "./model/SettingsRepository.js";
+import * as LounasRepository from "./model/LounasRepository.js";
 import * as Utils from "./Utils.js";
 import { lounasCache } from "./server.js";
 import { truncateMessage } from "./BotEvents.js";
@@ -151,8 +152,22 @@ export default function(app: bolt.App, settings: Settings) {
 
 			if (commandText === "truncateall") {
 				try {
-					while (global.LOUNASBOTTI_TO_BE_TRUNCATED.length) {
-						await truncateMessage(app, global.LOUNASBOTTI_TO_BE_TRUNCATED[0]);
+					const toBeTruncated = await LounasRepository.findToBeTruncated(settings.instanceId);
+					if (!toBeTruncated.length) {
+						args.respond({
+							response_type: "ephemeral",
+							text: "Nothing to truncate!"
+						});
+						return;
+					}
+
+					args.respond({
+						response_type: "ephemeral",
+						text: `Okay! Truncating ${toBeTruncated.length} messages!`
+					});
+
+					for (const tbt of toBeTruncated) {
+						await truncateMessage(app, tbt);
 					}
 				} catch (error) {
 					console.error(error);
