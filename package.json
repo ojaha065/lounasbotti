@@ -54,7 +54,7 @@
     "@slack/web-api": "^7.9.1",
     "cheerio": "^1.1.0",
     "date-holidays": "^3.23.8",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.0",
     "html-entities": "^2.5.2",
     "mongoose": "^8.16.1",
     "node-schedule": "^2.1.1",
