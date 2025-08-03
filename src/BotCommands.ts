@@ -94,7 +94,7 @@ export default function(app: bolt.App, settings: Settings) {
 					console.info(`User ${args.body.user_id} (${args.body.user_name}) subscribed to channel ${args.body.channel_id}`);
 					args.respond({
 						response_type: "in_channel",
-						text: `${Md.user(args.body.user_id)} subscribed Lounasbotti to this channel. Next automatic activation will happen at ${Md.codeInline(global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US"))}. Use ${Md.codeInline("/lounasbotti unsubscribe")} to unsubscribe.`
+						text: `${Md.user(args.body.user_id)} subscribed Lounasbotti to this channel. Next automatic activation will happen at ${Md.codeInline(global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation()?.toLocaleString("en-US") || "")}. Use ${Md.codeInline("/lounasbotti unsubscribe")} to unsubscribe.`
 					});
 				}).catch(error => {
 					console.error(error);

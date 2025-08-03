@@ -30,7 +30,7 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 };
 
 const printAllEmoji = (): string => {
-	return ["sunny", "sun_small_cloud", "partly_sunny", "cloud", "fog", "partly_sunny_rain", "rain_cloud", "snow_cloud", "snowflake", "umbrella_with_rain_drops", "lightning_cloud"]
+	return ["sun_with_face", "sun_small_cloud", "partly_sunny", "cloud", "fog", "partly_sunny_rain", "rain_cloud", "snow_cloud", "snowflake", "umbrella_with_rain_drops", "lightning_cloud"]
 		.map(Md.emoji)
 		.join("");
 };
@@ -38,7 +38,7 @@ const printAllEmoji = (): string => {
 const weatherCodeToEmoji = (weatherCode: number | undefined): string | null => {
 	switch(weatherCode) {
 		case 0: // Clear sky
-			return Md.emoji("sunny");
+			return Md.emoji("sun_with_face");
 		case 1: // Mainly clear
 			return Md.emoji("sun_small_cloud");
 		case 2: // Partly cloudy
@@ -49,9 +49,9 @@ const weatherCodeToEmoji = (weatherCode: number | undefined): string | null => {
 		case 45: // Fog
 		case 48: // Depositing rime fog
 			return Md.emoji("fog");
-		case 53: // Moderate drizzle
 		case 80: // Slight rain showers
 			return Md.emoji("partly_sunny_rain");
+		case 53: // Moderate drizzle
 		case 55: // Dense drizzle
 		case 56: // Light freezing drizzle
 		case 57: // Dense freezing drizzle
