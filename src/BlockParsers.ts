@@ -1,4 +1,4 @@
-import { Bits, BlockCollection, Blocks, Elements, HomeTab, Md, setIfTruthy, SlackBlockDto, user } from "slack-block-builder";
+import { Bits, BlockCollection, Blocks, ButtonBuilder, Elements, HomeTab, Md, setIfTruthy, SlackBlockDto, user } from "slack-block-builder";
 
 import type { LounasResponse } from "./model/dataProviders/LounasDataProvider.js";
 import { Settings } from "./model/Settings.js";
@@ -11,7 +11,7 @@ import * as LounasRepository from "./model/LounasRepository.js";
 
 export default class BlockParsers {
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
-	private static restaurantClosedRegExp = /suljettu|kiinni/;
+	private static restaurantClosedRegExp = /suljettu|kiinni|kesätauolla/;
 
 	public static parseMainBlocks(data: LounasResponse[], header: string, settings: Settings, tomorrowRequest: boolean): Readonly<SlackBlockDto>[] {
 		const lounasBlocks: SlackBlockDto[] = [];
@@ -72,9 +72,9 @@ export default class BlockParsers {
 			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
 			data.settings.openMeteoURL ? `[WeatherEmoji] ${WeatherAPI.printAllEmoji()}` : null,
-			global.LOUNASBOTTI_JOBS.cacheClearing ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation().toLocaleString("en-US")}` : null,
-			global.LOUNASBOTTI_JOBS.subscriptions ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation().toLocaleString("en-US")}` : null,
-			global.LOUNASBOTTI_JOBS.truncateAll && toBeTruncatedCount ? `${toBeTruncatedCount} message(s) be will be forcefully truncated at ${global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation().toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation() ? `Cached data will be cleared at ${global.LOUNASBOTTI_JOBS.cacheClearing.nextInvocation()?.toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation() ? `Automatic posting to subscribed channels will next occur at ${global.LOUNASBOTTI_JOBS.subscriptions.nextInvocation()?.toLocaleString("en-US")}` : null,
+			global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation() && toBeTruncatedCount ? `${toBeTruncatedCount} message(s) be will be forcefully truncated at ${global.LOUNASBOTTI_JOBS.truncateAll.nextInvocation()?.toLocaleString("en-US")}` : null,
 			`${(data.settings.subscribedChannels || []).length} channel subscription(s)`
 		].filter(Boolean) as string[];
 	
@@ -147,7 +147,12 @@ export default class BlockParsers {
 		);
 
 		if (voting && lounasResponse.items?.every(item => !this.restaurantClosedRegExp.test(item))) {
-			arr.push(Blocks.Actions().elements(Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") })));
+			const voteButtons: ButtonBuilder[] = [Elements.Button({ actionId: "upvoteButtonAction", value: `upvote-${lounasResponse.restaurant}`, text: Md.emoji("thumbsup") }).end()];
+			if (settings.extraParams?.EASTERN_EGG_THROW_UP_EMOJI_REG_EXP?.map(s => new RegExp(s, "i")).some(re => lounasResponse.items.some(lri => re.test(lri)))) {
+				voteButtons.push(Elements.Button({ actionId: "nauseatedFaceButtonAction", text: Md.emoji("nauseated_face") }).primary(true).end());
+			}
+
+			arr.push(Blocks.Actions().elements(voteButtons));
 		}
 
 		return BlockCollection(arr);

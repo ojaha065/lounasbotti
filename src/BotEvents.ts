@@ -263,6 +263,16 @@ const initEvents = (app: App, settings: Settings): void => {
 		}
 	});
 
+	// Easter egg
+	app.action("nauseatedFaceButtonAction", async args => {
+		args.ack();
+		args.respond({
+			response_type: "ephemeral",
+			replace_original: false,
+			text: Md.emoji("+1")
+		});
+	});
+
 	// Trigger by command
 	app.command("/lounas", async args => {
 		args.ack();
