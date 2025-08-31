@@ -1,6 +1,8 @@
 import { Md } from "slack-block-builder";
 import * as Utils from "./Utils.js";
 
+const percentFormatter = new Intl.NumberFormat("fi-FI", {style: "percent"});
+
 // https://open-meteo.com/en/docs/
 
 const getWeatherString = async (url: URL, daysForward = 0): Promise<string | null> => {
@@ -16,17 +18,35 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 		);
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const json = (await response.json()) as any;
-		const arrIndex = 12 + (24 * daysForward);
+		const json = await response.json() as any;
 
-		const emoji = weatherCodeToEmoji((json.hourly?.weather_code ?? [])[arrIndex]);
-		const temperature = (json.hourly?.temperature_2m ?? [])[arrIndex] ?? null;
-		const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
-		return `${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}`;
+		const hour12 = 12 + (24 * daysForward);
+		const hour13 = 13 + (24 * daysForward);
+		const rainProbabilityPercent = rainProbability((json.hourly?.precipitation_probability ?? [])[hour12], (json.hourly?.precipitation_probability ?? [])[hour13]);
+
+		return `Klo. 12: ${parseWeatherAt(hour12, json)}\nKlo. 13: ${parseWeatherAt(hour13, json)}\nSateen todennäköisyys: ${rainProbabilityPercent}`;
 	} catch (error) {
 		console.error(error);
 		return null;
 	}
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const parseWeatherAt = (hour: number, json: any): string => {
+	const emoji = weatherCodeToEmoji((json.hourly?.weather_code ?? [])[hour]);
+	const temperature = (json.hourly?.temperature_2m ?? [])[hour] ?? null;
+	const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
+	return `${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}`;
+};
+
+const rainProbability = (a: number, b: number): string => {
+	if (a === undefined || b === undefined) {
+		return "???";
+	}
+
+	const pa = a / 100;
+	const pb = b / 100;
+	return percentFormatter.format(pa + pb - (pa * pb));
 };
 
 const printAllEmoji = (): string => {
