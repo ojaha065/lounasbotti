@@ -1,8 +1,6 @@
 import { Md } from "slack-block-builder";
 import * as Utils from "./Utils.js";
 
-const percentFormatter = new Intl.NumberFormat("fi-FI", {style: "percent"});
-
 // https://open-meteo.com/en/docs/
 
 const getWeatherString = async (url: URL, daysForward = 0): Promise<string | null> => {
@@ -22,9 +20,8 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 
 		const hour12 = 12 + (24 * daysForward);
 		const hour13 = 13 + (24 * daysForward);
-		const rainProbabilityPercent = rainProbability((json.hourly?.precipitation_probability ?? [])[hour12], (json.hourly?.precipitation_probability ?? [])[hour13]);
 
-		return `Klo. 12: ${parseWeatherAt(hour12, json)}\nKlo. 13: ${parseWeatherAt(hour13, json)}\nSateen todennäköisyys: ${rainProbabilityPercent}`;
+		return `Klo. 12: ${parseWeatherAt(hour12, json)}\nKlo. 13: ${parseWeatherAt(hour13, json)}`;
 	} catch (error) {
 		console.error(error);
 		return null;
@@ -36,17 +33,8 @@ const parseWeatherAt = (hour: number, json: any): string => {
 	const emoji = weatherCodeToEmoji((json.hourly?.weather_code ?? [])[hour]);
 	const temperature = (json.hourly?.temperature_2m ?? [])[hour] ?? null;
 	const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
-	return `${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}`;
-};
-
-const rainProbability = (a: number, b: number): string => {
-	if (a === undefined || b === undefined) {
-		return "???";
-	}
-
-	const pa = a / 100;
-	const pb = b / 100;
-	return percentFormatter.format(pa + pb - (pa * pb));
+	const precipitationProbability = (json.hourly?.precipitation_probability ?? [])[hour];
+	return `     ${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}     ${Md.emoji("droplet")}${precipitationProbability} %`;
 };
 
 const printAllEmoji = (): string => {
