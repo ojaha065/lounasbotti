@@ -162,7 +162,6 @@ enum Restaurant {
 	vino = "vino",
 	fernando = "fernando",
 	pormestari = "pormestari",
-	lale = "lale",
 	lansiSavo = "lansiSavo",
 	kotiherkku = "kotiherkku"
 }
@@ -180,7 +179,6 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	vino: "Ravintola Vino",
 	fernando: "Ravintola Fernando",
 	pormestari: "Vaiha Pormestari",
-	lale: "Ravintola Lale",
 	lansiSavo: "Ravintola Länsi-Savo",
 	kotiherkku: "Serviini Oy / Kotiherkku Ruokapuoti"
 };

@@ -106,7 +106,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 
 				let iconUrl: string | undefined = undefined;
 				if (this.settings.overrideIconsUrl) {
-					iconUrl = new URL(`/lounas_icons/${restaurant}.png`, this.settings.overrideIconsUrl).toString();
+					iconUrl = new URL(`/lounas_icons/${restaurant.toLowerCase()}.png`, this.settings.overrideIconsUrl).toString();
 				} else if (dataBlock.icon) {
 					try {
 						iconUrl = new URL(dataBlock.icon, "https://kuvat.tassa.fi").toString();

@@ -32,7 +32,7 @@ export default class BlockParsers {
 
 			...BlockCollection(setIfTruthy(!tomorrowRequest, [
 				Blocks.Divider({ blockId: "refreshDivider" }).end(),
-				Blocks.Actions().elements(Elements.Button({
+				Blocks.Actions({ blockId: "refreshActions" }).elements(Elements.Button({
 					accessibilityLabel: "Hae lounaslistat uudelleen",
 					actionId: "refreshMessage",
 					text: `${Md.emoji("arrows_counterclockwise")} Päivitä tiedot`
