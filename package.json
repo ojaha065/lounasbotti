@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -49,14 +49,14 @@
   "dependencies": {
     "@sentry/integrations": "^7.100.1",
     "@sentry/node": "^10.0.0",
-    "@slack/bolt": "^4.4.0",
+    "@slack/bolt": "^4.5.0",
     "@slack/types": "^2.15.0",
     "@slack/web-api": "^7.9.1",
     "cheerio": "^1.1.0",
     "date-holidays": "^3.26.1",
     "dotenv": "^17.2.1",
     "html-entities": "^2.5.2",
-    "mongoose": "^8.18.0",
+    "mongoose": "^8.19.1",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
   }

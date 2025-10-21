@@ -7,7 +7,7 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["savo", "talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "rauha", "lansiSavo", "lale", "kotiherkku", "ramiVisulahti", "ramiRokkala"],
+	"additionalRestaurants": ["holvi", "vino", "fernando", "pormestari", "vaihaAsema", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti", "ramiRokkala"],
 	"customErrorMessages": [
 		["savo", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
@@ -44,7 +44,8 @@
 		"Aikuiset",
 		"Lapset",
 		"^[^A-Za-zÖÄÅöäå]*$",
-		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})"
+		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})",
+		"^\\(?gluteeniton"
 	],
 	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?latitude=61.68076463214672&longitude=27.257584129412145&hourly=temperature_2m,weather_code,precipitation_probability&timezone=Europe%2FHelsinki&forecast_days=2",
 	"emojiRules": [
@@ -72,7 +73,6 @@
 		["(?<!(?:kasvis)|(?:juur(?:i|(?:es))))pihv", ":cut_of_meat:"],
 		["papu", ":beans:"],
 		["jyvi(?:ä|en)", ":ear_of_rice:"],
-		["sipuli", ":onion:"],
 		["(?:kasvi(?:s|k))|(?:juure)|tomaat|vihanne", ":tomato:"],
 		["nuudel", ":ramen:"],
 		["ohukai", ":yum:"],
@@ -97,6 +97,7 @@
 		["voita", ":butter:"],
 		["juusto|cheddar", ":cheese_wedge:"],
 		["mausteista|tuli(?:sta|nen|sen)", ":fire:"],
+		["sipuli", ":onion:"],
 		["juhla", ":partying_face:"]
 	]
 }
