@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@sentry/integrations": "^7.100.1",
-    "@sentry/node": "^10.0.0",
+    "@sentry/node": "^10.27.0",
     "@slack/bolt": "^4.5.0",
     "@slack/types": "^2.15.0",
     "@slack/web-api": "^7.9.1",
