@@ -34,7 +34,7 @@ const parseWeatherAt = (hour: number, json: any): string => {
 	const temperature = (json.hourly?.temperature_2m ?? [])[hour] ?? null;
 	const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
 	const precipitationProbability = (json.hourly?.precipitation_probability ?? [])[hour];
-	return `     ${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}     ${Md.emoji("droplet")}${precipitationProbability} %`;
+	return `     ${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}     ${Md.emoji("droplet")}/${Md.emoji("snowflake")} ${precipitationProbability} %`;
 };
 
 const printAllEmoji = (): string => {
