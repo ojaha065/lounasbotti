@@ -4,7 +4,7 @@ import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js
 import type { Settings } from "../Settings.js";
 import { Restaurant, RestaurantNameMap } from "../Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
-import VaihdaDataProvider from "./VaihaDataProvider.js";
+/*import VaihdaDataProvider from "./VaihaDataProvider.js";*/
 import { decode } from "html-entities";
 
 class RuokapaikkaFiDataProvider implements LounasDataProvider {
@@ -90,12 +90,12 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 							return talliResponseArr[0];
 						}
 					}
-					else if (restaurant === Restaurant.savo) {
+					/*else if (restaurant === Restaurant.savo) {
 						const responseArr = await new VaihdaDataProvider(this.settings).getData([Restaurant.savo], tomorrowRequest);
 						if (responseArr[0]?.items?.length) {
 							return responseArr[0];
 						}
-					}
+					}*/
 
 					return {
 						isAdditional,
