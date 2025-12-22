@@ -31,10 +31,18 @@ const getWeatherString = async (url: URL, daysForward = 0): Promise<string | nul
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseWeatherAt = (hour: number, json: any): string => {
 	const emoji = weatherCodeToEmoji((json.hourly?.weather_code ?? [])[hour]);
+
 	const temperature = (json.hourly?.temperature_2m ?? [])[hour] ?? null;
 	const temperatureUnit = json.hourly_units?.temperature_2m ?? "";
+
 	const precipitationProbability = (json.hourly?.precipitation_probability ?? [])[hour];
-	return `     ${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}     ${Md.emoji("droplet")}/${Md.emoji("snowflake")} ${precipitationProbability} %`;
+
+	let result = `     ${emoji ?? ""} ${temperature !== null ? Math.round(Number(temperature)) : ""} ${temperatureUnit && temperature !== null ? temperatureUnit : ""}`;
+	if (typeof temperature === "number" && temperature >= 0) {
+		result += `     ${Md.emoji("droplet")} ${precipitationProbability} %`;
+	}
+
+	return result;
 };
 
 const printAllEmoji = (): string => {

@@ -6,6 +6,9 @@ import { Restaurant } from "../Settings.js";
 import * as Utils from "../../Utils.js";
 import { decode } from "html-entities";
 
+/**
+ * @deprecated No-op as of 2025-12-22
+ */
 class VaihdaDataProvider implements LounasDataProvider {
 	readonly id: string = "Savo";
 	readonly baseUrl = null;
@@ -13,7 +16,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 	readonly settings: Settings;
 
 	readonly supportedRestaurants = [
-		Restaurant.savo
+		Restaurant.elias
 	];
 
 	public constructor(settings: Settings) {
@@ -90,7 +93,7 @@ class VaihdaDataProvider implements LounasDataProvider {
 
 			return [{
 				isAdditional: false,
-				restaurant: Restaurant.savo,
+				restaurant: Restaurant.elias,
 				date: date,
 				items: Utils.takeUntil(
 						items.map(s => s.trim()).filter(Boolean),
@@ -98,14 +101,14 @@ class VaihdaDataProvider implements LounasDataProvider {
 					)
 					.map(item => decode(item))
 					.filter(item => !(this.settings.stripRules?.some(rule => rule.test(item)))),
-				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.savo}.png`, this.settings.overrideIconsUrl).toString() : undefined
+				iconUrl: this.settings.overrideIconsUrl ? new URL(`/lounas_icons/${Restaurant.elias}.png`, this.settings.overrideIconsUrl).toString() : undefined
 			}];
 		} catch(error) {
 			console.error(error);
 
 			return [{
 				isAdditional: false,
-				restaurant: Restaurant.savo,
+				restaurant: Restaurant.elias,
 				error: error as Error
 			}];
 		}
