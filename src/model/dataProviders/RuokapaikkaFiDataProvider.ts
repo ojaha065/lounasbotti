@@ -2,7 +2,7 @@
 import * as Utils from "../../Utils.js";
 import type { LounasDataProvider, LounasResponse } from "./LounasDataProvider.js";
 import type { Settings } from "../Settings.js";
-import { Restaurant, RestaurantNameMap } from "../Settings.js";
+import { Restaurant, RestaurantNameMap, RestaurantSecondaryNameMap } from "../Settings.js";
 import TalliDataProvider from "./TalliDataProvider.js";
 /*import VaihdaDataProvider from "./VaihaDataProvider.js";*/
 import { decode } from "html-entities";
@@ -16,6 +16,9 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 	readonly HEADER_REGEXP = /Lounas\s\d{1,2}\.\d{1,2}\./;
 	readonly EXTRA_SPACES_REGEXP = /\s{5,}/g;
 	readonly MONETARY_REGEXP = /\d{1,2}(?:[,.]\d{2})?\s*€/g;
+	readonly RAMI_COMBINED_REGEXP = /.*Rami Sammonkatu(.+?)\*\*\*\*.*/is
+
+	readonly RAMI_COMBINED_NAME = "Ramin Konditoria Sammonkatu, Rokkala, Mikonkatu ja Akseli";
 
 	public constructor(settings: Settings) {
 		this.settings = settings;
@@ -59,7 +62,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 			const jsonResponse = await response.json();
 	
 			const json: any[] = (jsonResponse as any)["items"]
-				?.map((item: any) => {
+				?.filter((item: any) => item["name"])
+				.map((item: any) => {
 					const correctAdBlock = item.ads?.map((elem: any) => elem["ad"] ?? {}).find((ad: any) => this.HEADER_REGEXP.test(ad["header"]));
 					if (!correctAdBlock?.["header"]) {
 						return false;
@@ -72,7 +76,8 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						lunchMenu: correctAdBlock["lunchMenu"],
 						body: correctAdBlock["body"]
 					};
-				}).filter(Boolean);
+				})
+				.filter(Boolean);
 	
 			if (!json) {
 				throw new Error("No data received from Ruokapaikka.fi");
@@ -82,7 +87,7 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				const isAdditional = !!this.settings.additionalRestaurants?.includes(restaurant);
 				
 				// const dataBlock = json.find((_block, i) => i === 0);
-				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant]);
+				const dataBlock = json.find(block => block.name === RestaurantNameMap[restaurant] || block.name === RestaurantSecondaryNameMap[restaurant]);
 				if (!dataBlock) {
 					if (restaurant === Restaurant.talli) {
 						const talliResponseArr = await new TalliDataProvider(this.settings).getData([Restaurant.talli], tomorrowRequest);
@@ -129,10 +134,15 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 				if (dataBlock.lunchMenu) {
 					items = dataBlock.lunchMenu.map((menuItem: any) => menuItem.food);
 				} else if (dataBlock.body) {
-					if (restaurant === Restaurant.rami || restaurant === Restaurant.lansiSavo) {
+					if (restaurant === Restaurant.rami && dataBlock.name === this.RAMI_COMBINED_NAME) { // Combined block
+						dataBlock.body = this.RAMI_COMBINED_REGEXP.exec(dataBlock.body)?.[1] ?? dataBlock.body;
+					}
+
+					if (restaurant === Restaurant.lansiSavo) {
 						dataBlock.body = dataBlock.body.split("<br><br>")[0]
 							.replaceAll(this.EXTRA_SPACES_REGEXP, "<br>");
 					}
+
 					items = Utils.splitByBrTag(dataBlock.body);
 				} else {
 					return {
@@ -141,6 +151,10 @@ class RuokapaikkaFiDataProvider implements LounasDataProvider {
 						error: new Error(`Error scraping data for restaurant ${restaurant}: Data block is missing both lunchMenu and body`),
 						iconUrl
 					};
+				}
+
+				if (dataBlock.name === this.RAMI_COMBINED_NAME) {
+					dataBlock.name = RestaurantNameMap[Restaurant.rami];
 				}
 	
 				const weekdayName = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest);

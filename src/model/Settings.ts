@@ -156,7 +156,6 @@ enum Restaurant {
 	talli = "talli",
 	rami = "rami",
 	ramiVisulahti = "ramiVisulahti",
-	ramiRokkala = "ramiRokkala",
 	august = "august",
 	holvi = "holvi",
 	vino = "vino",
@@ -173,7 +172,6 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	talli: "Ravintola Talli",
 	rami: "Ramin Konditoria Sammonkatu",
 	ramiVisulahti: "Rami Visulahti",
-	ramiRokkala: "Rami Konditoria Rokkala",
 	august: "Ravintola August",
 	holvi: "Bistro Holvi",
 	vino: "Ravintola Vino",
@@ -181,6 +179,9 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	pormestari: "Vaiha Pormestari",
 	lansiSavo: "Ravintola Länsi-Savo",
 	kotiherkku: "Serviini Oy / Kotiherkku Ruokapuoti"
+};
+const RestaurantSecondaryNameMap: Partial<Record<Restaurant, string>> = {
+	rami: "Ramin Konditoria Sammonkatu, Rokkala, Mikonkatu ja Akseli"
 };
 
 const readAndParseSettings = async (config?: string | undefined, configURLs?: URL[] | undefined): Promise<Settings> => {
@@ -218,7 +219,7 @@ const readInstanceSettings = (settings: Settings): void => {
 	});
 };
 
-export { Settings, InstanceSettings, Restaurant, RestaurantNameMap, readAndParseSettings, readInstanceSettings };
+export { Settings, InstanceSettings, Restaurant, RestaurantNameMap, RestaurantSecondaryNameMap, readAndParseSettings, readInstanceSettings };
 
 async function tryToReadSettingsFromURL(url: URL): Promise<any> {
 	try {
