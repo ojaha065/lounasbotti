@@ -12,15 +12,23 @@ const splitByBrTag = (input: string): string[] => {
 /**
  * @returns {string}
  */
-const getCurrentWeekdayNameInFinnish = (tomorrow = false): string => {
-	const now = new Date();
-	if (tomorrow) {
-		now.setDate(now.getDate() + 1);
+const getWeekdayNameInFinnish = (date: Date, dayDelta = 0): string => {
+	const _date = new Date(date.getTime());
+	if (dayDelta) {
+		_date.setDate(_date.getDate() + dayDelta);
 	}
 
-	return now.toLocaleDateString("fi-FI", {
+	return _date.toLocaleDateString("fi-FI", {
 		weekday: "long"
 	}).toLowerCase();
+};
+
+/**
+ * @returns {string}
+ */
+const getCurrentWeekdayNameInFinnish = (tomorrow = false): string => {
+	const now = new Date();
+	return getWeekdayNameInFinnish(now, tomorrow ? 1 : 0);
 };
 
 /**
@@ -126,4 +134,4 @@ const getWeekNumber = (date: Date = new Date()): number => {
     return Math.ceil((((_date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber };
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, getWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber };

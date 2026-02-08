@@ -1,10 +1,19 @@
 import { Md } from "slack-block-builder";
 import * as Utils from "./Utils.js";
+import { Settings } from "./model/Settings.js";
 
 // https://open-meteo.com/en/docs/
 
-const getWeatherString = async (url: URL, daysForward = 0): Promise<string | null> => {
+const getWeatherString = async (settings: Settings , daysForward = 0): Promise<string | null> => {
 	try {
+		if (!settings.openMeteoURL) {
+			throw new Error("Missing openMeteoURL");
+		}
+
+		const url = new URL(settings.openMeteoURL.href);
+		url.searchParams.set("latitude", settings.latLon.lat.toString());
+		url.searchParams.set("longitude", settings.latLon.lon.toString());
+
 		const response = await Utils.fetchWithTimeout(
 			url,
 			{

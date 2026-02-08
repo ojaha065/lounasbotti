@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { setServers } from "node:dns/promises";
+setServers(["1.1.1.1", "8.8.8.8"]);
+
 // Global
 global.LOUNASBOTTI_JOBS = {};
 global.LOUNASBOTTI_VERSION = process.env["npm_package_version"] ?? "";

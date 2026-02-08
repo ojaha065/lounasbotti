@@ -34,18 +34,20 @@ class TalliDataProvider implements LounasDataProvider {
 
 			const responseHTML = await response.text();
 			const $ = cheerio.load(responseHTML);
-			const lounasmenu = $("#lounasmenu").parent();
+			const lounasmenu = $("#main-content");
 
-			const expectedTitle = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase();
+			const expectedWeekday = Utils.getCurrentWeekdayNameInFinnish(tomorrowRequest).substring(0, 2).toLowerCase();
+			const weekDayRegExp = new RegExp(`^${Utils.getWeekdayNameInFinnish(new Date(), tomorrowRequest ? 2 : 1).substring(0, 2)} \\d{1,2}\\.\\d{1,2}\\.?$`, "i");
+
 			const p = lounasmenu
-				.find("p")
-				.filter((_i, el) => $(el).text()?.toLowerCase().startsWith(expectedTitle))
+				.find("p.has-text-align-center")
+				.filter((_i, el) => $(el).text()?.toLowerCase().startsWith(expectedWeekday))
 				.first();
 			if (!p?.length) {
-				throw new Error(`Error parsing HTML! Expected title: ${expectedTitle}`);
+				throw new Error(`Error parsing HTML! Expected title: ${expectedWeekday}`);
 			}
 
-			const items = Utils.splitByBrTag(p.html() ?? "");
+			const items = Utils.takeUntil(Utils.splitByBrTag(p.html() ?? ""), item => weekDayRegExp.test(item));
 			if (!items?.length) {
 				throw new Error("Error parsing HTML!");
 			}
@@ -53,7 +55,7 @@ class TalliDataProvider implements LounasDataProvider {
 			return [{
 				isAdditional: false,
 				restaurant: Restaurant.talli,
-				date: expectedTitle,
+				date: expectedWeekday,
 				items: items.slice(1)
 					.map(s => s.trim())
 					.filter(Boolean)
