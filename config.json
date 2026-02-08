@@ -38,9 +38,10 @@
 		"^[^A-Za-zÖÄÅöäå]*$",
 		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})",
 		"^\\(?gluteeniton",
-		"^(?:Keittolounas|Runsas salaattibuffet|Keitto ja runsas salaattibuffet|Lounasbuffet, keitto, runsas salaattibuffet)[\\d\\s,€]*$"
+		"^(?:Keittolounas|Runsas salaattibuffet|Keitto ja runsas salaattibuffet|Lounasbuffet, keitto, runsas salaattibuffet)[\\d\\s,€]*$",
+		"Sammonkatu 12"
 	],
-	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?latitude=61.6815&longitude=27.2602&hourly=temperature_2m,weather_code,precipitation_probability&timezone=Europe%2FHelsinki&forecast_days=2",
+	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?hourly=temperature_2m,weather_code,precipitation_probability&timezone=Europe%2FHelsinki&forecast_days=2",
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
 		["tortilla|burrito", ":burrito:"],

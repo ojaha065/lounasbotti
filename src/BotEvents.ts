@@ -435,7 +435,7 @@ async function getDataAndCache(settings: Settings, defaultOnly: boolean, tomorro
 
 		let weather: string | null = null;
 		if (settings.openMeteoURL) {
-			weather = await WeatherAPI.getWeatherString(settings.openMeteoURL, tomorrowRequest ? 1 : 0);
+			weather = await WeatherAPI.getWeatherString(settings, tomorrowRequest ? 1 : 0);
 		}
 
 		allData.sort((a, b) => a.restaurant.localeCompare(b.restaurant));
