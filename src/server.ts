@@ -63,9 +63,28 @@ readAndParseSettings(process.env["SLACK_CONFIG_NAME"], configURLs).then(settings
 			{
 				path: "/health-check",
 				method: ["GET"],
-				handler: (_req, res) => {
-					res.writeHead(200);
-					res.end("OK");
+				handler: async (_req, res) => {
+					if (mongoose.connection.readyState === 1) { // Connected
+						try {
+							await Promise.race([
+								mongoose.connection.db?.admin().ping(),
+								new Promise((_, reject) => setTimeout(reject, 2000))
+							]);
+							res.writeHead(200);
+							res.end("OK");
+						} catch {
+							res.writeHead(503);
+							res.end("Database connection error");
+						}
+					}
+					else if (mongoose.connection.readyState === 2) { // Connecting
+							res.writeHead(425);
+							res.end("Database connection is in progress... Please try again.");
+					}
+					else {
+						res.writeHead(503);
+						res.end("Database connection error");
+					}
 				}
 			}
 		]
