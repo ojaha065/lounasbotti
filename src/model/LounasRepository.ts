@@ -1,6 +1,6 @@
 import type { UpdateQuery } from "mongoose";
 import mongoose from "mongoose";
-import type { Restaurant } from "./Settings.js";
+import { Restaurant } from "./Settings.js";
 
 type LounasMessageEntry = {
 	instanceId: string,
@@ -9,7 +9,8 @@ type LounasMessageEntry = {
     menu: {restaurant: Restaurant, items: string[] | null}[],
     date: Date,
     votes: {userId: string, action: string}[],
-	toBeTruncated?: boolean
+	toBeTruncated?: boolean,
+	additionalRestaurants?: Restaurant[]
 };
 
 const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
@@ -25,7 +26,11 @@ const lounasSchema = new mongoose.Schema<LounasMessageEntry>({
 		userId: String,
 		action: String
 	})],
-	toBeTruncated: Boolean
+	toBeTruncated: Boolean,
+	additionalRestaurants: [{
+		type: String,
+		enum: Object.values(Restaurant)
+	}]
 });
 
 const LounasMessage = mongoose.model<LounasMessageEntry>("LounasMessage", lounasSchema);
@@ -87,7 +92,7 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 		throw new Error(`Unsupported operation type ${operationType}`);
 	}
 
-	const document = await LounasMessage.findOneAndUpdate({ts}, updateBody, {new: true})
+	const document = await LounasMessage.findOneAndUpdate({ts}, updateBody, {returnDocument: "after"})
 		.maxTimeMS(5000)
 		.exec();
 
@@ -98,4 +103,13 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 	return document;
 };
 
-export { create, find, findToBeTruncated, markTruncated, addOrRemoveVote, LounasMessageEntry, OperationType };
+const markAdditionalRestaurant = (ts: string, restaurant: Restaurant): void => {
+	try {
+		LounasMessage.updateOne({ts}, {$addToSet: {additionalRestaurants: restaurant}}).exec();
+	} catch (error) {
+		console.error("Error marking additional restaurant");
+		console.error(error);
+	}
+};
+
+export { create, find, findToBeTruncated, markTruncated, addOrRemoveVote, markAdditionalRestaurant, LounasMessageEntry, OperationType };

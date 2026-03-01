@@ -113,8 +113,10 @@ const initEvents = (app: App, settings: Settings): void => {
 				if (!blocks?.length) {
 					throw new Error("No blocks found in message body");
 				}
+
+				const restaurant = Restaurant[actionValue as Restaurant];
 	
-				const cachedData = await getDataAndCache(settings, false, false, Restaurant[actionValue as Restaurant]);
+				const cachedData = await getDataAndCache(settings, false, false, restaurant);
 				const lounasResponse: LounasResponse | undefined = cachedData.data.find(lounasResponse => lounasResponse.restaurant === actionValue);
 				if (!lounasResponse) {
 					throw new Error(`Could not find data for restaurant ${actionValue}`);
@@ -155,6 +157,10 @@ const initEvents = (app: App, settings: Settings): void => {
 					replace_original: true,
 					blocks: blocks
 				});
+
+				if (lounasMessage) {
+					LounasRepository.markAdditionalRestaurant(lounasMessage.ts, restaurant);
+				}
 			} catch (error) {
 				console.error(error);
 			}
