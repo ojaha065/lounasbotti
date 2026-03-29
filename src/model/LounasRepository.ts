@@ -47,7 +47,7 @@ const create = async (lounasMessage: LounasMessageEntry): Promise<LounasMessageE
 };
 
 const find = async (ts: string, channel: string): Promise<LounasMessageEntry> => {
-	const document = await LounasMessage.findOne({ts, channel})
+	const document = await LounasMessage.findOne({ts: { $eq: ts }, channel: { $eq: channel }})
 		.maxTimeMS(5000)
 		.exec();
 
@@ -67,7 +67,7 @@ const findToBeTruncated = async (instanceId: string, maxTimeMS: number = 5000): 
 
 const markTruncated = (ts: string): void => {
 	try {
-		LounasMessage.updateOne({ts}, {$unset: {toBeTruncated: true}}).exec();
+		LounasMessage.updateOne({ts: {$eq: ts}}, {$unset: {toBeTruncated: true}}).exec();
 	} catch (error) {
 		console.error("Error marking LounasMessageEntry truncated");
 		console.error(error);
@@ -92,7 +92,7 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 		throw new Error(`Unsupported operation type ${operationType}`);
 	}
 
-	const document = await LounasMessage.findOneAndUpdate({ts}, updateBody, {returnDocument: "after"})
+	const document = await LounasMessage.findOneAndUpdate({ts: {$eq: ts}}, updateBody, {returnDocument: "after"})
 		.maxTimeMS(5000)
 		.exec();
 
