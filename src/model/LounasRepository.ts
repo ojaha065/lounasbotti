@@ -67,7 +67,7 @@ const findToBeTruncated = async (instanceId: string, maxTimeMS: number = 5000): 
 
 const markTruncated = (ts: string): void => {
 	try {
-		LounasMessage.updateOne({ts}, {$unset: {toBeTruncated: true}}).exec();
+		LounasMessage.updateOne({ts: {$eq: ts}}, {$unset: {toBeTruncated: true}}).exec();
 	} catch (error) {
 		console.error("Error marking LounasMessageEntry truncated");
 		console.error(error);
