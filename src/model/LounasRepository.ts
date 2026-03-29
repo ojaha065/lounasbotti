@@ -47,7 +47,7 @@ const create = async (lounasMessage: LounasMessageEntry): Promise<LounasMessageE
 };
 
 const find = async (ts: string, channel: string): Promise<LounasMessageEntry> => {
-	const document = await LounasMessage.findOne({ts, channel})
+	const document = await LounasMessage.findOne({ts: { $eq: ts }, channel: { $eq: channel }})
 		.maxTimeMS(5000)
 		.exec();
 
