@@ -92,7 +92,7 @@ const addOrRemoveVote = async (ts: string, entry: {userId: string, action: strin
 		throw new Error(`Unsupported operation type ${operationType}`);
 	}
 
-	const document = await LounasMessage.findOneAndUpdate({ts}, updateBody, {returnDocument: "after"})
+	const document = await LounasMessage.findOneAndUpdate({ts: {$eq: ts}}, updateBody, {returnDocument: "after"})
 		.maxTimeMS(5000)
 		.exec();
 
