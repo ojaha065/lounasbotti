@@ -19,5 +19,8 @@ COPY --from=build_image /app/package.json ./package.json
 COPY --from=build_image /app/dist ./dist
 COPY --from=build_image /app/node_modules ./node_modules
 
+RUN chown -R 1000:1000 /app
+USER 1000
+
 EXPOSE 8080
 CMD ["npm", "run", "start"]
