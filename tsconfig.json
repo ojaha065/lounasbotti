@@ -1,9 +1,9 @@
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "compilerOptions": {
-      "lib": ["es2023"],
-      "module": "node16",
-      "target": "es2022",
+      "lib": ["es2024"],
+      "module": "nodenext",
+      "target": "es2024",
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
@@ -15,6 +15,8 @@
       "removeComments": true,
       "sourceMap": true,
       "inlineSources": true,
+      "types": ["node"],
+      "rootDir": "./src",
 
       // Set `sourceRoot` to  "/" to strip the build path prefix
       // from generated source code references.
@@ -22,4 +24,4 @@
       "sourceRoot": "/"
     },
     "include": ["src/**/*"]
-}  
+}

@@ -1,4 +1,4 @@
-import type {AllMiddlewareArgs, App, ButtonAction, SlackCommandMiddlewareArgs, StringIndexed } from "@slack/bolt";
+import type {AllMiddlewareArgs, App, BlockAction, BlockElementAction, ButtonAction, SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs, StringIndexed } from "@slack/bolt";
 
 import * as Utils from "./Utils.js";
 import * as WeatherAPI from "./WeatherAPI.js";
@@ -194,7 +194,9 @@ const initEvents = (app: App, settings: Settings): void => {
 	});
 
 	// Voting
-	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, async args => {
+	app.action({type: "block_actions", action_id: "upvoteButtonAction"}, handleVoting);
+	app.action("voteRandom", handleVoting);
+	async function handleVoting(args: SlackActionMiddlewareArgs<BlockAction<BlockElementAction>>) {
 		try {
 			args.ack();
 
@@ -203,7 +205,7 @@ const initEvents = (app: App, settings: Settings): void => {
 				throw new Error("Message not found from action body");
 			}
 	
-			const actionValue: string | undefined = (args.action as ButtonAction).value;
+			let actionValue: string | undefined = (args.action as ButtonAction).value;
 			if (!actionValue) {
 				throw new Error("No actionValue!");
 			}
@@ -219,6 +221,18 @@ const initEvents = (app: App, settings: Settings): void => {
 			const blocks: (Block | KnownBlock)[] = message["blocks"];
 			if (!blocks?.length) {
 				throw new Error("No blocks found in message body");
+			}
+
+			if (actionValue === "vote-random") {
+				const possibleVotes = lounasMessage.menu
+					.map(o => o.restaurant)
+					.filter(r => !lounasMessage.votes.find(vote => vote.userId === args.body.user.id && vote.action === `upvote-${r}`));
+				if (!possibleVotes.length) {
+					return;
+				}
+
+				actionValue = `upvote-${possibleVotes[Utils.getRandomInt(0, possibleVotes.length - 1)]}`
+				console.debug(`Action "${actionValue}" received from "${args.body.user.name}"`);
 			}
 
 			const duplicateVote = lounasMessage.votes.find(vote =>
@@ -267,7 +281,7 @@ const initEvents = (app: App, settings: Settings): void => {
 		} catch (error) {
 			console.error(error);
 		}
-	});
+	}
 
 	// Easter egg
 	app.action("nauseatedFaceButtonAction", async args => {
