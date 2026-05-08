@@ -134,4 +134,14 @@ const getWeekNumber = (date: Date = new Date()): number => {
     return Math.ceil((((_date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 };
 
-export { splitByBrTag, getCurrentWeekdayNameInFinnish, getWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber };
+/**
+ * Get random integer between min and max (both inclusive)
+ * @param {number} min Minimum value (inclusive)
+ * @param {number} max Maximum value (inclusive)
+ * @returns {number} Random integer between the given parameters
+ */
+const getRandomInt = (min: number, max: number): number => {
+	return Math.floor(Math.random() * max) + min;
+};
+
+export { splitByBrTag, getCurrentWeekdayNameInFinnish, getWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber, getRandomInt };

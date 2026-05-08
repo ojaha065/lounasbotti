@@ -32,11 +32,19 @@ export default class BlockParsers {
 
 			...BlockCollection(setIfTruthy(!tomorrowRequest, [
 				Blocks.Divider({ blockId: "refreshDivider" }).end(),
-				Blocks.Actions({ blockId: "refreshActions" }).elements(Elements.Button({
-					accessibilityLabel: "Hae lounaslistat uudelleen",
-					actionId: "refreshMessage",
-					text: `${Md.emoji("arrows_counterclockwise")} Päivitä tiedot`
-				})).end(),
+				Blocks.Actions({ blockId: "refreshActions" }).elements(
+					Elements.Button({
+						accessibilityLabel: "Hae lounaslistat uudelleen",
+						actionId: "refreshMessage",
+						text: `${Md.emoji("arrows_counterclockwise")} Päivitä tiedot`
+					}),
+					Elements.Button({
+						accessibilityLabel: "Äänestä satunnaista vaihtoehtoa",
+						actionId: "voteRandom",
+						value: "vote-random",
+						text: `${Md.emoji("game_die")} Kokeilen onneani`
+					})
+				).end(),
 			])),
 
 			...BlockCollection(
