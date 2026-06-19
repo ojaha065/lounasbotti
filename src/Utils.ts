@@ -73,7 +73,10 @@ const requireNonNullOrUndefined = <T>(value: T, message?: string): T => {
  */
 const fetchWithTimeout = (url: string | URL, init: RequestInit = {}, allowRetry = true): Promise<Response> => {
 	const controller = new AbortController();
-	const timeout = setTimeout(() => controller.abort(), 8000);
+	const timeout = setTimeout(() => {
+		console.debug(`Aborting fetch! Url: ${url}`);
+		controller.abort();
+	}, 8000);
 
 	return fetch(url, {
 		headers: {
@@ -141,7 +144,7 @@ const getWeekNumber = (date: Date = new Date()): number => {
  * @returns {number} Random integer between the given parameters
  */
 const getRandomInt = (min: number, max: number): number => {
-	return Math.floor(Math.random() * max) + min;
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 export { splitByBrTag, getCurrentWeekdayNameInFinnish, getWeekdayNameInFinnish, capitalizeString, clearObject, requireNonNullOrUndefined, fetchWithTimeout, decodeBase64, takeUntil, getWeekNumber, getRandomInt };

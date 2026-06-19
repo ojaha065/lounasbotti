@@ -225,6 +225,7 @@ const initEvents = (app: App, settings: Settings): void => {
 
 			if (actionValue === "vote-random") {
 				const possibleVotes = lounasMessage.menu
+					.filter(o => o.items?.every(item => !BlockParsers.restaurantClosedRegExp.test(item)))
 					.map(o => o.restaurant)
 					.filter(r => !lounasMessage.votes.find(vote => vote.userId === args.body.user.id && vote.action === `upvote-${r}`));
 				if (!possibleVotes.length) {
