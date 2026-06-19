@@ -1,7 +1,7 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.12.6",
+  "version": "1.12.7",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
@@ -37,27 +37,30 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@sentry/cli": "^3.4.1",
-    "@types/node": "^25.6.2",
+    "@sentry/cli": "^3.5.1",
+    "@types/node": "^26.0.0",
     "@types/node-schedule": "^2.1.8",
-    "eslint": "^10.3.0",
+    "eslint": "^10.5.0",
     "globals": "^17.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2"
+    "typescript-eslint": "^8.61.1"
   },
   "dependencies": {
     "@sentry/integrations": "^7.114.0",
-    "@sentry/node": "^10.52.0",
-    "@slack/bolt": "^4.7.2",
+    "@sentry/node": "^10.58.0",
+    "@slack/bolt": "^4.7.3",
     "@slack/types": "^2.21.1",
-    "@slack/web-api": "^7.15.2",
+    "@slack/web-api": "^7.17.0",
     "cheerio": "^1.2.0",
-    "date-holidays": "^3.28.0",
+    "date-holidays": "^3.30.2",
     "dotenv": "^17.4.2",
     "html-entities": "^2.6.0",
-    "mongoose": "^9.6.1",
+    "mongoose": "^9.7.1",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
+  },
+  "allowScripts": {
+    "@sentry/cli@3.5.1": true
   }
 }
