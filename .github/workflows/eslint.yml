@@ -10,15 +10,15 @@ jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v7
-      with:
-        persist-credentials: false
-    - uses: actions/setup-node@v7
-      with:
-        node-version: "26"
-        check-latest: true
-        cache: "npm"
-    - name: npm
-      run: npm install -D --no-audit --no-fund
-    - name: lint
-      run: npm run lint
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          check-latest: true
+          cache: "npm"
+      - name: npm
+        run: npm install -D --no-audit --no-fund
+      - name: lint
+        run: npm run lint
