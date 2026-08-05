@@ -1,13 +1,13 @@
 {
   "name": "lounasbotti",
   "type": "module",
-  "version": "1.12.7",
+  "version": "1.12.8",
   "private": true,
   "description": "Slack bot for retrieving lunch menus of local restaurants. Very much WIP and not meant for public use.",
   "main": "./dist/server.js",
   "engineStrict": false,
   "engines": {
-    "node": ">=24.11.0 <25.0.0"
+    "node": ">=26.0.0 <27.0.0"
   },
   "scripts": {
     "start": "node dist/server.js",
@@ -17,6 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "lint": "eslint . --no-fix --max-warnings 0 --rule \"linebreak-style:off\"",
+    "lint-fix": "eslint . --fix",
     "sentry": "npm run build && sentry-cli releases new %npm_package_version% && sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps upload --release=%npm_package_version% ./dist",
     "sentry-docker": "sentry-cli releases --org jani-haiko --project lounasbotti-disec new %npm_package_version% && sentry-cli sourcemaps inject ./dist && sentry-cli sourcemaps --org jani-haiko --project lounasbotti-disec upload --release=%npm_package_version% ./dist"
   },
@@ -37,26 +38,29 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@sentry/cli": "^3.5.1",
-    "@types/node": "^26.0.0",
+    "@eslint/json": "^2.0.1",
+    "@sentry/cli": "^3.6.2",
+    "@types/node": "^26.1.2",
     "@types/node-schedule": "^2.1.8",
-    "eslint": "^10.5.0",
-    "globals": "^17.6.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-yml": "^3.8.1",
+    "globals": "^17.9.0",
+    "jiti": "^2.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1"
+    "typescript-eslint": "^8.66.0"
   },
   "dependencies": {
     "@sentry/integrations": "^7.114.0",
-    "@sentry/node": "^10.58.0",
-    "@slack/bolt": "^4.7.3",
-    "@slack/types": "^2.21.1",
-    "@slack/web-api": "^7.17.0",
+    "@sentry/node": "^10.69.0",
+    "@slack/bolt": "^5.0.0",
+    "@slack/types": "^3.0.0",
+    "@slack/web-api": "^8.0.0",
     "cheerio": "^1.2.0",
-    "date-holidays": "^3.30.2",
+    "date-holidays": "^3.34.1",
     "dotenv": "^17.4.2",
     "html-entities": "^2.6.0",
-    "mongoose": "^9.7.1",
+    "mongoose": "^9.9.1",
     "node-schedule": "^2.1.1",
     "slack-block-builder": "^2.8.0"
   },

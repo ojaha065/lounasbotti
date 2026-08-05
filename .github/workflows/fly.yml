@@ -11,6 +11,8 @@ jobs:
     name: "Deploy app to Fly.io"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only --build-arg USE_SENTRY=1 --build-secret SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
