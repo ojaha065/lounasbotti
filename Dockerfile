@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 
-FROM node:lts-alpine AS build_image
+FROM node:26-alpine AS build_image
 WORKDIR /app
 COPY ["package.json", "package-lock.json*", "./"]
 RUN npm install --no-fund --no-audit
@@ -13,7 +13,7 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,env=SENTRY_AUTH_TOKEN if [ -n "$USE
 
 RUN npm install --no-audit --no-fund --omit=dev && wget https://gobinaries.com/tj/node-prune --output-document - | /bin/sh && node-prune
 
-FROM node:lts-alpine
+FROM node:26-alpine
 WORKDIR /app
 COPY --from=build_image /app/package.json ./package.json
 COPY --from=build_image /app/dist ./dist
