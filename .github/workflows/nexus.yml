@@ -35,12 +35,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:latest
-            ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:main
-            ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:${{ github.sha }}
+            ${{ secrets.NEXUS_REGISTRY }}/lounasbotti:latest
+            ${{ secrets.NEXUS_REGISTRY }}/lounasbotti:main
+            ${{ secrets.NEXUS_REGISTRY }}/lounasbotti:${{ github.sha }}
           secrets: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-
-          # Sentry disabled for now
-          build-args: |
-            USE_SENTRY=0
