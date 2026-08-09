@@ -69,7 +69,8 @@ export default defineConfig([
 		extends: [eslintPluginYml.configs.standard],
 		language: "yml/yaml",
 		rules: {
-			"yml/plain-scalar": "off"
+			"yml/plain-scalar": "off",
+			"yml/no-empty-mapping-value": "off"
 		}
 	}
 ]);
