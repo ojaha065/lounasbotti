@@ -1,0 +1,45 @@
+name: "Build and Push to Nexus"
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    nexus:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+        
+        steps:
+            - name: Checkout source
+              uses: actions/checkout@7
+              with:
+                persist-credentials: false
+            
+            - name: Buildx setup
+              uses: docker/setup-buildx-action@4
+            
+            - name: Login to Nexus
+              uses: docker/login-action@4
+              with:
+                registry: ${{ secrets.NEXUS_REGISTRY }}
+                username: ${{ secrets.NEXUS_USERNAME }}
+                password: ${{ secrets.NEXUS_PASSWORD }}
+            
+            - name: Build and Push
+              uses: docker/build-push-action@7
+              with:
+                context: .
+                push: true
+                tags: |
+                    ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:latest
+                    ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:main
+                    ${{ secrets.NEXUS_REGISTRY }}/docker-hosted/lounasbotti:${{ github.sha }}
+                secrets: |
+                    SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+
+                # Sentry disabled for now
+                build-args: |
+                    USE_SENTRY=0
