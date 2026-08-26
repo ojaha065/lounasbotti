@@ -7,7 +7,7 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "elias", "fernando", "pormestari", "vaihaAsema", "pitäjä", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "elias", "fernando", "pormestari", "vaihaAsema", "pitaja", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti"],
 	"customErrorMessages": [
 		["elias", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
@@ -22,7 +22,7 @@
 		["ramiVisulahti", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"],
-		["pitäjä", "Tarkasta osoitteesta https://www.vaiha.fi"]
+		["pitaja", "Tarkasta osoitteesta https://www.vaiha.fi"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
