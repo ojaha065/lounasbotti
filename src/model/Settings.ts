@@ -162,7 +162,8 @@ enum Restaurant {
 	fernando = "fernando",
 	pormestari = "pormestari",
 	lansiSavo = "lansiSavo",
-	kotiherkku = "kotiherkku"
+	kotiherkku = "kotiherkku",
+	pitäjä = "pitäjä"
 }
 
 const RestaurantNameMap: Record<Restaurant, string> = {
@@ -178,7 +179,8 @@ const RestaurantNameMap: Record<Restaurant, string> = {
 	fernando: "Ravintola Fernando",
 	pormestari: "Vaiha Pormestari",
 	lansiSavo: "Ravintola Länsi-Savo",
-	kotiherkku: "Serviini Oy / Kotiherkku Ruokapuoti"
+	kotiherkku: "Serviini Oy / Kotiherkku Ruokapuoti",
+	pitäjä: "Vaiha Pitäjä"
 };
 const RestaurantSecondaryNameMap: Partial<Record<Restaurant, string>> = {
 	rami: "Ramin Konditoria Sammonkatu, Rokkala, Mikonkatu ja Akseli"
