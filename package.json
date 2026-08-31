@@ -55,7 +55,7 @@
     "@sentry/integrations": "^7.114.0",
     "@sentry/node": "^10.71.0",
     "@slack/bolt": "^5.0.0",
-    "@slack/types": "^3.0.0",
+    "@slack/types": "^3.1.0",
     "@slack/web-api": "^8.0.0",
     "cheerio": "^1.2.0",
     "date-holidays": "^3.36.0",
