@@ -10,7 +10,7 @@ import { View } from "@slack/types";
 import * as LounasRepository from "./model/LounasRepository.js";
 
 export default class BlockParsers {
-	public static restaurantClosedRegExp = /suljettu|kiinni|kesätauolla/;
+	public static restaurantClosedRegExp = /suljettu|kiinni|kesätau(?:k|o)/;
 
 	private static limitVotesToOneOptionBit = Bits.Option({ text: "Salli käyttäjän äänestää vain yhtä vaihtoehtoa" });
 
