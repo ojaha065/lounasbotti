@@ -7,7 +7,7 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "elias", "fernando", "pormestari", "vaihaAsema", "pitaja", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti"],
+	"additionalRestaurants": ["holvi", "vino", "elias", "bocca", "fernando", "pormestari", "vaihaAsema", "pitaja", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti", "ssl"],
 	"customErrorMessages": [
 		["elias", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
@@ -22,7 +22,8 @@
 		["ramiVisulahti", "Tarkasta https://www.raminkonditoria.fi/lounaat"],
 		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"],
-		["pitaja", "Tarkasta osoitteesta https://www.vaiha.fi"]
+		["pitaja", "Tarkasta osoitteesta https://www.vaiha.fi"],
+		["bocca", "Tarkasta osoitteesta https://www.boccarocca.fi/lounas"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
@@ -45,6 +46,7 @@
 	"openMeteoURL": "https://api.open-meteo.com/v1/forecast?hourly=temperature_2m,weather_code,precipitation_probability&timezone=Europe%2FHelsinki&forecast_days=2",
 	"emojiRules": [
 		["(?<!kur)pi(?:zz|ts)a", ":pizza:"],
+		["purilai|burgeri|hamppar", ":hamburger:"],
 		["tortilla|burrito", ":burrito:"],
 		["joulu|rosolli|glögi", ":christmas_tree:"],
 		["olu(?:t|en)", ":beer:"],
