@@ -7,7 +7,7 @@
 	},
 	"dataProvider": "ruokapaikkaFi",
 	"defaultRestaurants": ["talli", "rami", "august"],
-	"additionalRestaurants": ["holvi", "vino", "elias", "bocca", "fernando", "pormestari", "vaihaAsema", "pitaja", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti", "ssl"],
+	"additionalRestaurants": ["holvi", "vino", "elias", "bocca", "cafeSetri", "fernando", "pormestari", "vaihaAsema", "pitaja", "rauha", "lansiSavo", "kotiherkku", "ramiVisulahti", "ssl"],
 	"customErrorMessages": [
 		["elias", "Tarkasta osoitteesta https://www.vaiha.fi"],
 		["vaihaAsema", "Tarkasta osoitteesta https://www.vaiha.fi"],
@@ -23,7 +23,8 @@
 		["lansiSavo", "Tarkasta https://www.serviini.fi/lansi-savo"],
 		["kotiherkku", "Tarkasta https://www.serviini.fi/kotiherkku-ruokapuoti"],
 		["pitaja", "Tarkasta osoitteesta https://www.vaiha.fi"],
-		["bocca", "Tarkasta osoitteesta https://www.boccarocca.fi/lounas"]
+		["bocca", "Tarkasta osoitteesta https://www.boccarocca.fi/lounas"],
+		["cafeSetri", "Tarkasta osoitteesta https://www.serviini.fi/cafe-setri"]
 	],
 	"gitUrl": "https://github.com/ojaha065/lounasbotti",
 	"displayVoters": true,
@@ -38,7 +39,7 @@
 		"Aikuiset",
 		"Lapset",
 		"^[^A-Za-zÖÄÅöäå]*$",
-		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas) \\d{2},\\d{2})",
+		"^(?:Lounas tarjoillaan|Lounas tarjolla|Ruokapuodin lounaspöytä|Keitto\\+salaattilounas|(?:Salaattibufee|Keittolounas|Kotiruokalounas)|Setrin lounas \\d{2},\\d{2})",
 		"^\\(?gluteeniton",
 		"^(?:Keittolounas|Runsas salaattibuffet|Keitto ja runsas salaattibuffet|Lounasbuffet, keitto, runsas salaattibuffet)[\\d\\s,€]*$",
 		"Sammonkatu 12"
