@@ -77,6 +77,7 @@ export default class BlockParsers {
 		}
 
 		const debugInformation: string[] = [
+			`Lounasbotti v${global.LOUNASBOTTI_VERSION} running on Node.js runtime ${process.version}`,
 			data.settings.configSource ? `Config loaded from ${data.settings.configSource}` : null,
 			`Data provider: ${data.settings.dataProvider.id} (${data.settings.dataProvider.baseUrl})`,
 			`[LounasEmoji] ${data.settings.emojiRules?.size ? `${data.settings.emojiRules?.size} regular expressions successfully loaded` : "No rules loaded"}`,
